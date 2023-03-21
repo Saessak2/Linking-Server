@@ -1,6 +1,7 @@
 package com.linking.user;
 
-import com.linking.user.dto.UserReqDto;
+import com.linking.user.dto.UserSignInDefaultReq;
+import com.linking.user.dto.UserSignUpDefaultReq;
 import com.linking.user.dto.UserResDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,14 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public Optional<UserResDto> addUser(UserReqDto userReqDto) {
-        return Optional.of(userRepository.save(new User(userReqDto)).toDto());
+    public Optional<UserResDto> addUser(UserSignUpDefaultReq userSignUpDefaultReq){
+        return Optional.of(userRepository.save(new User(userSignUpDefaultReq)).toDto());
     }
 
-    // login -> findEmailById -> LoginHandler
+    public Optional<UserResDto> findUser(UserSignInDefaultReq userSignInDefaultReq){
+        Optional<User> data = userRepository.findUserByEmailAndPassword(
+                userSignInDefaultReq.getEmail(), userSignInDefaultReq.getPassword());
+        return data.map(User::toDto).or(Optional::empty);
+    }
 
 }

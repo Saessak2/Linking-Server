@@ -1,6 +1,6 @@
 package com.linking.user;
 
-import com.linking.user.dto.UserReqDto;
+import com.linking.user.dto.UserSignUpDefaultReq;
 import com.linking.user.dto.UserResDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +10,10 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "user")
 public class User {
 
@@ -33,15 +33,18 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    public User(UserReqDto userReqDto){
-        this.lastName = userReqDto.getLastName();
-        this.firstName = userReqDto.getFirstName();
-        this.email = userReqDto.getEmail();
-        this.phoneNumber = userReqDto.getPhoneNumber();
+    private String password;
+
+    public User(UserSignUpDefaultReq userSignUpDefaultReq){
+        this.lastName = userSignUpDefaultReq.getLastName();
+        this.firstName = userSignUpDefaultReq.getFirstName();
+        this.email = userSignUpDefaultReq.getEmail();
+        this.phoneNumber = userSignUpDefaultReq.getPhoneNumber();
+        this.password = userSignUpDefaultReq.getPassword();
     }
 
     public UserResDto toDto(){
-        return new UserResDto(userId, lastName, firstName, email, phoneNumber);
+        return new UserResDto(userId, lastName, firstName, email, phoneNumber, password);
     }
 
 }

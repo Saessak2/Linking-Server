@@ -4,16 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResDto {
+public class UserSignInDefaultReq {
 
-    private Long userId;
-    private String lastName;
-    private String firstName;
+    @NotNull
+    @Email
     private String email;
-    private String phoneNumber;
+
+    @NotNull
+    @NotBlank
     private String password;
 
 }
