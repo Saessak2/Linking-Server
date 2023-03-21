@@ -1,7 +1,7 @@
 package com.linking.user.controller;
 
-import com.linking.user.UserService;
-import com.linking.user.dto.UserResDto;
+import com.linking.user.service.UserService;
+import com.linking.user.dto.UserRes;
 import com.linking.user.dto.UserSignUpDefaultReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/sign-up/default")
-    public ResponseEntity<UserResDto> signUpDefault(@RequestBody @Valid UserSignUpDefaultReq userSignUpDefaultReq){
-        Optional<UserResDto> resData = userService.addUser(userSignUpDefaultReq);
+    public ResponseEntity<UserRes> signUpDefault(@RequestBody @Valid UserSignUpDefaultReq userSignUpDefaultReq){
+        Optional<UserRes> resData = userService.addUser(userSignUpDefaultReq);
         return resData
                 .map(userResDto -> ResponseEntity.ok().body(userResDto))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());

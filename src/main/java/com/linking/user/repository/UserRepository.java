@@ -1,5 +1,6 @@
-package com.linking.user;
+package com.linking.user.repository;
 
+import com.linking.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

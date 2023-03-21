@@ -1,7 +1,5 @@
-package com.linking.user;
+package com.linking.user.domain;
 
-import com.linking.user.dto.UserSignUpDefaultReq;
-import com.linking.user.dto.UserResDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,17 +32,5 @@ public class User {
     private String phoneNumber;
 
     private String password;
-
-    public User(UserSignUpDefaultReq userSignUpDefaultReq){
-        this.lastName = userSignUpDefaultReq.getLastName();
-        this.firstName = userSignUpDefaultReq.getFirstName();
-        this.email = userSignUpDefaultReq.getEmail();
-        this.phoneNumber = userSignUpDefaultReq.getPhoneNumber();
-        this.password = userSignUpDefaultReq.getPassword();
-    }
-
-    public UserResDto toDto(){
-        return new UserResDto(userId, lastName, firstName, email, phoneNumber, password);
-    }
 
 }

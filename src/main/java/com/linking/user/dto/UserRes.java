@@ -1,13 +1,15 @@
 package com.linking.user.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResDto {
+public class UserRes {
 
     private Long userId;
     private String lastName;

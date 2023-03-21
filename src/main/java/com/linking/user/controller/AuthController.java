@@ -1,8 +1,8 @@
 package com.linking.user.controller;
 
-import com.linking.user.UserService;
+import com.linking.user.service.UserService;
 import com.linking.user.dto.UserSignInDefaultReq;
-import com.linking.user.dto.UserResDto;
+import com.linking.user.dto.UserRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,8 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/sign-in/default")
-    public ResponseEntity<UserResDto> signInDefault(@RequestBody @Valid UserSignInDefaultReq userSignInDefaultReq){
-        Optional<UserResDto> result = userService.findUser(userSignInDefaultReq);
+    public ResponseEntity<UserRes> signInDefault(@RequestBody @Valid UserSignInDefaultReq userSignInDefaultReq){
+        Optional<UserRes> result = userService.findUser(userSignInDefaultReq);
         return result
                 .map(userResDto -> ResponseEntity.ok().body(userResDto))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
