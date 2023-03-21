@@ -1,6 +1,5 @@
 package com.linking.user.service;
 
-import com.linking.user.domain.User;
 import com.linking.user.repository.UserRepository;
 import com.linking.user.dto.UserSignInDefaultReq;
 import com.linking.user.dto.UserSignUpDefaultReq;
@@ -25,10 +24,12 @@ public class UserService {
                                 userMapper.toUser(userSignUpDefaultReq))));
     }
 
+    // TODO: login security needs to be upgraded
     public Optional<UserRes> findUser(UserSignInDefaultReq userSignInDefaultReq){
-        Optional<User> data = userRepository.findUserByEmailAndPassword(
-                userSignInDefaultReq.getEmail(), userSignInDefaultReq.getPassword());
-        return data.map(userMapper::toRes);
+        return Optional.of(
+                userMapper.toRes(
+                        userRepository.findUserByEmailAndPassword(
+                                userSignInDefaultReq.getEmail(), userSignInDefaultReq.getPassword())));
     }
 
 }
