@@ -1,5 +1,3 @@
-#spring.jpa.open-in-view = false
-
 server:
   port: 8080
 
@@ -11,16 +9,15 @@ spring:
     password: 0881
 
   jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: true
+#    database: mysql
+#    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
+        show_sql: true
         format_sql: true
-        highlight_sql: true
-
+        default_batch_fetch_size: 1000 #최적화 옵션
 
 logging:
   level:
