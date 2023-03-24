@@ -1,6 +1,5 @@
-package com.linking.group;
+package com.linking.document;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -25,18 +24,6 @@ public class GroupRepository {
         return em.find(Group.class, id);
     }
 
-//    @Override
-//    public void delete(Long id) {
-//        Group group = em.find(Group.class, id);
-//        em.remove(group);
-//    }
-//
-//    @Override
-//    public Group update(Group group) {
-//
-//
-//        return null;
-//    }
 
 
 }
