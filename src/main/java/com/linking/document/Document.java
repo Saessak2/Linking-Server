@@ -1,14 +1,13 @@
 package com.linking.document;
 
+import com.linking.project.Project;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * 상속 - 조인전략
@@ -48,9 +47,14 @@ public abstract class Document {
     @JoinColumn(name = "parent_id")
     private Document parent;
 
-    @OneToMany(mappedBy = "parent")
-    private List<Document> documentList;
+    // TODO 부모 그룹 삭제 시 -> 자식 모두 삭제? 사용자가 원하지 않을 시 해당 그룹의 페이지(그룹)도 모두 삭제할것인가? 나중에 프론트와 얘기해서 사용자에게 선택지를 줄지 정해야함
+    // 그룹의 depth가 바뀌면 자식의 depth도 바뀌어야하는데,, -> 아직은 그룹내그룹이 없으니 고려할 필요 없을것 같음
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    private List<Document> childDocList;
 
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     /**
      * constructor
@@ -76,7 +80,16 @@ public abstract class Document {
         this.doc_depth = doc_depth;
         this.doc_index = doc_index;
         this.parent = parent;
-        this.documentList = documentList;
+        this.childDocList = documentList;
+    }
+
+    public Document(String name, int doc_depth, int doc_index, Document parent, List<Document> childDocList, Project project) {
+        this.name = name;
+        this.doc_depth = doc_depth;
+        this.doc_index = doc_index;
+        this.parent = parent;
+        this.childDocList = childDocList;
+        this.project = project;
     }
 
     /**
@@ -91,15 +104,22 @@ public abstract class Document {
     // TODO Page를 setParent로 하면 안되는데 어떻게 막지??
     public void setParent(Document parent) {
         this.parent = parent;
-        if (!parent.getDocumentList().contains(this)) {
-            parent.getDocumentList().add(this);
+        if (!parent.getChildDocList().contains(this)) {
+            parent.getChildDocList().add(this);
         }
     }
 
     public void addChild(Document child) {
-        this.documentList.add(child);
+        this.childDocList.add(child);
         if (child.getParent() != this) {
             child.setParent(this);
+        }
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+        if (!project.getDocumentList().contains(this)) {
+            project.getDocumentList().add(this);
         }
     }
 }

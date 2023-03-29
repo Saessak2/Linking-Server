@@ -1,16 +1,14 @@
 package com.linking.document;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -19,117 +17,77 @@ public class GroupRepositoryTest {
     @Autowired
     private GroupRepository groupRepository;
 
-//    @Test
-//    @Rollback(value = false)
-//    void save() {
-//        Group group = Group.builder()
-//                .name("document")
-//                .index(0)
-//                .depth(0)
-//                .build();
-//
-//        Long id = groupRepository.save(group);
-//
-//        Group findGroup = groupRepository.findById(id);
-//        assertThat(group).isEqualTo(findGroup);
-//    }
+    @Test
+    @Rollback(value = false)
+    void saveTest() {
+        Group group = Group.builder()
+                .name("document")
+                .doc_depth(0)
+                .doc_index(0)
+                .childDocList(new ArrayList<>())
+                .build();
+        groupRepository.save(group);
 
-//    @Test
-//    @Rollback(value = false)
-//    void findAll() {
-//
-//        Group group1 = Group.builder()
-//                .name("document")
-//                .index(0)
-//                .depth(0)
-//                .childList(new ArrayList<>())
-//                .build();
-//        groupRepository.save(group1);
-//
-//        Group group2 = Group.builder()
-//                .name("그룹2")
-//                .index(0)
-//                .depth(1)
-//                .parent(group1)
-//                .childList(new ArrayList<>())
-//                .build();
-//        groupRepository.save(group2);
-//
-//        Group group3 = Group.builder()
-//                .name("그룹3")
-//                .index(1)
-//                .depth(1)
-//                .parent(group1)
-//                .childList(new ArrayList<>())
-//                .build();
-//        groupRepository.save(group3);
-//
-//        Group group4 = Group.builder()
-//                .name("그룹4")
-//                .index(2)
-//                .depth(1)
-//                .parent(group1)
-//                .childList(new ArrayList<>())
-//                .build();
-//        groupRepository.save(group4);
-//
-//        group1.addChild(group2);
-//        group1.addChild(group3);
-//        group1.addChild(group4);
-//
-//        Group findGroup = groupRepository.findById(group1.getId());
-//
-//        assertThat(findGroup.getChildList().size()).isEqualTo(3);
-//    }
-//
-//    @Test
-//    @Rollback(value = true)
-//    void nameLengthTest() {
-//        // 10자 이하 이름
-//        Group group = Group.builder()
-//                .name("가나다라마바사아자차")
-//                .index(2)
-//                .depth(1)
-//                .build();
-//
-//        groupRepository.save(group);
-//
-//        // 10자 초과 이름 예외발생
-//        Group group1 = Group.builder()
-//                .name("가나다라마바사아자차카타파하")
-//                .index(2)
-//                .depth(1)
-//                .build();
-//
-//        assertThrows(DataIntegrityViolationException.class, () -> {
-//            groupRepository.save(group1);
-//        });
-//    }
-//
-//    @Test
-//    @Rollback(value = false)
-//    void notNullTest() {
-//        // 이름 null
-//        Group group = Group.builder()
-//                .index(0)
-//                .depth(0)
-//                .build();
-//
-//        Long id = groupRepository.save(group);
-//        Group findGroup = groupRepository.findById(id);
-//        assertThat(findGroup.getName()).isEqualTo("New Group");
-//
-//        // depth Null - index 마찬가지
-//        Group group1 = Group.builder()
-//                .name("그룹1")
-//                .depth(0)
-//                .build();
-//
-//        groupRepository.save(group1);
-////        assertThrows(RuntimeException.class, () -> {
-////            groupRepository.save(group1);
-////        });
-////
-//    }
+        Group group2 = Group.builder()
+                .name("그룹1")
+                .doc_depth(1)
+                .doc_index(0)
+                .childDocList(new ArrayList<>())
+                .build();
+        groupRepository.save(group2);
+//        Group group1 = groupRepository.findById(group2.getId())
+//                .orElseThrow(() -> new NoSuchElementException());
 
+        groupRepository.findById(group2.getId()).get().setParent(group); // 수정되는지 확인
+        groupRepository.save(group2);
+
+        Group group3 = Group.builder()
+                .name("그룹2")
+                .doc_depth(1)
+                .doc_index(1)
+                .parent(group)
+                .childDocList(new ArrayList<>())
+                .build();
+        groupRepository.save(group3);
+
+        Optional<Group> groupById = groupRepository.findById(group.getId());
+        groupById.get().addChild(group2);
+        groupById.get().addChild(group3);
+        groupRepository.save(groupById.get());
+        //save 안함
+
+        Assertions.assertThat(groupById.get().getChildDocList().get(0)).isEqualTo(group2);
+    }
+
+    @Test
+    @Rollback(value = false)
+    void deleteTest() {
+        Group group = Group.builder()
+                .name("document")
+                .doc_depth(0)
+                .doc_index(0)
+                .childDocList(new ArrayList<>())
+                .build();
+        groupRepository.save(group);
+
+        Group group2 = Group.builder()
+                .name("그룹1")
+                .doc_depth(1)
+                .doc_index(0)
+                .childDocList(new ArrayList<>())
+                .build();
+        groupRepository.save(group2);
+
+        groupRepository.findById(group2.getId()).get().setParent(group); // 수정되는지 확인
+        groupRepository.save(group2);
+
+        Optional<Group> groupById = groupRepository.findById(group.getId());
+        groupById.get().addChild(group2);
+        groupRepository.save(groupById.get());
+        Long id = groupById.get().getId();
+        groupRepository.delete(groupById.get());
+//        Assertions.assertThatThrownBy(() -> groupRepository.findById(1L))
+//                .isInstanceOf(NoSuchElementException.class);
+
+    }
 }

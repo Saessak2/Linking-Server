@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Page extends Document{
 
-    /**
-     * field
-     */
-
     @NotNull
     private LocalDateTime createdDatetime;
     @NotNull

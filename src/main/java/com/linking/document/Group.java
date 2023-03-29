@@ -1,8 +1,8 @@
 package com.linking.document;
 
+import com.linking.project.Project;
 import lombok.*;
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,18 +13,17 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Group extends Document{
 
-    /**
-     * field
-     */
 
     /**
      * constructor
      */
 
     @Builder
-    public Group(String name, int doc_depth, int doc_index, Document parent, List<Document> documentList) {
-        super(name, doc_depth, doc_index, parent, documentList);
+    public Group(String name, int doc_depth, int doc_index, Document parent, List<Document> childDocList, Project project) {
+        super(name, doc_depth, doc_index, parent, childDocList, project);
     }
+
+
 
     /**
      * method

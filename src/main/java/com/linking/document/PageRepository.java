@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 
 @Repository
-public interface GroupRepository extends JpaRepository<Group, Long> {
-
+public interface PageRepository extends JpaRepository<Page, Long> {
 
 }
