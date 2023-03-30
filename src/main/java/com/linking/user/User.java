@@ -32,8 +32,6 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    private
-
     public User(UserReqDto userReqDto){
         this.lastName = userReqDto.getLastName();
         this.firstName = userReqDto.getFirstName();

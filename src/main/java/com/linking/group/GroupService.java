@@ -15,17 +15,5 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final ProjectRepository projectRepository;
 
-    public void createGroup(GroupReqDto groupReqDto) throws NoSuchElementException{
-        Project project = projectRepository.findById(groupReqDto.getProjectDto().getId())
-                .orElseThrow(() -> new NoSuchElementException());
 
-        Group group = Group.builder()
-                .name(groupReqDto.getName())
-                .doc_depth(groupReqDto.getDocDepth())
-                .doc_index(groupReqDto.getDocIndex())
-                .project(project)
-                .build();
-
-        groupRepository.save(group);
-    }
 }

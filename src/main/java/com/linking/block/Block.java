@@ -25,7 +25,7 @@ public class Block {
     private Long id;
     
     @NotNull
-    private int index;
+    private int blockIndex;
 
     @Column(length = 100)
     private String title;
@@ -45,8 +45,8 @@ public class Block {
      * constructor
      */
 
-    public Block(int index, String title, String content, Page page, List<Annotation> annotationList) {
-        this.index = index;
+    public Block(int blockIndex, String title, String content, Page page, List<Annotation> annotationList) {
+        this.blockIndex = blockIndex;
         this.title = title;
         this.content = content;
         this.page = page;

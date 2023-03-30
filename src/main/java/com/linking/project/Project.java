@@ -1,6 +1,7 @@
 package com.linking.project;
 
-import com.linking.document.Document;
+import com.linking.group.Group;
+import com.linking.page.Page;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "project")
+@Builder
+@AllArgsConstructor
 public class Project {
 
     /**
@@ -22,25 +25,31 @@ public class Project {
     private Long id;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private List<Document> documentList;
+    private List<Group> groupList;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Page> pageList;
 
     /**
      * constructor
      */
 
-    @Builder
-    public Project(List<Document> documentList) {
-        this.documentList = documentList;
-    }
 
     /**
      * method
      */
 
-    public void addDocument(Document document) {
-        this.documentList.add(document);
-        if (document.getProject() != this) {
-            document.setProject(this);
+    public void addGroup(Group group) {
+        this.groupList.add(group);
+        if (group.getProject() != this) {
+            group.setProject(this);
+        }
+    }
+
+    public void addPage(Page page) {
+        this.pageList.add(page);
+        if (page.getProject() != this) {
+            page.setProject(this);
         }
     }
 }

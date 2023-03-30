@@ -15,25 +15,9 @@ import java.util.NoSuchElementException;
 public class PageService {
 
     private final PageRepository pageRepository;
-    private final ProjectRepository projectRepository;
-
 
     public void createPage(PageReqDto pageReqDto) throws NoSuchElementException{
 
-        Project project = projectRepository.findById(pageReqDto.getProjectId())
-                .orElseThrow(() -> new NoSuchElementException());
 
-        Page page = Page.builder()
-                .title(pageReqDto.getName())
-                .doc_depth(pageReqDto.getDocDepth())
-                .doc_index(pageReqDto.getDocIndex())
-                .project(project)
-                .createdDatetime(LocalDateTime.now())
-                .updatedDatetime(LocalDateTime.now())
-                .pageCheckList(new ArrayList<>())
-                .blockList(new ArrayList<>())
-                .build();
-
-        pageRepository.save(page);
     }
 }

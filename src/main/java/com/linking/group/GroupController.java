@@ -13,10 +13,8 @@ public class GroupController {
     private final GroupService groupService;
 
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createGroup(@RequestBody GroupReqDto groupReqDto) {
-        groupService.createGroup(groupReqDto);
-        //TODO 예외처리
-    }
+//    @PostMapping
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public void createGroup(@RequestBody GroupReqDto groupReqDto) {
+//    }
 }

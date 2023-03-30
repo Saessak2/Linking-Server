@@ -1,7 +1,7 @@
 package com.linking.page;
 
 import com.linking.block.Block;
-import com.linking.document.Document;
+import com.linking.group.Group;
 import com.linking.pageCheck.PageCheck;
 import com.linking.project.Project;
 import lombok.*;
@@ -12,23 +12,38 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("P")
-@PrimaryKeyJoinColumn(name = "page_id")
 @Table(name = "page")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Page extends Document {
+@Builder
+@AllArgsConstructor
+public class Page  {
     /**
      * field
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "page_id")
+    private Long id;
 
     @Column(length = 50)
     private String title;
+
+    private int pageIndex;
+
     @NotNull
     private LocalDateTime createdDatetime;
+
     @NotNull
     private LocalDateTime updatedDatetime;
 
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private Group group;
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<Block> blockList;
 
@@ -38,15 +53,6 @@ public class Page extends Document {
     /**
      * constructor
      */
-    @Builder
-    public Page(String title, int doc_depth, int doc_index, Project project, LocalDateTime createdDatetime, LocalDateTime updatedDatetime, List<Block> blockList, List<PageCheck> pageCheckList) {
-        super(doc_depth, doc_index, project);
-        this.title = title;
-        this.createdDatetime = createdDatetime;
-        this.updatedDatetime = updatedDatetime;
-        this.blockList = blockList;
-        this.pageCheckList = pageCheckList;
-    }
 
     /**
      * method
@@ -59,7 +65,6 @@ public class Page extends Document {
         }
     }
 
-
     public void addPageCheck(PageCheck pageCheck) {
         this.pageCheckList.add(pageCheck);
         if (pageCheck.getPage() != this) {
@@ -67,5 +72,17 @@ public class Page extends Document {
         }
     }
 
+    public void setGroup(Group group) {
+        this.group = group;
+        if (!group.getPageList().contains(this)) {
+            group.getPageList().add(this);
+        }
+    }
 
+    public void setProject(Project project) {
+        this.project = project;
+        if (!project.getPageList().contains(this)) {
+            project.getPageList().add(this);
+        }
+    }
 }

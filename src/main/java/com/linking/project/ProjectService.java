@@ -15,22 +15,22 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public void createProject(ProjectReqDto projectReqDto) {
-        Project project = Project.builder()
-                .documentList(new ArrayList<>())
-                .build();
-
-        projectRepository.save(project);
-    }
-
-    public ProjectResDto findProject(ProjectParamDto projectParamDto) throws NoSuchElementException{
-        Project findProject = projectRepository.findById(projectParamDto.getId())
-                .orElseThrow(() -> new NoSuchElementException());
-
-        ProjectResDto projectResDto = ProjectResDto.builder()
-                .id(findProject.getId())
-                .build();
-
-        return projectResDto;
-    }
+//    public void createProject(ProjectReqDto projectReqDto) {
+//        Project project = Project.builder()
+//                .documentList(new ArrayList<>())
+//                .build();
+//
+//        projectRepository.save(project);
+//    }
+//
+//    public ProjectResDto findProject(ProjectParamDto projectParamDto) throws NoSuchElementException{
+//        Project findProject = projectRepository.findById(projectParamDto.getId())
+//                .orElseThrow(() -> new NoSuchElementException());
+//
+//        ProjectResDto projectResDto = ProjectResDto.builder()
+//                .id(findProject.getId())
+//                .build();
+//
+//        return projectResDto;
+//    }
 }

@@ -14,7 +14,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @PostMapping
+/*    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createProject(@RequestBody ProjectReqDto projectReqDto) {
         projectService.createProject(projectReqDto);
@@ -23,5 +23,5 @@ public class ProjectController {
     @GetMapping
     public ProjectResDto getProject(@RequestParam ProjectParamDto projectParamDto) {
         return projectService.findProject(projectParamDto);
-    }
+    }*/
 }
