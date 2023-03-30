@@ -17,7 +17,4 @@ public class DocumentController {
         List<Document> allDocuments = documentService.findAllDocuments(projectId);
         return allDocuments;
     }
-
-    // TODO createNewDocument는 프로젝트 생성 시 -> documentService에서 처리
-
 }

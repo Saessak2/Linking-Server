@@ -1,10 +1,12 @@
 package com.linking.user;
 
+import com.linking.annotation.Annotation;
 import com.linking.user.dto.UserReqDto;
 import com.linking.user.dto.UserResDto;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -29,6 +31,8 @@ public class User {
 
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    private
 
     public User(UserReqDto userReqDto){
         this.lastName = userReqDto.getLastName();

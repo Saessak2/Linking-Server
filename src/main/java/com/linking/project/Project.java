@@ -10,9 +10,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "project")
-
-@Builder
-@AllArgsConstructor
 public class Project {
 
     /**
@@ -24,10 +21,21 @@ public class Project {
     @Column(name = "project_id")
     private Long id;
 
-
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Document> documentList;
+
+    /**
+     * constructor
+     */
+
+    @Builder
+    public Project(List<Document> documentList) {
+        this.documentList = documentList;
+    }
+
+    /**
+     * method
+     */
 
     public void addDocument(Document document) {
         this.documentList.add(document);
