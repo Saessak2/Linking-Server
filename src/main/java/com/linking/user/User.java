@@ -33,6 +33,10 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    public User(Long userid){
+        this.userId = userid;
+    }
+
     public User(UserReqDto userReqDto){
         this.lastName = userReqDto.getLastName();
         this.firstName = userReqDto.getFirstName();

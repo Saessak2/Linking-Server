@@ -1,9 +1,7 @@
 package com.linking.project.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.linking.user.User;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -14,6 +12,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
 @Table(name = "project")
 public class Project {
 
@@ -30,5 +29,9 @@ public class Project {
 
     @Column(name = "due_date")
     private LocalDate dueDate;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
 }
