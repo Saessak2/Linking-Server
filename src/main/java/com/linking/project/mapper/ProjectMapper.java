@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    default ProjectRes toRes(Project project) {
+    default ProjectRes toDto(Project project) {
         if(project == null)
             return null;
 
@@ -28,7 +28,13 @@ public interface ProjectMapper {
         return projectRes.build();
     }
 
-    default Project toProject(ProjectCreateReq projectCreateReq) {
+    default List<ProjectRes> toDto(List<Project> projectList) {
+        if(projectList.isEmpty())
+            return null;
+        return projectList.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    default Project toEntity(ProjectCreateReq projectCreateReq) {
         if (projectCreateReq == null)
             return null;
 
@@ -41,25 +47,12 @@ public interface ProjectMapper {
         return project;
     }
 
-    default Project toProject(ProjectUpdateReq projectUpdateReq) {
+    default Project toEntity(ProjectUpdateReq projectUpdateReq) {
         if(projectUpdateReq == null)
             return null;
         return new Project(projectUpdateReq.getProjectId(), projectUpdateReq.getProjectName(),
                 projectUpdateReq.getBeginDate(), projectUpdateReq.getDueDate(),
                 new User(projectUpdateReq.getOwnerId()));
-    }
-
-    default List<ProjectRes> toRes(List<Project> projectList) {
-        if(projectList.isEmpty())
-            return null;
-//        List<ProjectRes> resList = new ArrayList<>();
-//        for (Project project : projectList) {
-//            resList.add(
-//                    new ProjectRes(project.getProjectId(), project.getProjectName(),
-//                            project.getBeginDate(), project.getDueDate(), project.getOwner().getUserId()));
-//        }
-        return projectList.stream().map(this::toRes).collect(Collectors.toList());
-//        return resList;
     }
 
 }

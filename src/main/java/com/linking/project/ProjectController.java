@@ -19,15 +19,15 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<ProjectRes> postProject(@RequestBody @Valid ProjectCreateReq projectCreateReq){
         return projectService.createProject(projectCreateReq)
                 .map(projectRes -> ResponseEntity.status(HttpStatus.CREATED).body(projectRes))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
-    @GetMapping("/project-id={project-id}")
-    public ResponseEntity<ProjectRes> getProject(@PathVariable("project-id") Long projectId){
+    @GetMapping
+    public ResponseEntity<ProjectRes> getProject(@RequestParam("project-id") Long projectId){
         try {
             return projectService.getProject(projectId)
                     .map(ResponseEntity::ok)
@@ -37,10 +37,10 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/list/user-id={user-id}")
-    public ResponseEntity<List<ProjectRes>> getProjectList(@PathVariable("user-id") Long userId){
+    @GetMapping("/list")
+    public ResponseEntity<List<ProjectRes>> getProjectList(@RequestParam("user-id") Long userId){
         try {
-            List<ProjectRes> projectList = projectService.getProjectByOwnerId(userId);
+            List<ProjectRes> projectList = projectService.getProjectsByOwnerId(userId);
             if(projectList.isEmpty())
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             return ResponseEntity.ok(projectList);
@@ -56,8 +56,8 @@ public class ProjectController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
-    @DeleteMapping("/project-id={project-id}")
-    public ResponseEntity<ProjectRes> deleteProject(@PathVariable("project-id") Long projectId){
+    @DeleteMapping
+    public ResponseEntity<ProjectRes> deleteProject(@RequestParam("project-id") Long projectId){
         try{
             return projectService.deleteProject(projectId)
                     .map(ResponseEntity::ok)

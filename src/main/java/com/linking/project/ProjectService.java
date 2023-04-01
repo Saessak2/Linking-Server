@@ -21,9 +21,9 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
 
     public Optional<ProjectRes> createProject(ProjectCreateReq projectCreateReq){
-        return Optional.of(projectMapper.toRes(
+        return Optional.of(projectMapper.toDto(
                 projectRepository.save(
-                        projectMapper.toProject(projectCreateReq)))
+                        projectMapper.toEntity(projectCreateReq)))
         );
     }
 
@@ -31,20 +31,20 @@ public class ProjectService {
         Optional<Project> data = projectRepository.findById(projectId);
         if(data.isEmpty())
             throw new NoResultException();
-        return Optional.of(projectMapper.toRes(data.get()));
+        return Optional.of(projectMapper.toDto(data.get()));
     }
 
-    public List<ProjectRes> getProjectByOwnerId(Long ownerId) throws NoResultException{
+    public List<ProjectRes> getProjectsByOwnerId(Long ownerId) throws NoResultException{
         List<Project> data = projectRepository.findByOwner(ownerId);
         if(data.isEmpty())
             throw new NoResultException();
-        return projectMapper.toRes(data);
+        return projectMapper.toDto(data);
     }
 
     public Optional<ProjectRes> updateProject(ProjectUpdateReq projectUpdateReq){
-        return Optional.of(projectMapper.toRes(
+        return Optional.of(projectMapper.toDto(
                 projectRepository.save(
-                        projectMapper.toProject(projectUpdateReq)))
+                        projectMapper.toEntity(projectUpdateReq)))
         );
     }
 
@@ -53,7 +53,7 @@ public class ProjectService {
         if(data.isEmpty())
             throw new NoResultException();
         projectRepository.deleteById(projectId);
-        return Optional.of(projectMapper.toRes(data.get()));
+        return Optional.of(projectMapper.toDto(data.get()));
     }
 
 }
