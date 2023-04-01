@@ -1,5 +1,7 @@
 package com.linking.participant.dto;
 
+import com.linking.project.domain.Project;
+import com.linking.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +12,7 @@ import lombok.Getter;
 public class ParticipantRes {
 
     private Long participantId;
-    private Long userId;
-    private Long projectId;
+    private User user;
+    private Project project;
 
 }

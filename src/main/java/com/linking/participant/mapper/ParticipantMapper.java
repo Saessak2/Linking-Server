@@ -16,9 +16,9 @@ public interface ParticipantMapper {
             return null;
 
         ParticipantRes.ParticipantResBuilder participantRes = ParticipantRes.builder();
-
-        participantRes.userId(participant.getUser().getUserId());
-        participantRes.projectId(participant.getProject().getProjectId());
+        participantRes.participantId(participant.getParticipantId());
+        participantRes.user(participant.getUser());
+        participantRes.project(participant.getProject());
 
         return participantRes.build();
     }

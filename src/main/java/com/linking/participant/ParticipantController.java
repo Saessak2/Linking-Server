@@ -3,6 +3,7 @@ package com.linking.participant;
 import com.linking.participant.dto.ParticipantCreateEmailReq;
 import com.linking.participant.dto.ParticipantRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,14 @@ public class ParticipantController {
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         } catch(NoResultException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch(DuplicateKeyException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @GetMapping
     public ResponseEntity<ParticipantRes> getParticipant(
-            @RequestParam("pt-id") Long participantId){
+            @RequestParam("id") Long participantId){
         try {
             return participantService.getParticipant(participantId)
                     .map(ResponseEntity::ok)
@@ -56,7 +59,8 @@ public class ParticipantController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ParticipantRes> deleteParticipant(@RequestParam("pt-id") Long participantId){
+    public ResponseEntity<ParticipantRes> deleteParticipant(
+            @RequestParam("id") Long participantId){
         try{
             return participantService.deleteParticipant(participantId)
                     .map(ResponseEntity::ok)

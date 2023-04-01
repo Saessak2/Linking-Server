@@ -23,11 +23,11 @@ public class Participant {
    private Long participantId;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "project_id")
     private Project project;
 
 }

@@ -10,6 +10,7 @@ import com.linking.project.domain.Project;
 import com.linking.user.User;
 import com.linking.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -27,7 +28,10 @@ public class ParticipantService {
     private final ProjectRepository projectRepository;
 
     public Optional<ParticipantRes> createParticipant(ParticipantCreateEmailReq participantCreateEmailReq)
-            throws NoResultException{
+            throws NoResultException, DuplicateKeyException {
+        Optional<Participant> partData = participantRepository.findByUserEmail(participantCreateEmailReq.getEmail());
+        if(partData.isPresent())
+            throw new DuplicateKeyException("Duplicated user's email");
         Optional<User> userData = userRepository.findByEmail(participantCreateEmailReq.getEmail());
         if(userData.isEmpty())
             throw new NoResultException();
@@ -49,7 +53,10 @@ public class ParticipantService {
     }
 
     public List<ParticipantRes> getParticipantsByProjectId(Long projectId) throws NoResultException{
-        List<Participant> data = participantRepository.findByProject(projectId);
+        Optional<Project> projData = projectRepository.findById(projectId);
+        if(projData.isEmpty())
+            throw new NoResultException();
+        List<Participant> data = participantRepository.findByProject(projData.get());
         if(data.isEmpty())
             throw new NoResultException();
         return participantMapper.toDto(data);
