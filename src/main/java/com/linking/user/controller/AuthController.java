@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Optional;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
 public class AuthController {
 
@@ -37,14 +36,6 @@ public class AuthController {
     @PostMapping("/sign-up/email-verify")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Boolean> emailVerify(@RequestBody @Valid UserEmailVerifyReq emailReq) {
-        if(userService.findDuplicatedEmail(emailReq))
-            return ResponseEntity.ok(true);
-        return ResponseEntity.ok(false);
-    }
-
-    @PostMapping("/sign-up/email-verify2")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
-    public ResponseEntity<Boolean> emailVerify(@RequestBody @Valid UserSignUpDefaultReq emailReq) {
         if(userService.findDuplicatedEmail(emailReq))
             return ResponseEntity.ok(true);
         return ResponseEntity.ok(false);

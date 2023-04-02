@@ -1,7 +1,7 @@
 package com.linking.project.domain;
 
 import com.linking.participant.domain.Participant;
-import com.linking.user.User;
+import com.linking.user.domain.User;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 

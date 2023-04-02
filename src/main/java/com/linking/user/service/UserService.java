@@ -2,12 +2,13 @@ package com.linking.user.service;
 
 import com.linking.user.domain.User;
 import com.linking.user.dto.*;
-import com.linking.user.repository.UserRepository;
-import com.linking.user.mapper.UserMapper;
+import com.linking.user.persistence.UserRepository;
+import com.linking.user.persistence.UserMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,9 +21,9 @@ public class UserService {
     public Optional<UserDetailedRes> addUser(UserSignUpDefaultReq userSignUpDefaultReq)
             throws SQLIntegrityConstraintViolationException {
         return Optional.of(
-                userMapper.toRes(
+                userMapper.toDto(
                         userRepository.save(
-                                userMapper.toUser(userSignUpDefaultReq))));
+                                userMapper.toEntity(userSignUpDefaultReq))));
     }
 
     public boolean findDuplicatedEmail(UserEmailVerifyReq emailReq){
@@ -33,20 +34,24 @@ public class UserService {
         return userRepository.findUserByEmail(req.getEmail()).isPresent();
     }
 
+    public List<UserDetailedRes> findUserByPartOfEmail(UserEmailReq userEmailReq){
+        return userMapper.toDto(userRepository.findUsersByPartOfEmail(userEmailReq.getPartOfEmail()));
+    }
+
     public Optional<UserDetailedRes> findUser(UserIdReq userIdReq){
-        return userRepository.findById(userIdReq.getUserId()).map(userMapper::toRes);
+        return userRepository.findById(userIdReq.getUserId()).map(userMapper::toDto);
     }
 
     public Optional<UserDetailedRes> findUser(UserSignInDefaultReq userSignInDefaultReq){
         String email = userSignInDefaultReq.getEmail(), pw = userSignInDefaultReq.getPassword();
-        return userRepository.findUserByEmailAndPassword(email, pw).map(userMapper::toRes);
+        return userRepository.findUserByEmailAndPassword(email, pw).map(userMapper::toDto);
     }
 
     public Optional<UserDetailedRes> deleteUser(UserIdReq userIdReq){
         Optional<User> userData = userRepository.findById(userIdReq.getUserId());
         if(userData.isPresent()) {
             userRepository.delete(userData.get());
-            return Optional.of(userMapper.toRes(userData.get()));
+            return Optional.of(userMapper.toDto(userData.get()));
         }
         return Optional.empty();
     }

@@ -1,14 +1,16 @@
 package com.linking.participant.dto;
 
 import com.linking.project.domain.Project;
-import com.linking.user.User;
+import com.linking.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ParticipantCreateReq {
 
     private User user;

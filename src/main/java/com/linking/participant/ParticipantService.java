@@ -8,8 +8,8 @@ import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.mapper.ParticipantMapper;
 import com.linking.project.ProjectRepository;
 import com.linking.project.domain.Project;
-import com.linking.user.User;
-import com.linking.user.UserRepository;
+import com.linking.user.domain.User;
+import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class ParticipantService {
         Optional<Participant> partData = participantRepository.findByUserEmail(participantCreateEmailReq.getEmail());
         if(partData.isPresent())
             throw new DuplicateKeyException("Duplicated user's email");
-        Optional<User> userData = userRepository.findByEmail(participantCreateEmailReq.getEmail());
+        Optional<User> userData = userRepository.findUserByEmail(participantCreateEmailReq.getEmail());
         if(userData.isEmpty())
             throw new NoResultException();
         Optional<Project> projectData = projectRepository.findById(participantCreateEmailReq.getProjectId());

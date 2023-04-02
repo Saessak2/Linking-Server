@@ -1,7 +1,7 @@
 package com.linking.participant.domain;
 
 import com.linking.project.domain.Project;
-import com.linking.user.User;
+import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;

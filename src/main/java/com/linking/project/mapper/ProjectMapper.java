@@ -5,7 +5,7 @@ import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
-import com.linking.user.User;
+import com.linking.user.domain.User;
 import org.mapstruct.Mapper;
 
 import java.util.List;

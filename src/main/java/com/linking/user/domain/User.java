@@ -1,7 +1,5 @@
-package com.linking.user;
+package com.linking.user.domain;
 
-import com.linking.user.dto.UserReqDto;
-import com.linking.user.dto.UserResDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,11 +7,11 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
 @Table(name = "user")
 public class User {
 
@@ -30,9 +28,13 @@ public class User {
 
     private String email;
 
+    // TODO: phoneNumber should be unique key
     @Column(name = "phone_number")
     private String phoneNumber;
 
     private String password;
 
+    public User(Long ownerId) {
+        this.userId = ownerId;
+    }
 }
