@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserEmailRes {
 
-    private Boolean isTrue;
+    private Boolean containingEmailExists;
     private List<UserDetailedRes> userList;
 
 }

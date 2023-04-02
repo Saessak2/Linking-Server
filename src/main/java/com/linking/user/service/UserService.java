@@ -30,16 +30,15 @@ public class UserService {
         return userRepository.findUserByEmail(emailReq.getEmail()).isPresent();
     }
 
-    public boolean findDuplicatedEmail(UserSignUpDefaultReq req){
-        return userRepository.findUserByEmail(req.getEmail()).isPresent();
-    }
-
     public List<UserDetailedRes> findUserByPartOfEmail(UserEmailReq userEmailReq){
-        return userMapper.toDto(userRepository.findUsersByPartOfEmail(userEmailReq.getPartOfEmail()));
+        List<User> data = userRepository.findUsersByPartOfEmail(userEmailReq.getPartOfEmail());
+        if(data.isEmpty())
+            return null;
+        return userMapper.toDto(data);
     }
 
-    public Optional<UserDetailedRes> findUser(UserIdReq userIdReq){
-        return userRepository.findById(userIdReq.getUserId()).map(userMapper::toDto);
+    public Optional<UserDetailedRes> findUser(Long userId){
+        return userRepository.findById(userId).map(userMapper::toDto);
     }
 
     public Optional<UserDetailedRes> findUser(UserSignInDefaultReq userSignInDefaultReq){
@@ -47,8 +46,8 @@ public class UserService {
         return userRepository.findUserByEmailAndPassword(email, pw).map(userMapper::toDto);
     }
 
-    public Optional<UserDetailedRes> deleteUser(UserIdReq userIdReq){
-        Optional<User> userData = userRepository.findById(userIdReq.getUserId());
+    public Optional<UserDetailedRes> deleteUser(Long userId){
+        Optional<User> userData = userRepository.findById(userId);
         if(userData.isPresent()) {
             userRepository.delete(userData.get());
             return Optional.of(userMapper.toDto(userData.get()));
