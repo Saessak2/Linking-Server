@@ -1,27 +1,83 @@
 package com.linking.project;
 
-import com.linking.project.dto.ProjectParamDto;
-import com.linking.project.dto.ProjectReqDto;
-import com.linking.project.dto.ProjectResDto;
+
+import com.linking.project.dto.ProjectCreateReq;
+import com.linking.project.dto.ProjectContainsPartsRes;
+import com.linking.project.dto.ProjectUpdateReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping(name = "/projects")
+import javax.persistence.NoResultException;
+import javax.validation.Valid;
+import java.util.List;
+
 @RequiredArgsConstructor
+@RestController
+@RequestMapping("/project")
+@CrossOrigin(origins = "*", allowedHeaders = "*",
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+
 public class ProjectController {
 
     private final ProjectService projectService;
 
-/*    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createProject(@RequestBody ProjectReqDto projectReqDto) {
-        projectService.createProject(projectReqDto);
+    @PostMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
+    public ResponseEntity<ProjectContainsPartsRes> postProject(
+            @RequestBody @Valid ProjectCreateReq projectCreateReq){
+        return projectService.createProject(projectCreateReq)
+                .map(projectContainsPartsRes -> ResponseEntity.status(HttpStatus.CREATED).body(projectContainsPartsRes))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping
-    public ProjectResDto getProject(@RequestParam ProjectParamDto projectParamDto) {
-        return projectService.findProject(projectParamDto);
-    }*/
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<ProjectContainsPartsRes> getProject(
+            @RequestParam("id") Long projectId){
+        try {
+            return projectService.getProject(projectId)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        } catch(NoResultException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/list")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<List<ProjectContainsPartsRes>> getProjectList(
+            @RequestParam("user-id") Long userId){
+        try {
+            List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(userId);
+            if(projectList.isEmpty())
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.ok(projectList);
+        } catch(NoResultException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PutMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
+    public ResponseEntity<ProjectContainsPartsRes> putProject(
+            @RequestBody @Valid ProjectUpdateReq projectUpdateReq){
+        return projectService.updateProject(projectUpdateReq)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+    @DeleteMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+    public ResponseEntity<ProjectContainsPartsRes> deleteProject(
+            @RequestParam("id") Long projectId){
+        try{
+            return projectService.deleteProject(projectId)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        } catch(NoResultException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

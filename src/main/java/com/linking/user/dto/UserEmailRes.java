@@ -1,18 +1,19 @@
 package com.linking.user.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResDto {
+public class UserEmailRes {
 
-    private Long userId;
-    private String lastName;
-    private String firstName;
-    private String email;
-    private String phoneNumber;
+    private Boolean containingEmailExists;
+    private List<UserDetailedRes> userList;
 
 }
