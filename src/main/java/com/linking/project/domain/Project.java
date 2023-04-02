@@ -1,17 +1,20 @@
 package com.linking.project.domain;
 
+import com.linking.participant.domain.Participant;
 import com.linking.user.User;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity
 @Getter
-@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @DynamicUpdate
 @Table(name = "project")
 public class Project {
@@ -30,12 +33,12 @@ public class Project {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    // TODO: NESTED ERROR ? (Part needs proj -> Proj needs Part)
+    @OneToMany(mappedBy = "project")
+    private List<Participant> participant = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-
-    public Project(Long projectId){
-        this.projectId = projectId;
-    }
 
 }

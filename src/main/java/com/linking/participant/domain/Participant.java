@@ -2,18 +2,15 @@ package com.linking.participant.domain;
 
 import com.linking.project.domain.Project;
 import com.linking.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Entity
 @Getter
-@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table(name = "participant")
 public class Participant {
 

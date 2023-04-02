@@ -1,8 +1,9 @@
 package com.linking.project.mapper;
 
+import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectCreateReq;
-import com.linking.project.dto.ProjectRes;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.user.User;
 import org.mapstruct.Mapper;
@@ -13,22 +14,26 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    default ProjectRes toDto(Project project) {
+    default ProjectContainsPartsRes toDto(Project project) {
         if(project == null)
             return null;
 
-        ProjectRes.ProjectResBuilder projectRes = ProjectRes.builder();
+        ProjectContainsPartsRes.ProjectContainsPartsResBuilder projResBuilder
+                = ProjectContainsPartsRes.builder();
+        projResBuilder
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .beginDate(project.getBeginDate())
+                .dueDate(project.getDueDate())
+                .ownerId(project.getOwner().getUserId())
+                .partList(project.getParticipant()
+                        .stream().map(Participant::getUser)
+                        .collect(Collectors.toList()));
 
-        projectRes.projectId(project.getProjectId());
-        projectRes.projectName(project.getProjectName());
-        projectRes.beginDate(project.getBeginDate());
-        projectRes.dueDate(project.getDueDate());
-        projectRes.ownerId(project.getOwner().getUserId());
-
-        return projectRes.build();
+        return projResBuilder.build();
     }
 
-    default List<ProjectRes> toDto(List<Project> projectList) {
+    default List<ProjectContainsPartsRes> toDto(List<Project> projectList) {
         if(projectList.isEmpty())
             return null;
         return projectList.stream().map(this::toDto).collect(Collectors.toList());
@@ -38,21 +43,29 @@ public interface ProjectMapper {
         if (projectCreateReq == null)
             return null;
 
-        Project project = new Project();
-        project.setProjectName(projectCreateReq.getProjectName());
-        project.setBeginDate(projectCreateReq.getBeginDate());
-        project.setDueDate(projectCreateReq.getDueDate());
-        project.setOwner(new User(projectCreateReq.getOwnerId()));
+        Project.ProjectBuilder projBuilder = Project.builder();
+        projBuilder
+                .projectName(projectCreateReq.getProjectName())
+                .beginDate(projectCreateReq.getBeginDate())
+                .dueDate(projectCreateReq.getDueDate())
+                .owner(new User(projectCreateReq.getOwnerId()));
 
-        return project;
+        return projBuilder.build();
     }
 
     default Project toEntity(ProjectUpdateReq projectUpdateReq) {
         if(projectUpdateReq == null)
             return null;
-        return new Project(projectUpdateReq.getProjectId(), projectUpdateReq.getProjectName(),
-                projectUpdateReq.getBeginDate(), projectUpdateReq.getDueDate(),
-                new User(projectUpdateReq.getOwnerId()));
+
+        Project.ProjectBuilder projBuilder = Project.builder();
+        projBuilder
+                .projectId(projectUpdateReq.getOwnerId())
+                .projectName(projectUpdateReq.getProjectName())
+                .beginDate(projectUpdateReq.getBeginDate())
+                .dueDate(projectUpdateReq.getDueDate())
+                .owner(new User(projectUpdateReq.getOwnerId()));
+
+        return projBuilder.build();
     }
 
 }

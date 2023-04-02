@@ -15,12 +15,13 @@ public interface ParticipantMapper {
         if(participant == null)
             return null;
 
-        ParticipantRes.ParticipantResBuilder participantRes = ParticipantRes.builder();
-        participantRes.participantId(participant.getParticipantId());
-        participantRes.user(participant.getUser());
-        participantRes.project(participant.getProject());
+        ParticipantRes.ParticipantResBuilder partResBuilder = ParticipantRes.builder();
+        partResBuilder
+                .participantId(participant.getParticipantId())
+                .user(participant.getUser())
+                .project(participant.getProject());
 
-        return participantRes.build();
+        return partResBuilder.build();
     }
 
     default List<ParticipantRes> toDto(List<Participant> partList) {
@@ -33,11 +34,12 @@ public interface ParticipantMapper {
         if(participantCreateReq == null)
             return null;
 
-        Participant participant = new Participant();
-        participant.setUser(participantCreateReq.getUser());
-        participant.setProject(participantCreateReq.getProject());
+        Participant.ParticipantBuilder partBuilder = Participant.builder();
+        partBuilder
+                .user(participantCreateReq.getUser())
+                .project(participantCreateReq.getProject());
 
-        return participant;
+        return partBuilder.build();
     }
 
 }

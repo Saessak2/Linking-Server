@@ -1,7 +1,7 @@
 package com.linking.project;
 
 import com.linking.project.dto.ProjectCreateReq;
-import com.linking.project.dto.ProjectRes;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,23 +12,27 @@ import javax.persistence.NoResultException;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/project")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*",
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @PostMapping
-    public ResponseEntity<ProjectRes> postProject(
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
+    public ResponseEntity<ProjectContainsPartsRes> postProject(
             @RequestBody @Valid ProjectCreateReq projectCreateReq){
         return projectService.createProject(projectCreateReq)
-                .map(projectRes -> ResponseEntity.status(HttpStatus.CREATED).body(projectRes))
+                .map(projectContainsPartsRes -> ResponseEntity.status(HttpStatus.CREATED).body(projectContainsPartsRes))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping
-    public ResponseEntity<ProjectRes> getProject(
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<ProjectContainsPartsRes> getProject(
             @RequestParam("id") Long projectId){
         try {
             return projectService.getProject(projectId)
@@ -40,10 +44,11 @@ public class ProjectController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<ProjectRes>> getProjectList(
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<List<ProjectContainsPartsRes>> getProjectList(
             @RequestParam("user-id") Long userId){
         try {
-            List<ProjectRes> projectList = projectService.getProjectsByOwnerId(userId);
+            List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(userId);
             if(projectList.isEmpty())
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             return ResponseEntity.ok(projectList);
@@ -53,7 +58,8 @@ public class ProjectController {
     }
 
     @PutMapping
-    public ResponseEntity<ProjectRes> putProject(
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
+    public ResponseEntity<ProjectContainsPartsRes> putProject(
             @RequestBody @Valid ProjectUpdateReq projectUpdateReq){
         return projectService.updateProject(projectUpdateReq)
                 .map(ResponseEntity::ok)
@@ -61,7 +67,8 @@ public class ProjectController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ProjectRes> deleteProject(
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+    public ResponseEntity<ProjectContainsPartsRes> deleteProject(
             @RequestParam("id") Long projectId){
         try{
             return projectService.deleteProject(projectId)

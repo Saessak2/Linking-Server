@@ -3,6 +3,7 @@ package com.linking.participant;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantCreateEmailReq;
 import com.linking.participant.dto.ParticipantCreateReq;
+import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.mapper.ParticipantMapper;
 import com.linking.project.ProjectRepository;
@@ -68,6 +69,13 @@ public class ParticipantService {
             throw new NoResultException();
         participantRepository.deleteById(participantId);
         return Optional.of(participantMapper.toDto(data.get()));
+    }
+
+    public List<ParticipantRes> deleteParticipants(ParticipantDeleteReq participantDeleteReq)
+            throws NoResultException {
+        List<Participant> data = participantRepository.findAllById(participantDeleteReq.getPartIdList());
+        participantRepository.deleteAllById(participantDeleteReq.getPartIdList());
+        return participantMapper.toDto(data);
     }
 
 }
