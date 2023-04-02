@@ -12,6 +12,7 @@ import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -72,7 +73,7 @@ public class ParticipantService {
     }
 
     public List<ParticipantRes> deleteParticipants(ParticipantDeleteReq participantDeleteReq)
-            throws NoResultException {
+            throws EmptyResultDataAccessException {
         List<Participant> data = participantRepository.findAllById(participantDeleteReq.getPartIdList());
         participantRepository.deleteAllById(participantDeleteReq.getPartIdList());
         return participantMapper.toDto(data);

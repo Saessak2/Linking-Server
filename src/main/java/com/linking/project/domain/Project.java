@@ -35,7 +35,7 @@ public class Project {
 
     // TODO: NESTED ERROR ? (Part needs proj -> Proj needs Part)
     @OneToMany(mappedBy = "project")
-    private List<Participant> participant = new ArrayList<>();
+    private final List<Participant> participantList = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "owner_id")

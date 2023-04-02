@@ -1,5 +1,6 @@
 package com.linking.project;
 
+import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

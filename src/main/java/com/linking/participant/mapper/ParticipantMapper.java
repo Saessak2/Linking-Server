@@ -18,8 +18,8 @@ public interface ParticipantMapper {
         ParticipantRes.ParticipantResBuilder partResBuilder = ParticipantRes.builder();
         partResBuilder
                 .participantId(participant.getParticipantId())
-                .user(participant.getUser())
-                .project(participant.getProject());
+                .userId(participant.getUser().getUserId())
+                .projectId(participant.getProject().getProjectId());
 
         return partResBuilder.build();
     }

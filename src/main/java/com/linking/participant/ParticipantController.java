@@ -5,6 +5,7 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -86,7 +87,7 @@ public class ParticipantController {
             if(partList.isEmpty())
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             return ResponseEntity.ok(partList);
-        } catch(NoResultException e){
+        } catch(EmptyResultDataAccessException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
