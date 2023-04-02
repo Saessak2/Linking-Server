@@ -1,5 +1,7 @@
-package com.linking.user.domain;
+package com.linking.user;
 
+import com.linking.user.dto.UserReqDto;
+import com.linking.user.dto.UserResDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,10 +10,10 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Table(name = "user")
 public class User {
 
