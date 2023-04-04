@@ -1,6 +1,5 @@
-package com.linking.project;
+package com.linking.project.persistence;
 
-import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

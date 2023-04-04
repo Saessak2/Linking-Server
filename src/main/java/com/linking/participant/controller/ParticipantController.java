@@ -1,8 +1,9 @@
-package com.linking.participant;
+package com.linking.participant.controller;
 
-import com.linking.participant.dto.ParticipantCreateEmailReq;
+import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
+import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,9 +27,9 @@ public class ParticipantController {
     @PostMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<ParticipantRes> postParticipant(
-            @RequestBody @Valid ParticipantCreateEmailReq participantCreateEmailReq){
+            @RequestBody @Valid ParticipantIdReq participantIdReq){
         try {
-            return participantService.createParticipant(participantCreateEmailReq)
+            return participantService.createParticipant(participantIdReq)
                     .map(participantRes -> ResponseEntity.status(HttpStatus.CREATED).body(participantRes))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         } catch(NoResultException e){
@@ -65,12 +66,12 @@ public class ParticipantController {
         }
     }
 
-    @DeleteMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+    @PostMapping("/single")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<ParticipantRes> deleteParticipant(
-            @RequestParam("id") Long participantId){
+            @RequestBody ParticipantIdReq participantIdReq){
         try{
-            return participantService.deleteParticipant(participantId)
+            return participantService.deleteParticipant(participantIdReq)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         } catch(NoResultException e){

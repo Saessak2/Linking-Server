@@ -1,12 +1,13 @@
-package com.linking.participant;
+package com.linking.participant.service;
 
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
-import com.linking.participant.dto.ParticipantCreateEmailReq;
-import com.linking.participant.dto.ParticipantCreateReq;
+import com.linking.participant.dto.ParticipantIdReq;
+import com.linking.participant.dto.ParticipantEntityReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
-import com.linking.participant.mapper.ParticipantMapper;
-import com.linking.project.ProjectRepository;
+import com.linking.participant.persistence.ParticipantMapper;
+import com.linking.project.persistence.ProjectRepository;
 import com.linking.project.domain.Project;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
@@ -29,22 +30,25 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
 
-    public Optional<ParticipantRes> createParticipant(ParticipantCreateEmailReq participantCreateEmailReq)
+    public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws NoResultException, DuplicateKeyException {
-        Optional<Participant> partData = participantRepository.findByUserEmail(participantCreateEmailReq.getEmail());
-        if(partData.isPresent())
+//        Optional<Participant> partData = participantRepository.findByUserEmail(participantCreateEmailReq.getEmail());
+//        Optional<Participant> partData = participantRepository.findById(participantCreateEmailReq.get());
+        List<Participant> partData = participantRepository.findByUserAndProject(
+                participantIdReq.getUserId(), participantIdReq.getProjectId());
+        if(!partData.isEmpty())
             throw new DuplicateKeyException("Duplicated user's email");
-        Optional<User> userData = userRepository.findUserByEmail(participantCreateEmailReq.getEmail());
+        Optional<User> userData = userRepository.findById(participantIdReq.getUserId());
         if(userData.isEmpty())
             throw new NoResultException();
-        Optional<Project> projectData = projectRepository.findById(participantCreateEmailReq.getProjectId());
+        Optional<Project> projectData = projectRepository.findById(participantIdReq.getProjectId());
         if(projectData.isEmpty())
             throw new NoResultException();
 
         return Optional.of(participantMapper.toDto(
                 participantRepository.save(
                         participantMapper.toEntity(
-                                new ParticipantCreateReq(userData.get(), projectData.get())))));
+                                new ParticipantEntityReq(userData.get(), projectData.get())))));
     }
 
     public Optional<ParticipantRes> getParticipant(Long participantId) throws NoResultException{
@@ -64,12 +68,13 @@ public class ParticipantService {
         return participantMapper.toDto(data);
     }
 
-    public Optional<ParticipantRes> deleteParticipant(Long participantId){
-        Optional<Participant> data = participantRepository.findById(participantId);
+    public Optional<ParticipantRes> deleteParticipant(ParticipantIdReq participantIdReq){
+        List<Participant> data = participantRepository.findByUserAndProject(
+                participantIdReq.getUserId(), participantIdReq.getProjectId());
         if(data.isEmpty())
             throw new NoResultException();
-        participantRepository.deleteById(participantId);
-        return Optional.of(participantMapper.toDto(data.get()));
+        participantRepository.delete(data.get(0));
+        return Optional.of(participantMapper.toDto(data.get(0)));
     }
 
     public List<ParticipantRes> deleteParticipants(ParticipantDeleteReq participantDeleteReq)

@@ -1,6 +1,6 @@
 package com.linking.user.controller;
 
-import com.linking.project.ProjectService;
+import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;

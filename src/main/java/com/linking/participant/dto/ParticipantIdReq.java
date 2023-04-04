@@ -5,18 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParticipantCreateEmailReq {
+public class ParticipantIdReq {
+
+//    @NotNull
+//    @Email
+//    private String email;
 
     @NotNull
-    @Email
-    private String email;
+    private Long userId;
 
     @NotNull
     private Long projectId;

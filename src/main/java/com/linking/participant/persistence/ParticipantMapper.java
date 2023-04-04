@@ -1,7 +1,7 @@
-package com.linking.participant.mapper;
+package com.linking.participant.persistence;
 
 import com.linking.participant.domain.Participant;
-import com.linking.participant.dto.ParticipantCreateReq;
+import com.linking.participant.dto.ParticipantEntityReq;
 import com.linking.participant.dto.ParticipantRes;
 import org.mapstruct.Mapper;
 
@@ -30,14 +30,14 @@ public interface ParticipantMapper {
         return partList.stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    default Participant toEntity(ParticipantCreateReq participantCreateReq){
-        if(participantCreateReq == null)
+    default Participant toEntity(ParticipantEntityReq participantEntityReq){
+        if(participantEntityReq == null)
             return null;
 
         Participant.ParticipantBuilder partBuilder = Participant.builder();
         partBuilder
-                .user(participantCreateReq.getUser())
-                .project(participantCreateReq.getProject());
+                .user(participantEntityReq.getUser())
+                .project(participantEntityReq.getProject());
 
         return partBuilder.build();
     }

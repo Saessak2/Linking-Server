@@ -10,9 +10,8 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     open-in-view: false
     show-sql: true
-    # 이 새끼는 왜 자꾸 테이블 있는 거를 안 쓰고 쳐 만드는지 ?
 #    hibernate:
-#      ddl-auto: create
+#      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
