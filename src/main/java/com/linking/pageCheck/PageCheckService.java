@@ -1,6 +1,6 @@
 package com.linking.pageCheck;
 
-import com.linking.page.PageRepository;
+import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -5,6 +5,7 @@ import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -17,7 +18,7 @@ public class Participant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "participant_id")
-   private Long participantId;
+    private Long participantId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

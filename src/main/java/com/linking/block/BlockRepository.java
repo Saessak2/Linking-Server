@@ -1,5 +1,6 @@
 package com.linking.block;
 
+import com.linking.block.domain.Block;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
