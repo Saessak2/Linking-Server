@@ -1,68 +1,63 @@
 package com.linking.user.controller;
 
-import com.linking.project.service.ProjectService;
-import com.linking.project.dto.ProjectContainsPartsRes;
+import com.linking.global.ResponseHandler;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserDetailedRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.NoResultException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/users")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
 public class UserController {
 
     private final UserService userService;
-    private final ProjectService projectService;
 
-    @PostMapping()
+    @PostMapping("/email")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
-    public ResponseEntity<UserEmailRes> getUserListWithEmail(
-            @RequestParam("proj-id") Long projectId,
-            @RequestBody UserEmailReq userEmailReq){
+    public ResponseEntity<Object> getUserListWithEmail(@RequestBody UserEmailReq userEmailReq){
         try {
-
-            List<UserDetailedRes> userData = userService.findUserByPartOfEmail(userEmailReq);
-            if (projectId != -1 && !userData.isEmpty()) {
-                Optional<ProjectContainsPartsRes> partData = projectService.getProjectsContainingParts(projectId);
-                if (partData.isPresent())
-                    userData = userData.stream().filter(
-                                    u -> partData.get().getPartList().stream().noneMatch(
-                                            p -> u.getUserId().equals(p.getUserId())))
-                            .collect(Collectors.toList());
-            }
-            if (userData.isEmpty())
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new UserEmailRes(Boolean.FALSE, null));
-            return ResponseEntity.ok(new UserEmailRes(Boolean.TRUE, userData));
-        } catch(NoResultException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new UserEmailRes(Boolean.FALSE, null));
+            List<UserDetailedRes> userList = userService.getUsersByPartOfEmail(userEmailReq);
+            return ResponseHandler.generateOkResponse(new UserEmailRes(Boolean.TRUE, userList));
+        } catch(NoSuchElementException e){
+            return ResponseHandler.generateResponse(
+                    ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, new UserEmailRes(Boolean.FALSE, null));
         }
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
-    public ResponseEntity<UserDetailedRes> getUser(@RequestParam("id") Long userId){
-        return userService.findUser(userId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    public ResponseEntity<Object> getUser(@PathVariable("id") Long userId){
+        try {
+            return userService.getUserById(userId)
+                    .map(ResponseHandler::generateOkResponse)
+                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+        } catch (NoSuchElementException e){
+            return ResponseHandler.generateNotFoundResponse();
+        }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
-    public ResponseEntity<UserDetailedRes> deleteUser(@RequestParam("id") Long userId){
-        return userService.deleteUser(userId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    public ResponseEntity<Object> deleteUser(@PathVariable("id") Long userId){
+        try {
+            userService.deleteUser(userId);
+            return ResponseHandler.generateNoContentResponse();
+        } catch(EmptyResultDataAccessException e){
+            return ResponseHandler.generateNotFoundResponse();
+        } catch(DataIntegrityViolationException e){
+            return ResponseHandler.generateBadRequestResponse();
+        }
     }
 
 }
