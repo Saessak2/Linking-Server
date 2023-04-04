@@ -41,4 +41,8 @@ public class Project {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    public Project(Long projectId) {
+        this.projectId = projectId;
+    }
+
 }

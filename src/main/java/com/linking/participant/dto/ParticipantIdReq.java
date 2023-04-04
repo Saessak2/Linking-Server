@@ -13,10 +13,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class ParticipantIdReq {
 
-//    @NotNull
-//    @Email
-//    private String email;
-
     @NotNull
     private Long userId;
 

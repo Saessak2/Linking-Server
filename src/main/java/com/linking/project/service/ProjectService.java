@@ -1,8 +1,7 @@
 package com.linking.project.service;
 
+import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
-import com.linking.participant.dto.ParticipantEntityReq;
-import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
@@ -29,29 +28,31 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
 
     private final ParticipantRepository participantRepository;
-    private final ParticipantMapper participantMapper;
 
     // TODO: create logic needs to be optimized
     public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq)
             throws DataIntegrityViolationException {
         Project project = projectRepository.save(projectMapper.toEntity(projectCreateReq));
-
+        List<Long> participantIdList = projectCreateReq.getPartList();
+        Participant.ParticipantBuilder participantBuilder = Participant.builder();
         for(int i = 0; i < projectCreateReq.getPartList().size(); i++) {
             participantRepository.save(
-                    participantMapper.toEntity(
-                            new ParticipantEntityReq(
-                                    new User(projectCreateReq.getPartList().get(i)), project)));
+                    participantBuilder
+                            .user(new User(participantIdList.get(i)))
+                            .project(project).build());
         }
-        return Optional.ofNullable(projectMapper.toDto(projectRepository.findById(project.getProjectId()).get()));
+        return projectRepository.findById(project.getProjectId()).map(projectMapper::toDto);
     }
 
-    public Optional<ProjectContainsPartsRes> getProject(Long projectId) throws NoSuchElementException{
+    public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId)
+            throws NoSuchElementException{
         return Optional.ofNullable(projectRepository.findById(projectId)
                 .map(projectMapper::toDto)
                 .orElseThrow(NoSuchElementException::new));
     }
 
-    public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId) throws NoSuchElementException{
+    public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId)
+            throws NoSuchElementException{
         List<Project> data = projectRepository.findByOwner(ownerId);
         if(data.isEmpty())
             throw new NoSuchElementException();

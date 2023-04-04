@@ -34,7 +34,7 @@ public class UserController {
 
             List<UserDetailedRes> userData = userService.findUserByPartOfEmail(userEmailReq);
             if (projectId != -1 && !userData.isEmpty()) {
-                Optional<ProjectContainsPartsRes> partData = projectService.getProject(projectId);
+                Optional<ProjectContainsPartsRes> partData = projectService.getProjectsContainingParts(projectId);
                 if (partData.isPresent())
                     userData = userData.stream().filter(
                                     u -> partData.get().getPartList().stream().noneMatch(

@@ -43,7 +43,7 @@ public class ProjectController {
     public ResponseEntity<Object> getProject(
             @PathVariable("id") Long projectId){
         try {
-            return projectService.getProject(projectId)
+            return projectService.getProjectsContainingParts(projectId)
                     .map(ResponseHandler::generateOkResponse)
                     .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
         } catch(NoSuchElementException e){

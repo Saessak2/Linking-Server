@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ParticipantDeleteReq {
 
-    List<Long> partIdList;
+    List<ParticipantIdReq> partIdList;
 
 }
