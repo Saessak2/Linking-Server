@@ -37,20 +37,14 @@ public class Project {
 
     // TODO: NESTED ERROR ? (Part needs proj -> Proj needs Part)
     @OneToMany(mappedBy = "project")
-    private List<Participant> participant = new ArrayList<>();
+    private final List<Participant> participantList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private List<Document> documentList;
-
-
-    public void addDocument(Document document) {
-        this.documentList.add(document);
-        if (document.getProject() != this) {
-            document.setProject(this);
-        }
+    public Project(Long projectId) {
+        this.projectId = projectId;
     }
+
 }

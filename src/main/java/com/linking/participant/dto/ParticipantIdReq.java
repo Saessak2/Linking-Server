@@ -5,14 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParticipantRes {
+public class ParticipantIdReq {
 
-    private Long participantId;
+    @NotNull
     private Long userId;
+
+    @NotNull
     private Long projectId;
 
 }

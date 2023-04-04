@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParticipantCreateReq {
+public class ParticipantEntityReq {
 
     private User user;
     private Project project;

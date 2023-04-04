@@ -1,4 +1,4 @@
-package com.linking.project.mapper;
+package com.linking.project.persistence;
 
 import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
@@ -18,15 +18,17 @@ public interface ProjectMapper {
         if(project == null)
             return null;
 
+        // TODO: Builder pattern with List needs to be refactored
         ProjectContainsPartsRes.ProjectContainsPartsResBuilder projResBuilder
                 = ProjectContainsPartsRes.builder();
         projResBuilder
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .beginDate(project.getBeginDate())
-                .dueDate(project.getDueDate())
-                .ownerId(project.getOwner().getUserId())
-                .partList(project.getParticipant()
+                .dueDate(project.getDueDate());
+
+        if(!project.getParticipantList().isEmpty())
+                projResBuilder.partList(project.getParticipantList()
                         .stream().map(Participant::getUser)
                         .collect(Collectors.toList()));
 
@@ -48,7 +50,7 @@ public interface ProjectMapper {
                 .projectName(projectCreateReq.getProjectName())
                 .beginDate(projectCreateReq.getBeginDate())
                 .dueDate(projectCreateReq.getDueDate())
-                .owner(new User(projectCreateReq.getOwnerId()));
+                .owner(new User(projectCreateReq.getPartList().get(0)));
 
         return projBuilder.build();
     }
@@ -59,7 +61,7 @@ public interface ProjectMapper {
 
         Project.ProjectBuilder projBuilder = Project.builder();
         projBuilder
-                .projectId(projectUpdateReq.getOwnerId())
+                .projectId(projectUpdateReq.getProjectId())
                 .projectName(projectUpdateReq.getProjectName())
                 .beginDate(projectUpdateReq.getBeginDate())
                 .dueDate(projectUpdateReq.getDueDate())

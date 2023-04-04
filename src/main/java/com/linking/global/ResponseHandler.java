@@ -15,7 +15,9 @@ public class ResponseHandler {
     public static final String MSG_404 = "대상 없음";
     public static final String MSG_500 = "서버 오류";
 
-    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object resObj) {
+    public static ResponseEntity<Object> generateResponse(
+            String message, HttpStatus status, Object resObj) {
+
         Map<String, Object> map = new HashMap<>();
         map.put("message", message);
         map.put("status", status.value());
