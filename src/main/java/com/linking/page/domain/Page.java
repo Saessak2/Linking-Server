@@ -1,13 +1,11 @@
 package com.linking.page.domain;
 
 import com.linking.block.domain.Block;
-import com.linking.document.domain.Document;
+import com.linking.group.domain.Group;
 import com.linking.pageCheck.domain.PageCheck;
-import com.linking.project.domain.Project;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -20,32 +18,31 @@ public class Page {
     @Column(name = "page_id")
     private Long id;
 
-    private LocalDateTime createdDatetime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
-    private LocalDateTime updatedDatetime;
+    private int order;
 
+    private String title;
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<Block> blockList;
 
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<PageCheck> pageCheckList;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "document_id")
-    private Document document;
 
     @Builder
-    public Page(LocalDateTime createdDatetime, LocalDateTime updatedDatetime, List<Block> blockList, List<PageCheck> pageCheckList, Document document) {
-        this.createdDatetime = createdDatetime;
-        this.updatedDatetime = updatedDatetime;
+    public Page(Group group, int order, String title, List<Block> blockList, List<PageCheck> pageCheckList) {
+        this.group = group;
+        this.order = order;
+        this.title = title;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
-        this.document = document;
     }
 
-
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public void addBlock(Block block) {
@@ -53,7 +50,6 @@ public class Page {
         if (block.getPage() != this) {
             block.setPage(this);
         }
-        this.updatedDatetime = LocalDateTime.now();
     }
 
     public void addPageCheck(PageCheck pageCheck) {
@@ -62,4 +58,14 @@ public class Page {
             pageCheck.setPage(this);
         }
     }
+
+    @PrePersist
+    public void prePersist(){
+        this.title = this.title == null ? "untitled" : this.title;
+    }
+
+    public void updateOrder(int order) {
+        this.order = order;
+    }
+
 }

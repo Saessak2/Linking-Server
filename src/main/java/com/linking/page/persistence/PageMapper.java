@@ -16,6 +16,18 @@ import java.util.ArrayList;
 )
 public interface PageMapper {
 
+    default PageRes toDto(Page source) {
+        if (source == null) {
+            return null;
+        }
+        PageRes.PageResBuilder builder = PageRes.builder();
+        builder
+                .pageId(source.getId())
+                .order(source.getOrder())
+                .title(source.getTitle())
+                .groupId(source.getGroup().getId());
+        return builder.build();
+    }
 
     default Page toEntity(PageCreateReq source) {
         if (source == null) {
@@ -23,11 +35,10 @@ public interface PageMapper {
         }
         Page.PageBuilder builder = Page.builder();
         builder
+                .title(source.getTitle())
+                .order(source.getOrder())
                 .pageCheckList(new ArrayList<>())
-                .blockList(new ArrayList<>())
-                .createdDatetime(LocalDateTime.now())
-                .updatedDatetime(LocalDateTime.now());
-
+                .blockList(new ArrayList<>());
         return builder.build();
     }
 }

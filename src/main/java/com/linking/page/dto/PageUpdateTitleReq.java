@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageUpdateReq {
+public class PageUpdateTitleReq {
 
     private Long pageId;
-    private Long parentDocId;
     private String title;
-    private int docIndex;
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Builder
 @Getter
@@ -14,11 +15,9 @@ import javax.validation.constraints.NotNull;
 public class PageCreateReq {
 
     @NotNull
-    private Long projectId; // 프로젝트 id
-    @NotNull
-    private Long parentDocId;
+    private Long groupId;
     @NotNull
     private String title;
     @NotNull
-    private int docIndex;
+    private int order;
 }

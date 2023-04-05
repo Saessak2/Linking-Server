@@ -1,10 +1,14 @@
 package com.linking.page.dto;
 
-import com.linking.document.dto.DocumentRes;
+import com.linking.annotation.dto.AnnotationRes;
+import com.linking.block.dto.BlockRes;
+import com.linking.pageCheck.dto.PageCheckRes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 
 @Getter
@@ -13,13 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PageRes {
 
-    private Long docId;
-    private Long projectId;
-    private Long parentDocId;
+    private Long pageId;
+    private Long groupId;
     private String title;
-    private String createdDatetime;
-    private String updatedDatetime;
-//    private List<BlockRes> blockResList;
-//    private List<PageCheckRes> pageCheckResList;
+    private int order;
+    private List<BlockRes> blockResList;
+    private List<PageCheckRes> pageCheckResList;
 
 }

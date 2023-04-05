@@ -17,7 +17,7 @@ public class GroupCreateReq {
     private Long projectId;
     @NotNull
     @Size(min = 1, max = 10)
-    private String title;
+    private String name;
     @NotNull
-    private int docIndex;
+    private int order;
 }

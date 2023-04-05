@@ -1,6 +1,5 @@
 package com.linking.group.domain;
 
-import com.linking.document.domain.Document;
 import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
 import lombok.*;
@@ -21,17 +20,47 @@ public class Group  {
     @Column(name = "group_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "document_id")
-    private Document document;
+    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    private int order;
+
+    @OneToMany(mappedBy = "group")
+    private List<Page> pageList;
+
 
     @Builder
-    public Group(Document document) {
-        this.document = document;
+    public Group(String name, Project project, int order) {
+        this.name = name;
+        this.project = project;
+        this.order = order;
     }
 
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void addGroup(Page page) {
+        this.pageList.add(page);
+        if (page.getGroup() != this) {
+            page.setGroup(this);
+        }
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.name = this.name == null ? "New Group" : this.name;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void changeOrder(int order) {
+        this.order = order;
     }
 }
 

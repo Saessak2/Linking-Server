@@ -1,12 +1,9 @@
 package com.linking.group.dto;
 
-import com.linking.document.dto.DocumentRes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @Builder
@@ -14,7 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupRes{
 
-    private Long docId;
+    private Long groupId;
     private Long projectId;
+    private int order;
     private String title;
 }
