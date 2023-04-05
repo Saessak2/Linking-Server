@@ -1,4 +1,4 @@
-package com.linking.block;
+package com.linking.block.persistence;
 
 import com.linking.block.domain.Block;
 import org.springframework.data.jpa.repository.JpaRepository;

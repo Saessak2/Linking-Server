@@ -1,7 +1,10 @@
 package com.linking.document.domain;
 
+import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.apache.catalina.util.ToStringUtil;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -49,11 +52,12 @@ public class Document {
         this.parent = parent;
     }
 
+    protected Document(Long id) {
+        this.id = id;
+    }
+
     public void setProject(Project project) {
         this.project = project;
-        if (!project.getDocumentList().contains(this)) {
-            project.getDocumentList().add(this);
-        }
     }
 
     public void setParent(Document parent) {
@@ -72,5 +76,20 @@ public class Document {
 
     public void setDocIndex(int docIndex) {
         this.docIndex = docIndex;
+    }
+
+    public void removePage(Page page) {
+        this.childList.remove(page);
+        page.setParent(null);
+    }
+
+    public void removeAllPages() {
+        List<Document> documents = this.getChildList();
+
+        if (documents != null) {
+            for (Document document : documents) {
+                document.setParent(null);
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.linking.group.controller;
 
+import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -21,25 +23,25 @@ public class GroupController {
 
 
     @PostMapping
-    public ResponseEntity<Object> postGroup(@RequestBody GroupCreateReq groupCreateReq) {
+    public ResponseEntity<Object> postGroup(@RequestBody @Valid GroupCreateReq groupCreateReq) {
 
         try {
             GroupRes groupRes = groupService.createGroup(groupCreateReq);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, groupRes);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse("프로젝트 ID 존재하지 않음", HttpStatus.NOT_FOUND, null);
+        } catch (Exception e) {
+            return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
         }
     }
 
 
     @PutMapping
-    public ResponseEntity<Object> putGroup(@RequestBody GroupUpdateReq groupUpdateReq) {
+    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateReq groupUpdateReq) {
 
         try {
             GroupRes groupRes = groupService.updateGroup(groupUpdateReq);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, groupRes);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
@@ -53,12 +55,7 @@ public class GroupController {
             groupService.deleteGroup(groupId);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
-    }
-
-    @GetMapping
-    public ResponseEntity<Object> getGroupTest(@RequestParam("id") Long groupId) {
-        GroupRes groupRes = groupService.findGroup(groupId);
     }
 }

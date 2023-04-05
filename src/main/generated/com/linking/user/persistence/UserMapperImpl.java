@@ -2,7 +2,7 @@ package com.linking.user.persistence;
 
 import com.linking.user.domain.User;
 import com.linking.user.dto.UserDetailedRes;
-import com.linking.user.dto.UserSignUpDefaultReq;
+import com.linking.user.dto.UserSignUpReq;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-04-04T21:03:23+0900",
+    date = "2023-04-05T03:26:08+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 11.0.16.1 (Oracle Corporation)"
 )
 @Component
@@ -49,18 +49,18 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public User toEntity(UserSignUpDefaultReq userSignUpDefaultReq) {
-        if ( userSignUpDefaultReq == null ) {
+    public User toEntity(UserSignUpReq userSignUpReq) {
+        if ( userSignUpReq == null ) {
             return null;
         }
 
         User.UserBuilder user = User.builder();
 
-        user.lastName( userSignUpDefaultReq.getLastName() );
-        user.firstName( userSignUpDefaultReq.getFirstName() );
-        user.email( userSignUpDefaultReq.getEmail() );
-        user.phoneNumber( userSignUpDefaultReq.getPhoneNumber() );
-        user.password( userSignUpDefaultReq.getPassword() );
+        user.lastName( userSignUpReq.getLastName() );
+        user.firstName( userSignUpReq.getFirstName() );
+        user.email( userSignUpReq.getEmail() );
+        user.phoneNumber( userSignUpReq.getPhoneNumber() );
+        user.password( userSignUpReq.getPassword() );
 
         return user.build();
     }

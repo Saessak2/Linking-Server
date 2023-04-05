@@ -1,4 +1,4 @@
-package com.linking.pageCheck;
+package com.linking.pageCheck.persistence;
 
 import com.linking.pageCheck.domain.PageCheck;
 import org.springframework.data.jpa.repository.JpaRepository;

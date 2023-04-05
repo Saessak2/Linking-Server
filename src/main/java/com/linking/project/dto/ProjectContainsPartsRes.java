@@ -21,5 +21,4 @@ public class ProjectContainsPartsRes {
     private LocalDate dueDate;
     private List<User> partList;
     // TODO: List<User> -> List<UserDetailedDto> (capsule)
-
 }

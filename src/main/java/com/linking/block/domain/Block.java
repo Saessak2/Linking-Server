@@ -12,8 +12,6 @@ import java.util.List;
 @Table(name = "block")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor
 public class Block {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,13 +21,13 @@ public class Block {
     // 필요여부에 따라 없앨 수 있음
     private int blockIndex;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")  // TEXT 타입은 65,535bytes
     private String content;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id")
     private Page page;
 
@@ -37,6 +35,13 @@ public class Block {
     private List<Annotation> annotationList;
 
 
+
+    @Builder
+    public Block(int blockIndex, Page page, List<Annotation> annotationList) {
+        this.blockIndex = blockIndex;
+        this.page = page;
+        this.annotationList = annotationList;
+    }
 
     @PrePersist
     public void prePersist() {

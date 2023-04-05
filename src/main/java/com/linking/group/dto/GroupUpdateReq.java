@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupUpdateReq {
 
+    @NotNull
     private Long groupId;
+    @NotNull
     private String name;
 }

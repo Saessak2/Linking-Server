@@ -1,4 +1,4 @@
-package com.linking.annotation;
+package com.linking.annotation.persistence;
 
 import com.linking.annotation.domain.Annotation;
 import org.springframework.data.jpa.repository.JpaRepository;

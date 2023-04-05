@@ -1,4 +1,4 @@
-package com.linking.pageCheck;
+package com.linking.pageCheck.service;
 
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;

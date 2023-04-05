@@ -54,6 +54,7 @@ public class Page extends Document {
         if (block.getPage() != this) {
             block.setPage(this);
         }
+        this.updatedDatetime = LocalDateTime.now();
     }
 
     public void addPageCheck(PageCheck pageCheck) {

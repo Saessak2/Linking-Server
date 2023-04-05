@@ -1,4 +1,4 @@
-package com.linking.page.dto;
+package com.linking.annotation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,19 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageCreateReq {
+public class AnnotationCreateReq {
 
     @NotNull
-    private Long projectId; // 프로젝트 id
+    @Size(min = 1, max = 255)
+    private String content;
     @NotNull
-    private Long parentDocId;
+    private Long blockId;
     @NotNull
-    private String title;
+    private Long participantId;
     @NotNull
-    private int docIndex;
+    private String userName;
 }

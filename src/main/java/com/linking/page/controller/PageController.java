@@ -1,5 +1,6 @@
 package com.linking.page.controller;
 
+import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageRes;
@@ -25,9 +26,8 @@ public class PageController {
         try {
             PageRes pageRes = pageService.createPage(pageCreateReq);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageRes);
-
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse("그룹 or 프로젝트 존재하지 않음", HttpStatus.OK, null);
+        } catch (Exception e) {
+            return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
         }
     }
 
@@ -37,7 +37,7 @@ public class PageController {
             PageRes pageRes = pageService.updatePage(pageUpdateReq);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
@@ -47,7 +47,7 @@ public class PageController {
             pageService.deletePage(id);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 }

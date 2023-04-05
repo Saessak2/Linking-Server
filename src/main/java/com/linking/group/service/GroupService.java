@@ -1,17 +1,22 @@
 package com.linking.group.service;
 
 import com.linking.document.domain.Document;
+import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupUpdateReq;
+import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
+import com.linking.page.domain.Page;
 import com.linking.page.dto.PageRes;
-import com.linking.project.ProjectRepository;
+import com.linking.page.persistence.PageMapper;
 import com.linking.project.domain.Project;
+import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,75 +26,40 @@ import java.util.NoSuchElementException;
 public class GroupService {
 
     private final GroupRepository groupRepository;
+    private final GroupMapper groupMapper;
+    private final PageMapper pageMapper;
     private final ProjectRepository projectRepository;
 
 
-    public GroupRes createGroup(GroupCreateReq groupCreateReq) throws NoSuchElementException{
-
-        Project findProject = projectRepository.findById(groupCreateReq.getProjectId())
-                .orElseThrow(() -> new NoSuchElementException());
+    public GroupRes createGroup(GroupCreateReq groupCreateReq) throws Exception{
+        Project refProject = projectRepository.getReferenceById(groupCreateReq.getProjectId());
 
         // TODO docIndex 중복 체크
+        Group group = groupMapper.toEntity(groupCreateReq);
+        group.setProject(refProject);
 
-        Group group = Group.builder()
-                .name(groupCreateReq.getName())
-                .docIndex(groupCreateReq.getDocIndex())
-                .childList(new ArrayList<>())
-                .project(findProject)
-                .build();
-
-        // TODO 양방향 연관관계 설정
+        // TODO 양방향 연관관계 설정 ?
 //        findProject.addDocument(group);
-        groupRepository.save(group);
 
-        Group saveGroup = groupRepository.save(group);
-        GroupRes groupRes = GroupRes.builder()
-                .groupId(saveGroup.getId())
-                .projectId(saveGroup.getProject().getProjectId())
-                .name(saveGroup.getName())
-                .build();
-
-        return groupRes;
-
+        return groupMapper.toDto(groupRepository.save(group));
     }
 
     public GroupRes updateGroup(GroupUpdateReq groupUpdateReq) throws NoSuchElementException{
-
         Group findGroup = groupRepository.findById(groupUpdateReq.getGroupId())
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
         // 이름 변경
         findGroup.updateName(groupUpdateReq.getName());
-        Group saveGroup = groupRepository.save(findGroup);
 
-
-        GroupRes groupRes = GroupRes.builder()
-                .groupId(saveGroup.getId())
-                .projectId(saveGroup.getProject().getProjectId())
-                .name(saveGroup.getName())
-                .build();
-
-        return groupRes;
+        return groupMapper.toDto(groupRepository.save(findGroup));
     }
 
     public void deleteGroup(Long groupId) throws NoSuchElementException{
-
-        groupRepository.delete(
-                groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException())
-        );
-        // TODO 프로젝트의 document 리스트에서 삭제 되는지 확인 필요함
-    }
-
-    public GroupRes findGroup(Long groupId) {
         Group findGroup = groupRepository.findById(groupId)
-                .orElseThrow(() -> new NoSuchElementException());
-
-        List<Document> childList = findGroup.getChildList();
-        List<PageRes> pageResList = new ArrayList<>();
-        for (Document child: childList) {
-            PageRes pageRes = PageRes.builder()
-                    .
-                    .build();
-        }
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
+        // 그룹 삭제 시 페이지 모두 삭제하는 경우
+//        findGroup.removeAllPages();
+        groupRepository.delete(findGroup);
+        // TODO 프로젝트의 document 리스트에서 삭제 되는지 확인 필요함
     }
 }
