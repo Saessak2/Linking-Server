@@ -5,7 +5,6 @@ import com.linking.document.domain.Document;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.project.domain.Project;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,14 +12,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "page")
-@DiscriminatorValue("P")
-@PrimaryKeyJoinColumn(name = "page_id")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Page extends Document {
+public class Page {
 
-    @Column(length = 50)
-    private String title;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "page_id")
+    private Long id;
 
     private LocalDateTime createdDatetime;
 
@@ -32,22 +30,23 @@ public class Page extends Document {
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<PageCheck> pageCheckList;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "document_id")
+    private Document document;
 
     @Builder
-    protected Page(int docIndex, Project project, Document parent, String title, LocalDateTime createdDatetime, LocalDateTime updatedDatetime, List<Block> blockList, List<PageCheck> pageCheckList) {
-        super(docIndex, project, parent);
-        this.title = title;
+    public Page(LocalDateTime createdDatetime, LocalDateTime updatedDatetime, List<Block> blockList, List<PageCheck> pageCheckList, Document document) {
         this.createdDatetime = createdDatetime;
         this.updatedDatetime = updatedDatetime;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
+        this.document = document;
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.title = this.title == null ? "untitled" : this.title;
-    }
 
+    public void setDocument(Document document) {
+        this.document = document;
+    }
 
     public void addBlock(Block block) {
         this.blockList.add(block);
@@ -63,10 +62,4 @@ public class Page extends Document {
             pageCheck.setPage(this);
         }
     }
-
-    public void update(String title) {
-        this.title = title;
-        this.updatedDatetime = LocalDateTime.now();
-    }
-
 }

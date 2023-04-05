@@ -13,36 +13,25 @@ import java.util.List;
 
 @Entity
 @Table(name = "\"group\"")
-@DiscriminatorValue("G")
-@PrimaryKeyJoinColumn(name = "group_id")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Group extends Document {
+public class Group  {
 
-    @Column(length = 10)
-    private String name;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
+    private Long id;
 
-
-    @Builder
-    protected Group(int docIndex, Project project, List<Document> childList,  String name) {
-        super(docIndex, project, childList);
-        this.name = name;
-    }
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "document_id")
+    private Document document;
 
     @Builder
-    public Group(Long id) {
-        super(id);
+    public Group(Document document) {
+        this.document = document;
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.name = this.name == null ? "New Group" : this.name;
+    public void setDocument(Document document) {
+        this.document = document;
     }
-
-    public void updateName(String name) {
-        this.name = name;
-    }
-
-
 }
 

@@ -31,20 +31,20 @@ public class PageController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<Object> putPage(@RequestBody PageUpdateReq pageUpdateReq) {
-        try {
-            PageRes pageRes = pageService.updatePage(pageUpdateReq);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
-    }
+//    @PutMapping
+//    public ResponseEntity<Object> putPage(@RequestBody PageUpdateReq pageUpdateReq) {
+//        try {
+//            PageRes pageRes = pageService.updatePage(pageUpdateReq);
+//            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
+//        } catch (NoSuchElementException e) {
+//            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+//        }
+//    }
 
     @DeleteMapping
-    public ResponseEntity<Object> deletePage(@RequestParam("id") Long id) {
+    public ResponseEntity<Object> deletePage(@RequestParam("id") Long docId) {
         try {
-            pageService.deletePage(id);
+            pageService.deletePage(docId);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);

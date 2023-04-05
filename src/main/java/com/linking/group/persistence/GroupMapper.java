@@ -14,28 +14,12 @@ import java.util.ArrayList;
 )
 public interface GroupMapper {
 
-    default GroupRes toDto(Group source) {
-        if (source == null) {
-            return null;
-        }
-        GroupRes.GroupResBuilder builder = GroupRes.builder();
-        builder
-                .groupId(source.getId())
-                .name(source.getName())
-                .projectId(source.getProject().getProjectId());
-        return builder.build();
-    }
-
 
     default Group toEntity(GroupCreateReq source) {
         if (source == null) {
             return null;
         }
         Group.GroupBuilder builder = Group.builder();
-        builder
-                .docIndex(source.getDocIndex())
-                .name(source.getName())
-                .childList(new ArrayList<>());
         return builder.build();
     }
 }

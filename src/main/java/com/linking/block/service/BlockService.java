@@ -20,10 +20,5 @@ public class BlockService {
     private final AnnotationMapper annotationMapper;
     private final PageRepository pageRepository;
 
-//    public void createBlock(BlockCreateReq blockCreateReq) {
-//        Page refPage = pageRepository.getReferenceById(blockCreateReq.getPageId());
-//        Block block = blockMapper.toEntity(blockCreateReq);
-//        block.setPage(refPage);
-//
-//    }
+
 }

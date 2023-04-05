@@ -46,13 +46,13 @@ public class GroupController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Object> deleteGroup(@RequestParam("id") Long groupId) {
+    public ResponseEntity<Object> deleteGroup(@RequestParam("id") Long docId) {
 
-        if (groupId == null) {
+        if (docId == null) {
             return ResponseHandler.generateResponse(ResponseHandler.MSG_400, HttpStatus.BAD_REQUEST, null);
         }
         try {
-            groupService.deleteGroup(groupId);
+            groupService.deleteGroup(docId);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);

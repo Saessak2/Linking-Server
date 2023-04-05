@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class GroupUpdateReq {
 
     @NotNull
-    private Long groupId;
+    private Long docId;
     @NotNull
-    private String name;
+    private String title;
 }

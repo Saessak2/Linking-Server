@@ -8,6 +8,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 @Mapper(
         componentModel = "spring",
@@ -15,21 +16,18 @@ import java.time.format.DateTimeFormatter;
 )
 public interface PageMapper {
 
-    default PageRes toDto(Page source) {
-        if (source == null) {
-            return null;
-        }
-        PageRes.PageResBuilder builder = PageRes.builder();
-        builder
-                .pageId(source.getId())
-                .title(source.getTitle())
-                .createdDatetime(source.getCreatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
-                .updatedDatetime(source.getUpdatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
-                .projectId(source.getProject().getProjectId())
-                .parentDocId(source.getParent().getId());
-
-        return builder.build();
-    }
+//    default PageRes toDto(Page source) {
+//        if (source == null) {
+//            return null;
+//        }
+//        PageRes.PageResBuilder builder = PageRes.builder();
+//        builder
+//                .createdDatetime(source.getCreatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
+//                .updatedDatetime(source.getUpdatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
+//                .parentDocId(source.getParent().getId());
+//
+//        return builder.build();
+//    }
 
     default Page toEntity(PageCreateReq source) {
         if (source == null) {
@@ -37,8 +35,8 @@ public interface PageMapper {
         }
         Page.PageBuilder builder = Page.builder();
         builder
-                .docIndex(source.getDocIndex())
-                .title(source.getTitle())
+                .pageCheckList(new ArrayList<>())
+                .blockList(new ArrayList<>())
                 .createdDatetime(LocalDateTime.now())
                 .updatedDatetime(LocalDateTime.now());
 

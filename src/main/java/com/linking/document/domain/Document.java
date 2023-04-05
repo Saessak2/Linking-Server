@@ -1,19 +1,13 @@
 package com.linking.document.domain;
 
-import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.apache.catalina.util.ToStringUtil;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
 @Table(name = "document")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Document {
@@ -21,9 +15,11 @@ public class Document {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "document_id")
     private Long id;
-
-    // 필요에 따라 없앨 수 있음.
     private int docIndex;
+    private String title;
+
+    @Enumerated(EnumType.STRING)
+    private DType dType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
@@ -38,22 +34,28 @@ public class Document {
     private Document parent;
 
 
-    // 그룹 생성자
-    protected Document(int docIndex, Project project, List<Document> childList) {
+    @Builder  // 그룹 생성자
+    protected Document(int docIndex, Project project, List<Document> childList, String title, DType dType) {
         this.docIndex = docIndex;
         this.project = project;
         this.childList = childList;
+        this.title = title;
+        this.dType = dType;
     }
 
-    // 페이지 생성자
-    protected Document(int docIndex, Project project, Document parent) {
+    @Builder // 페이지 생성자
+    protected Document(int docIndex, Project project, Document parent, String title) {
         this.docIndex = docIndex;
         this.project = project;
         this.parent = parent;
+        this.title = title;
+        this.dType = dType;
     }
 
-    protected Document(Long id) {
-        this.id = id;
+
+    @PrePersist
+    public void prePersist() {
+        this.title = this.title == null ? "untitled" : this.title;
     }
 
     public void setProject(Project project) {
@@ -78,9 +80,9 @@ public class Document {
         this.docIndex = docIndex;
     }
 
-    public void removePage(Page page) {
-        this.childList.remove(page);
-        page.setParent(null);
+    public void removeDocument(Document document) {
+        this.childList.remove(document);
+        document.setParent(null);
     }
 
     public void removeAllPages() {
@@ -92,4 +94,5 @@ public class Document {
             }
         }
     }
+
 }

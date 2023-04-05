@@ -12,10 +12,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupRes extends DocumentRes{
+public class GroupRes{
 
-
-    private Long groupId;
+    private Long docId;
     private Long projectId;
-    private String name;
+    private String title;
 }
