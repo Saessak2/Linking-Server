@@ -90,4 +90,14 @@ public class PageService {
         // TODO 프로젝트의 document 리스트에서 삭제 되는지 확인 필요함
 
     }
+
+    public PageRes getPage(Long docId) throws NoSuchElementException{
+        Page findPage = pageRepository.findById(docId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+
+        PageRes.PageResBuilder builder = PageRes.builder();
+        builder
+                .title(findPage.getDocument().getTitle())
+
+    }
 }

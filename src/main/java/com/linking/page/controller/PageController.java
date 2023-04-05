@@ -50,5 +50,16 @@ public class PageController {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<Object> getPage(@RequestParam("id") Long docId) {
+        try {
+            PageRes pageRes = pageService.getPage(docId);
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
+        } catch (NoSuchElementException e){
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+        }
+
+    }
 }
 

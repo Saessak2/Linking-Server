@@ -16,18 +16,6 @@ import java.util.ArrayList;
 )
 public interface PageMapper {
 
-//    default PageRes toDto(Page source) {
-//        if (source == null) {
-//            return null;
-//        }
-//        PageRes.PageResBuilder builder = PageRes.builder();
-//        builder
-//                .createdDatetime(source.getCreatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
-//                .updatedDatetime(source.getUpdatedDatetime().format(DateTimeFormatter.ofPattern("yy.MM.dd HH:mm:ss")))
-//                .parentDocId(source.getParent().getId());
-//
-//        return builder.build();
-//    }
 
     default Page toEntity(PageCreateReq source) {
         if (source == null) {
