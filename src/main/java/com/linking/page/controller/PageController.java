@@ -4,7 +4,6 @@ import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageRes;
-import com.linking.page.dto.PageUpdateReq;
 import com.linking.page.service.PageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

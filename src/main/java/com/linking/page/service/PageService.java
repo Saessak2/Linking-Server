@@ -6,18 +6,15 @@ import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageRes;
-import com.linking.page.dto.PageUpdateOrderReq;
+import com.linking.document.dto.PageUpdateOrderReq;
 import com.linking.page.dto.PageUpdateTitleReq;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,16 +60,19 @@ public class PageService {
         beforeGroupPages.removeIf(p -> p.getId().equals(pageUpdateOrderReq.getPageId()));
 
         List<Page> afterGroupPages = pageRepository.findAllByGroup(pageUpdateOrderReq.getAfterGroupId());
-        afterGroupPages.add(pageUpdateOrderReq.getChangedOrder(), destPage);
+        afterGroupPages.add(pageUpdateOrderReq.getOrder(), destPage);
 
         int order = 0;
         for (Page page : beforeGroupPages) {
             page.updateOrder(order++);
+            pageRepository.save(page);
         }
         order = 0;
         for (Page page : afterGroupPages) {
             page.updateOrder(order++);
+            pageRepository.save(page);
         }
+        return pageMapper.toDto(destPage);
     }
 
     public void deletePage(Long pageId) throws NoSuchElementException{
@@ -92,7 +92,7 @@ public class PageService {
                 .pageId(findPage.getId())
                 .groupId(findPage.getGroup().getId())
                 .title(findPage.getTitle())
-                .order(findPage.getOrder())
+                .order(findPage.getPageOrder())
                 .pageCheckResList(null)
                 .blockResList(null);
         return builder.build();

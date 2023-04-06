@@ -6,8 +6,6 @@ import com.linking.page.dto.PageRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @Mapper(
@@ -23,9 +21,12 @@ public interface PageMapper {
         PageRes.PageResBuilder builder = PageRes.builder();
         builder
                 .pageId(source.getId())
-                .order(source.getOrder())
+                .order(source.getPageOrder())
                 .title(source.getTitle())
-                .groupId(source.getGroup().getId());
+                .groupId(source.getGroup().getId())
+                .blockResList(null)
+                .pageCheckResList(null);
+
         return builder.build();
     }
 

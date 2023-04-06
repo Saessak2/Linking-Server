@@ -1,6 +1,5 @@
 package com.linking.page.dto;
 
-import com.linking.annotation.dto.AnnotationRes;
 import com.linking.block.dto.BlockRes;
 import com.linking.pageCheck.dto.PageCheckRes;
 import lombok.AllArgsConstructor;
@@ -20,8 +19,8 @@ public class PageRes {
     private Long pageId;
     private Long groupId;
     private String title;
-    private int order;
     private List<BlockRes> blockResList;
     private List<PageCheckRes> pageCheckResList;
+    private int annotNotiCnt;
 
 }

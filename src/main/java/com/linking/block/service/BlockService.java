@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BlockService {
 
-    private final BlockRepository blockRepository;
-    private final BlockMapper blockMapper;
-    private final AnnotationMapper annotationMapper;
-    private final PageRepository pageRepository;
-
+//    private final BlockRepository blockRepository;
+//    private final BlockMapper blockMapper;
+//    private final AnnotationMapper annotationMapper;
+//    private final PageRepository pageRepository;
+//
 
 }

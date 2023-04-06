@@ -1,18 +1,17 @@
-package com.linking.page.dto;
+package com.linking.document.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageUpdateOrderReq {
-
+public class PageOrderReq {
+    @NotNull
     private Long pageId;
-    private Long beforeGroupId;
-    private Long afterGroupId;
-    private int changedOrder;
 }

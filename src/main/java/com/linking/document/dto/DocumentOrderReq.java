@@ -1,4 +1,4 @@
-package com.linking.page.dto;
+package com.linking.document.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,17 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.util.List;
+
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageUpdateTitleReq {
-
+public class DocumentOrderReq {
     @NotNull
-    private Long pageId;
-    @NotNull
-    @Size(max = 10)
-    private String title;
+    private List<GroupOrderReq> groupOrderReqList;
 }

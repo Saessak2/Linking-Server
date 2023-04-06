@@ -22,7 +22,7 @@ public class Page {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    private int order;
+    private int pageOrder;
 
     private String title;
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
@@ -33,9 +33,9 @@ public class Page {
 
 
     @Builder
-    public Page(Group group, int order, String title, List<Block> blockList, List<PageCheck> pageCheckList) {
+    public Page(Group group, int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList) {
         this.group = group;
-        this.order = order;
+        this.pageOrder = pageOrder;
         this.title = title;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
@@ -65,7 +65,7 @@ public class Page {
     }
 
     public void updateOrder(int order) {
-        this.order = order;
+        this.pageOrder = order;
     }
 
 }

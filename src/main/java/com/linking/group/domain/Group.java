@@ -3,11 +3,8 @@ package com.linking.group.domain;
 import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
@@ -26,17 +23,16 @@ public class Group  {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    private int order;
-
-    @OneToMany(mappedBy = "group")
-    private List<Page> pageList;
+    private int groupOrder;
+    @OneToMany(mappedBy = "group")  private List<Page> pageList;
 
 
     @Builder
-    public Group(String name, Project project, int order) {
+    public Group(String name, Project project, int groupOrder, List<Page> pageList) {
         this.name = name;
         this.project = project;
-        this.order = order;
+        this.groupOrder = groupOrder;
+        this.pageList = pageList;
     }
 
     public void setProject(Project project) {
@@ -59,8 +55,8 @@ public class Group  {
         this.name = name;
     }
 
-    public void changeOrder(int order) {
-        this.order = order;
+    public void updateOrder(int idx) {
+        this.groupOrder = idx;
     }
 }
 

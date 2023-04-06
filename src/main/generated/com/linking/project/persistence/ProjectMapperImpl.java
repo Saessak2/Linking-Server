@@ -1,4 +1,4 @@
-package com.linking.annotation.persistence;
+package com.linking.project.persistence;
 
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component;
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 11.0.16.1 (Oracle Corporation)"
 )
 @Component
-public class AnnotationMapperImpl implements AnnotationMapper {
+public class ProjectMapperImpl implements ProjectMapper {
 }

@@ -5,7 +5,6 @@ import com.linking.page.domain.Page;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -19,7 +18,7 @@ public class Block {
     private Long id;
     
     // 필요여부에 따라 없앨 수 있음
-    private int blockIndex;
+    private int blockOrder;
 
     @Column(length = 100, nullable = false)
     private String title;
@@ -37,8 +36,8 @@ public class Block {
 
 
     @Builder
-    public Block(int blockIndex, Page page, List<Annotation> annotationList) {
-        this.blockIndex = blockIndex;
+    public Block(int blockOrder, Page page, List<Annotation> annotationList) {
+        this.blockOrder = blockOrder;
         this.page = page;
         this.annotationList = annotationList;
     }

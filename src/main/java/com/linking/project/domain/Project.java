@@ -1,11 +1,9 @@
 package com.linking.project.domain;
 
-import com.linking.document.domain.Document;
 import com.linking.participant.domain.Participant;
 import com.linking.user.domain.User;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Marker;
 
 import javax.persistence.*;
 import java.time.LocalDate;

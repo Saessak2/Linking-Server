@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface PageRepository extends JpaRepository<Page, Long>, PageRepositoryCustom {
+public interface PageRepository extends JpaRepository<Page, Long> {
 
 
     @Modifying(clearAutomatically = true)
