@@ -1,6 +1,5 @@
 package com.linking.group.controller;
 
-import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
@@ -30,9 +29,11 @@ public class GroupController {
 
         try {
             GroupRes groupRes = groupService.createGroup(req);
+            if (groupRes == null)
+                return ResponseHandler.generateInternalServerErrorResponse();
             return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, groupRes);
-        } catch (Exception e) {
-            return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 

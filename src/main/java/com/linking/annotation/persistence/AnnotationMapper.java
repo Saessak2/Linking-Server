@@ -8,6 +8,8 @@ import org.mapstruct.ReportingPolicy;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -28,6 +30,23 @@ public interface AnnotationMapper {
                 .userName(source.getUserName());
 
         return builder.build();
+    }
+
+    default List<AnnotationRes> toDtoBulk(List<Annotation> sources) {
+        if (sources == null) return null;
+
+        List<AnnotationRes> annotationResList = new ArrayList<>();
+
+        for (Annotation source : sources) {
+            AnnotationRes.AnnotationResBuilder builder = AnnotationRes.builder();
+            builder
+                    .annotationId(source.getId())
+                    .blockId(source.getBlock().getId())
+                    .content(source.getContent())
+                    .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd")))
+                    .userName(source.getUserName());
+        }
+        return annotationResList;
     }
 
     default Annotation toEntity(AnnotationCreateReq source) {

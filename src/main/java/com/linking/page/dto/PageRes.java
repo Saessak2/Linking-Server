@@ -2,10 +2,7 @@ package com.linking.page.dto;
 
 import com.linking.block.dto.BlockRes;
 import com.linking.pageCheck.dto.PageCheckRes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 

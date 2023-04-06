@@ -20,7 +20,7 @@ public class Block {
     // 필요여부에 따라 없앨 수 있음
     private int blockOrder;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String title;
 
     @Column(columnDefinition = "TEXT")  // TEXT 타입은 65,535bytes
@@ -46,6 +46,7 @@ public class Block {
     @PrePersist
     public void prePersist() {
         this.title = this.title == null ? "untitled" : this.title;
+        this.content = this.content == null ? "" : this.content;
     }
 
     public void setPage(Page page) {

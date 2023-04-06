@@ -1,12 +1,15 @@
 package com.linking.page.persistence;
 
+import com.linking.block.dto.BlockRes;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageRes;
+import com.linking.pageCheck.dto.PageCheckRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -31,7 +34,9 @@ public interface PageMapper {
         return builder.build();
     }
 
-    default PageRes toDetailDto(Page source) {
+    default PageRes toDto(
+            Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
+    {
         if (source == null) {
             return null;
         }
@@ -40,11 +45,10 @@ public interface PageMapper {
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
-                .blockResList(null)
-                .pageCheckResList(null)
+                .blockResList(blockResList)
+                .pageCheckResList(pageCheckResList)
                 .annotNotiCnt(0);
         //TODO annotation noti 채우기
-        //TODO 자식 리스트 채우기
 
         return builder.build();
     }

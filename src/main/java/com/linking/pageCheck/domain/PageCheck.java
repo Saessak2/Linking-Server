@@ -4,6 +4,7 @@ import com.linking.page.domain.Page;
 import com.linking.participant.domain.Participant;
 import com.linking.user.domain.User;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
+@DynamicUpdate
 public class PageCheck {
 
     @Id
@@ -42,5 +44,9 @@ public class PageCheck {
         if (!page.getPageCheckList().contains(this)) {
             page.getPageCheckList().add(this);
         }
+    }
+
+    public void updateLastChecked() {
+        this.lastChecked = LocalDateTime.now();
     }
 }

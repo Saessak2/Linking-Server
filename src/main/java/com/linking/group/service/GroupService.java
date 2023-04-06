@@ -25,7 +25,7 @@ public class GroupService {
 
 
     // TODO check duplicated docIndex
-    public GroupRes createGroup(GroupCreateReq groupCreateReq) throws Exception{
+    public GroupRes createGroup(GroupCreateReq groupCreateReq) throws NoSuchElementException{
         Project refProject = projectRepository.getReferenceById(groupCreateReq.getProjectId());
 
         Group group = groupMapper.toEntity(groupCreateReq);
