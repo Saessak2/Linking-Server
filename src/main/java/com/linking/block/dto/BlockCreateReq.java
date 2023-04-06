@@ -1,4 +1,4 @@
-package com.linking.document.dto;
+package com.linking.block.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,15 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
-
-@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupOrderReq {
+@Getter
+public class BlockCreateReq {
+
     @NotNull
-    private Long groupId;
-    private List<PageOrderReq> pageOrderReqList;
+    private int order;
+    @NotNull
+    private Long pageId;
 }

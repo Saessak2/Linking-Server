@@ -1,5 +1,6 @@
 package com.linking.document.dto;
 
+import com.linking.group.dto.GroupOrderReq;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,5 @@ import java.util.List;
 @AllArgsConstructor
 public class DocumentOrderReq {
     @NotNull
-    private List<GroupOrderReq> groupOrderReqList;
+    private List<GroupOrderReq> groupList;
 }

@@ -1,17 +1,17 @@
-package com.linking.document.dto;
+package com.linking.block.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
-@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageOrderReq {
-    @NotNull
-    private Long pageId;
+@Getter
+public class BlockOrderReq {
+
+    private List<Long> blockList;
 }

@@ -12,7 +12,6 @@ import java.util.List;
 public class BlockRes {
 
     private Long blockId;
-    private int blockIndex;
     private String title;
     private String content;
     private Long pageId;
