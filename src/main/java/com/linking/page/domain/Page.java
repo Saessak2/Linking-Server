@@ -25,7 +25,9 @@ public class Page {
     private int pageOrder;
 
     private String title;
+
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
+    @OrderBy("blockOrder asc")
     private List<Block> blockList;
 
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
@@ -43,6 +45,9 @@ public class Page {
 
     public void setGroup(Group group) {
         this.group = group;
+        if (!group.getPageList().contains(this)) {
+            group.getPageList().add(this);
+        }
     }
 
     public void addBlock(Block block) {

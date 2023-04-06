@@ -4,7 +4,7 @@ import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
-import com.linking.group.dto.GroupUpdateReq;
+import com.linking.group.dto.GroupUpdateTitleReq;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,16 +17,19 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.PUT})
 public class GroupController {
 
     private final GroupService groupService;
 
 
     @PostMapping
-    public ResponseEntity<Object> postGroup(@RequestBody @Valid GroupCreateReq groupCreateReq) {
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
+    public ResponseEntity<Object> postGroup(@RequestBody @Valid GroupCreateReq req) {
 
         try {
-            GroupRes groupRes = groupService.createGroup(groupCreateReq);
+            GroupRes groupRes = groupService.createGroup(req);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, groupRes);
         } catch (Exception e) {
             return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
@@ -35,17 +38,20 @@ public class GroupController {
 
 
     @PutMapping
-    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateReq groupUpdateReq) {
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
+    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateTitleReq req) {
 
         try {
-            GroupRes groupRes = groupService.updateGroup(groupUpdateReq);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, groupRes);
+            groupService.updateGroup(req);
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, "true");
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
+
     @DeleteMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteGroup(@RequestParam("id") Long docId) {
 
         if (docId == null) {

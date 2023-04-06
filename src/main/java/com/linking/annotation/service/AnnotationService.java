@@ -8,6 +8,7 @@ import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.annotation.persistence.AnnotationRepository;
 import com.linking.block.domain.Block;
 import com.linking.block.persistence.BlockRepository;
+import com.linking.exception.TooManyElementsException;
 import com.linking.global.ErrorMessage;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
@@ -16,6 +17,7 @@ import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -26,16 +28,19 @@ public class    AnnotationService {
     private final AnnotationMapper annotationMapper;
     private final BlockRepository blockRepository;
     private final ParticipantRepository participantRepository;
-    private final UserRepository userRepository;
 
-    public Optional<AnnotationRes> createAnnotation(AnnotationCreateReq req) throws Exception {
-        Block refBlock = blockRepository.getReferenceById(req.getBlockId());
-        // TODO participant 조회 하면서 user랑 조인해서 username 같이 가져오기
-        participantRepository.findByUser(req.getUserId());
+    public Optional<AnnotationRes> createAnnotation(AnnotationCreateReq req) throws RuntimeException {
+        Block block = blockRepository.findById(req.getBlockId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
+
+        Participant participant = participantRepository.findOneByUserAndProjectId(req.getUserId(), req.getProjectId());
+        if (participant == null) {
+            throw new NoSuchElementException(ErrorMessage.NO_USER + " or " + ErrorMessage.NO_PROJECT);
+        }
 
         Annotation annotation = annotationMapper.toEntity(req);
-        annotation.setBlock(refBlock);
-        annotation.setParticipant(refParticipant);
+        annotation.setBlock(block);
+        annotation.setParticipant(participant);
 
         return Optional.ofNullable(annotationMapper.toDto(annotationRepository.save(annotation)));
     }

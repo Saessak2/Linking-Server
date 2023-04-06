@@ -17,6 +17,7 @@ spring:
       use-new-id-generator-mappings: true
     properties:
       hibernate:
+        jpa.compliance.proxy: false
         show_sql: false
         format_sql: true
         enable_lazy_load_no_trans: true
@@ -27,7 +28,7 @@ spring:
 
 #hibernate:
 #  discriminator:
-#    ignore_explicit_for_joined=true:
+#  ignore_explicit_for_joined=true:
 
 logging:
   level:

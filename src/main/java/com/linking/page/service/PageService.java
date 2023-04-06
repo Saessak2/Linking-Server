@@ -6,7 +6,6 @@ import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageRes;
-import com.linking.document.dto.PageUpdateOrderReq;
 import com.linking.page.dto.PageUpdateTitleReq;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
@@ -24,12 +23,20 @@ public class PageService {
     private final PageMapper pageMapper;
     private final GroupRepository groupRepository;
 
-    public PageRes createPage(PageCreateReq pageCreateReq) throws Exception{
-        // TODO 예외처리
-        Group refGroup = groupRepository.getReferenceById(pageCreateReq.getGroupId());
+
+    public PageRes getPage(Long pageId) throws NoSuchElementException{
+        Page findPage = pageRepository.findById(pageId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+
+        return pageMapper.toDetailDto(findPage);
+    }
+
+    public PageRes createPage(PageCreateReq pageCreateReq) throws NoSuchElementException{
+        Group group = groupRepository.findById(pageCreateReq.getGroupId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
         Page page = pageMapper.toEntity(pageCreateReq);
-        page.setGroup(refGroup);
+        page.setGroup(group);
 
         return pageMapper.toDto(pageRepository.save(page));
     }
@@ -51,29 +58,29 @@ public class PageService {
         }
     }
 
-    public PageRes updatePagesOrder(PageUpdateOrderReq pageUpdateOrderReq) {
-
-        Page destPage = pageRepository.findById(pageUpdateOrderReq.getPageId())
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
-
-        List<Page> beforeGroupPages = pageRepository.findAllByGroup(pageUpdateOrderReq.getBeforeGroupId());
-        beforeGroupPages.removeIf(p -> p.getId().equals(pageUpdateOrderReq.getPageId()));
-
-        List<Page> afterGroupPages = pageRepository.findAllByGroup(pageUpdateOrderReq.getAfterGroupId());
-        afterGroupPages.add(pageUpdateOrderReq.getOrder(), destPage);
-
-        int order = 0;
-        for (Page page : beforeGroupPages) {
-            page.updateOrder(order++);
-            pageRepository.save(page);
-        }
-        order = 0;
-        for (Page page : afterGroupPages) {
-            page.updateOrder(order++);
-            pageRepository.save(page);
-        }
-        return pageMapper.toDto(destPage);
-    }
+//    public PageRes updatePagesOrder(PageUpdateOrderReq pageUpdateOrderReq) {
+//
+//        Page destPage = pageRepository.findById(pageUpdateOrderReq.getPageId())
+//                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+//
+//        List<Page> beforeGroupPages = pageRepository.findAllByGroup(pageUpdateOrderReq.getBeforeGroupId());
+//        beforeGroupPages.removeIf(p -> p.getId().equals(pageUpdateOrderReq.getPageId()));
+//
+//        List<Page> afterGroupPages = pageRepository.findAllByGroup(pageUpdateOrderReq.getAfterGroupId());
+//        afterGroupPages.add(pageUpdateOrderReq.getOrder(), destPage);
+//
+//        int order = 0;
+//        for (Page page : beforeGroupPages) {
+//            page.updateOrder(order++);
+//            pageRepository.save(page);
+//        }
+//        order = 0;
+//        for (Page page : afterGroupPages) {
+//            page.updateOrder(order++);
+//            pageRepository.save(page);
+//        }
+//        return pageMapper.toDto(destPage);
+//    }
 
     public void deletePage(Long pageId) throws NoSuchElementException{
         pageRepository.delete(
@@ -83,18 +90,4 @@ public class PageService {
         );
     }
 
-    public PageRes getPage(Long docId) throws NoSuchElementException{
-        Page findPage = pageRepository.findById(docId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
-
-        PageRes.PageResBuilder builder = PageRes.builder();
-        builder
-                .pageId(findPage.getId())
-                .groupId(findPage.getGroup().getId())
-                .title(findPage.getTitle())
-                .order(findPage.getPageOrder())
-                .pageCheckResList(null)
-                .blockResList(null);
-        return builder.build();
-    }
 }

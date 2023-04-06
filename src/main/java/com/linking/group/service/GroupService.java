@@ -4,7 +4,7 @@ import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
-import com.linking.group.dto.GroupUpdateReq;
+import com.linking.group.dto.GroupUpdateTitleReq;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.project.domain.Project;
@@ -34,29 +34,30 @@ public class GroupService {
         return groupMapper.toDto(groupRepository.save(group));
     }
 
-    public GroupRes updateGroup(GroupUpdateReq req) throws NoSuchElementException{
+    public GroupRes updateGroup(GroupUpdateTitleReq req) throws NoSuchElementException{
         Group findGroup = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        if (findGroup.getName().equals(req.getName())) {   // 이름변경
-
-            groupRepository.updateName(req.getGroupId(), req.getName());
+        if (!findGroup.getName().equals(req.getName())) {
+            findGroup.updateName(req.getName());
             return groupMapper.toDto(groupRepository.save(findGroup));
-
-        } else if (findGroup.getGroupOrder() != req.getOrder()) { // 그룹 순서 변경
-
-            List<Group> groups = groupRepository.findAllByProject(findGroup.getProject().getProjectId());
-            groups.removeIf(g -> g.getId().equals(findGroup.getId()));
-            groups.add(req.getOrder(), findGroup);
-
-            int order = 0;
-            for (Group group : groups) {
-                group.updateOrder(order);
-                groupRepository.save(group);
-            }
-            findGroup.updateOrder(req.getOrder()); //TODO 이렇게 해도 되나...?
-            return groupMapper.toDto(findGroup);
         }
+
+
+//        } else if (findGroup.getGroupOrder() != req.getOrder()) { // 그룹 순서 변경
+//
+//            List<Group> groups = groupRepository.findAllByProject(findGroup.getProject().getProjectId());
+//            groups.removeIf(g -> g.getId().equals(findGroup.getId()));
+//            groups.add(req.getOrder(), findGroup);
+//
+//            int order = 0;
+//            for (Group group : groups) {
+//                group.updateOrder(order);
+//                groupRepository.save(group);
+//            }
+//            findGroup.updateOrder(req.getOrder()); //TODO 이렇게 해도 되나...?
+//            return groupMapper.toDto(findGroup);
+//        }
         return groupMapper.toDto(findGroup);
     }
 

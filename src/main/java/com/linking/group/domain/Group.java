@@ -24,7 +24,10 @@ public class Group  {
     private Project project;
 
     private int groupOrder;
-    @OneToMany(mappedBy = "group")  private List<Page> pageList;
+
+    @OneToMany(mappedBy = "group")
+    @OrderBy("pageOrder asc")
+    private List<Page> pageList;
 
 
     @Builder
@@ -39,7 +42,7 @@ public class Group  {
         this.project = project;
     }
 
-    public void addGroup(Page page) {
+    public void addPage(Page page) {
         this.pageList.add(page);
         if (page.getGroup() != this) {
             page.setGroup(this);

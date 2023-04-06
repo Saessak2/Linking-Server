@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.ArrayList;
+
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.ERROR
@@ -22,10 +24,10 @@ public interface BlockMapper {
         BlockRes.BlockResBuilder builder = BlockRes.builder();
         builder
                 .blockId(source.getId())
-                .blockIndex(source.getBlockIndex())
                 .title(source.getTitle())
                 .pageId(source.getPage().getId())
-                .content(source.getContent());
+                .content(source.getContent())
+                .annotationResList(new ArrayList<>());
 //        if (!source.getAnnotationList().isEmpty()) {
 //            builder.annotationResList(
 //                    source.getAnnotationList()
@@ -41,7 +43,7 @@ public interface BlockMapper {
         }
         Block.BlockBuilder builder = Block.builder();
         builder
-                .blockIndex(source.getBlockIndex());
+                .blockOrder(source.getOrder());
 
         return builder.build();
     }

@@ -1,10 +1,7 @@
 package com.linking.document.dto;
 
 import com.linking.group.dto.GroupRes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 

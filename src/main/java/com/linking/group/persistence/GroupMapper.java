@@ -23,8 +23,8 @@ public interface GroupMapper {
         builder
                 .groupId(source.getId())
                 .projectId(source.getProject().getProjectId())
-                .order(source.getGroupOrder())
-                .name(source.getName());
+                .name(source.getName())
+                .pageResList(new ArrayList<>());
         return builder.build();
     }
 
@@ -36,7 +36,7 @@ public interface GroupMapper {
         Group.GroupBuilder builder = Group.builder();
         builder
                 .name(source.getName())
-                .idx(source.getOrder())
+                .groupOrder(source.getOrder())
                 .pageList(new ArrayList<>());
 
         return builder.build();

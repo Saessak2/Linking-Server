@@ -10,28 +10,47 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/pages")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.POST, RequestMethod.DELETE})
 public class PageController {
 
     private final PageService pageService;
 
-    @PostMapping
-    public ResponseEntity<Object> postPage(@RequestBody PageCreateReq pageCreateReq) {
+    @GetMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<Object> getPage(@PathVariable("id") Long pageId) {
+        try {
+            PageRes pageRes = pageService.getPage(pageId);
+            if (pageRes == null)
+                return ResponseHandler.generateInternalServerErrorResponse();
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
+        } catch (NoSuchElementException e){
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+        }
+    }
 
+    @PostMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
+    public ResponseEntity<Object> postPage(@RequestBody @Valid PageCreateReq pageCreateReq) {
         try {
             PageRes pageRes = pageService.createPage(pageCreateReq);
+            if (pageRes == null)
+                return ResponseHandler.generateInternalServerErrorResponse();
             return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageRes);
-        } catch (Exception e) {
-            return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
 //    @PutMapping
-//    public ResponseEntity<Object> putPage(@RequestBody PageUpdateReq pageUpdateReq) {
+//    public ResponseEntity<Object> putPage(@RequestBody @Valid PageUpdateReq pageUpdateReq) {
 //        try {
 //            PageRes pageRes = pageService.updatePage(pageUpdateReq);
 //            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
@@ -40,8 +59,9 @@ public class PageController {
 //        }
 //    }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deletePage(@RequestParam("id") Long docId) {
+    @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+    public ResponseEntity<Object> deletePage(@PathVariable("id") Long docId) {
         try {
             pageService.deletePage(docId);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
@@ -50,15 +70,5 @@ public class PageController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Object> getPage(@RequestParam("id") Long docId) {
-        try {
-            PageRes pageRes = pageService.getPage(docId);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
-        } catch (NoSuchElementException e){
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
-
-    }
 }
 

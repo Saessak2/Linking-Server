@@ -19,6 +19,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
 //    void updateName(@Param("groupId") Long groupId, @Param("name") String name);
 //
 
-    @Query("select g from Group g where g.project.projectId = :projectId")
+    @Query("select g from Group g where g.project.projectId = :projectId order by g.groupOrder asc")
     List<Group> findAllByProject(@Param("projectId") Long projectId);
 }

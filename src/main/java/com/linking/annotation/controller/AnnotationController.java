@@ -27,13 +27,12 @@ public class AnnotationController {
     @PostMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postAnnotation(@RequestBody @Valid AnnotationCreateReq req) {
-
         try {
             return annotationService.createAnnotation(req)
                     .map(ResponseHandler::generateCreatedResponse)
                     .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NO_CONTENT, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         } catch (Exception e) {
             return ResponseHandler.generateBadRequestResponse();
         }
