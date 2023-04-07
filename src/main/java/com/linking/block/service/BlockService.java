@@ -25,7 +25,6 @@ public class BlockService {
     private final PageRepository pageRepository;
 
     public BlockRes createBlock(BlockCreateReq req) {
-        System.out.println("-------------");
         Page page = pageRepository.findById(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 

@@ -4,6 +4,7 @@ import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
 import com.linking.global.ResponseHandler;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +34,10 @@ public class BlockController {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
+
+//    @DeleteMapping
+//    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+//    public ResponseEntity<Object> deleteBlock(@RequestBody @Valid) {
+//    }
+
 }

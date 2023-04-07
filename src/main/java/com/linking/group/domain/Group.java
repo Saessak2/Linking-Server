@@ -25,7 +25,7 @@ public class Group  {
 
     private int groupOrder;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     @OrderBy("pageOrder asc")
     private List<Page> pageList;
 
@@ -58,8 +58,8 @@ public class Group  {
         this.name = name;
     }
 
-    public void updateOrder(int idx) {
-        this.groupOrder = idx;
+    public void updateOrder(int groupOrder) {
+        this.groupOrder = groupOrder;
     }
 }
 

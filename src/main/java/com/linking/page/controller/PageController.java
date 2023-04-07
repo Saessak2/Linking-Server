@@ -64,7 +64,7 @@ public class PageController {
     public ResponseEntity<Object> deletePage(@PathVariable("id") Long docId) {
         try {
             pageService.deletePage(docId);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
+            return ResponseHandler.generateNoContentResponse();
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }

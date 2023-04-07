@@ -19,12 +19,20 @@ import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
+import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.user.dto.UserDetailedRes;
+import com.linking.user.persistence.UserMapper;
+import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,16 +45,24 @@ public class PageService {
     private final PageCheckMapper pageCheckMapper;
     private final AnnotationMapper annotationMapper;
     private final PageCheckRepository pageCheckRepository;
+    private final ParticipantRepository participantRepository;
+    private final UserMapper userMapper;
 
+
+    // TODO 한번에 select 날리는 방법 찾아보기
+    // TODO code refactoring
     public PageRes getPage(Long pageId) throws NoSuchElementException{
         Page findPage = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
         for (PageCheck pageCheck : findPage.getPageCheckList()) {
-            pageCheck.updateLastChecked();
+            Participant participant = participantRepository.findById(pageCheck.getParticipant().getParticipantId()).get();
+            UserDetailedRes userDetailedRes = userMapper.toDto(participant.getUser());
+
+            pageCheck.updateLastChecked(); // 페이지 확인 시간 업뎃
             pageCheckRepository.save(pageCheck);
-            pageCheckResList.add(pageCheckMapper.toDto(pageCheck));
+            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userDetailedRes));
         }
 
         List<BlockRes> blockResList = new ArrayList<>();
@@ -58,18 +74,37 @@ public class PageService {
             }
             blockResList.add(blockMapper.toDto(block, annotationResList));
         }
+        List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
+                .sorted(Comparator.comparing(PageCheckRes::getUserName))
+                .collect(Collectors.toList());
 
-        return pageMapper.toDto(findPage, blockResList, pageCheckResList);
+
+        return pageMapper.toDto(findPage, blockResList, sortedPageCheckList);
     }
 
-    public PageRes createPage(PageCreateReq pageCreateReq) throws NoSuchElementException{
-        Group group = groupRepository.findById(pageCreateReq.getGroupId())
+    // TODO code refactoring
+    public PageRes createPage(PageCreateReq req) throws NoSuchElementException{
+        Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        Page page = pageMapper.toEntity(pageCreateReq);
+        Page page = pageMapper.toEntity(req);
         page.setGroup(group);
+        // 페이지가 저장이 안돼서 id 가 없음.
+        pageRepository.save(page);
 
-        return pageMapper.toDto(pageRepository.save(page));
+        List<Participant> participants = participantRepository.findByProject(group.getProject());
+        List<PageCheckRes> pageCheckResList = new ArrayList<>();
+        for (Participant participant : participants) {
+            PageCheck pageCheck = new PageCheck(participant, page);
+            pageCheckRepository.save(pageCheck);
+            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userMapper.toDto(pageCheck.getParticipant().getUser())));
+        }
+
+        List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
+                .sorted(Comparator.comparing(PageCheckRes::getUserName))
+                .collect(Collectors.toList());
+
+        return pageMapper.toDto(pageRepository.save(page), sortedPageCheckList);
     }
 
     public PageRes updatePageTitle(PageUpdateTitleReq pageUpdateTitleReq) throws Exception{
@@ -120,5 +155,4 @@ public class PageService {
                 )
         );
     }
-
 }

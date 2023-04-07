@@ -16,4 +16,9 @@ public class PageCheckRes {
     private Long pageId;
     private String lastChecked;
     private UserDetailedRes userDetailedRes;
+
+    public String getUserName() {
+        return userDetailedRes.getLastName() + userDetailedRes.getFirstName();
+    }
+
 }

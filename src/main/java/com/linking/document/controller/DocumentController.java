@@ -4,6 +4,7 @@ import com.linking.document.dto.DocumentOrderReq;
 import com.linking.document.dto.DocumentRes;
 import com.linking.document.service.DocumentService;
 import com.linking.global.ResponseHandler;
+import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class DocumentController {
 
     @PutMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
-    public ResponseEntity<Object> putDocument(@RequestBody @Valid DocumentOrderReq req) {
+    public ResponseEntity<Object> putDocumentOrder(@RequestBody @Valid List<GroupOrderReq> req) {
         try {
             documentService.updateDocumentsOrder(req);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, "true");

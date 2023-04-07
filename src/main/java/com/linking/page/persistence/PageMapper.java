@@ -17,7 +17,7 @@ import java.util.List;
 )
 public interface PageMapper {
 
-    default PageRes toDto(Page source) {
+    default PageRes toDto(Page source) { // 문서 리스트 조회 시 사용
         if (source == null) {
             return null;
         }
@@ -34,7 +34,26 @@ public interface PageMapper {
         return builder.build();
     }
 
-    default PageRes toDto(
+    default PageRes toDto(  // 페이지 생성 시 사옹
+            Page source, List<PageCheckRes> pageCheckResList)
+    {
+        if (source == null) {
+            return null;
+        }
+        PageRes.PageResBuilder builder = PageRes.builder();
+        builder
+                .pageId(source.getId())
+                .title(source.getTitle())
+                .groupId(source.getGroup().getId())
+                .blockResList(new ArrayList<>())
+                .pageCheckResList(pageCheckResList)
+                .annotNotiCnt(0);
+
+        return builder.build();
+    }
+
+
+    default PageRes toDto(  // 페이지 상세 조회 시 사용
             Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
         if (source == null) {

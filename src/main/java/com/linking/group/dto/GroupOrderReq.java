@@ -1,5 +1,6 @@
 package com.linking.group.dto;
 
+import com.linking.page.dto.PageOrderReq;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +17,6 @@ import java.util.List;
 public class GroupOrderReq {
     @NotNull
     private Long groupId;
-    private List<Long> pageList;
+    @NotNull
+    private List<PageOrderReq> pageList;
 }

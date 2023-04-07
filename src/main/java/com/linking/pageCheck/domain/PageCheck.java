@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 @Table(name = "pagecheck")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor
 @DynamicUpdate
 public class PageCheck {
 
@@ -26,14 +24,19 @@ public class PageCheck {
     // nullable
     private LocalDateTime lastChecked;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
     private Participant participant;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id")
     private Page page;
 
+    public PageCheck(Participant participant, Page page) {
+        setParticipant(participant);
+        setPage(page);
+        updateLastChecked();
+    }
 
     public void setParticipant(Participant participant) {
         this.participant = participant;

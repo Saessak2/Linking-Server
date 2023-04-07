@@ -2,6 +2,7 @@ package com.linking.pageCheck.persistence;
 
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
+import com.linking.user.dto.UserDetailedRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -15,7 +16,7 @@ import java.util.List;
 )
 public interface PageCheckMapper {
 
-    default PageCheckRes toDto(PageCheck source) {
+    default PageCheckRes toDto(PageCheck source, UserDetailedRes userDetailedRes) {
         if (source == null) return null;
 
         PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
@@ -23,7 +24,7 @@ public interface PageCheckMapper {
                 .pageCheckId(source.getId())
                 .pageId(source.getId())
                 .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd HH:mm a")))
-                .userDetailedRes(null);
+                .userDetailedRes(userDetailedRes);
         return builder.build();
     }
 
@@ -36,7 +37,7 @@ public interface PageCheckMapper {
             PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
             builder
                     .pageCheckId(source.getId())
-                    .pageId(source.getId())
+                    .pageId(source.getPage().getId())
                     .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd HH:mm a")))
                     .userDetailedRes(null);
 
