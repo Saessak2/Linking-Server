@@ -50,17 +50,14 @@ public class AnnotationController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
-    public ResponseEntity<Object> deleteAnnotation(@RequestParam("id") Long id) {
-        if (id == null) {
-            return ResponseHandler.generateResponse(ErrorMessage.NO_PARAM, HttpStatus.BAD_REQUEST, null);
-        }
+    public ResponseEntity<Object> deleteAnnotation(@PathVariable("id") Long id) {
         try {
             annotationService.deleteAnnotation(id);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NO_CONTENT, null);
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 }

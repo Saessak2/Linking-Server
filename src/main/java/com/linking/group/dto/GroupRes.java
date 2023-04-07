@@ -1,5 +1,6 @@
 package com.linking.group.dto;
 
+import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import lombok.*;
 

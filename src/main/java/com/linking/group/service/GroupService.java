@@ -61,10 +61,14 @@ public class GroupService {
         return groupMapper.toDto(findGroup);
     }
 
-    public void deleteGroup(Long docId) throws NoSuchElementException{
-
-        // TODO 그룹도 삭제되는지 확인
+    public void deleteGroup(Long groupId) throws NoSuchElementException{
 
         // TODO 프로젝트의 document 리스트에서 삭제 되는지 확인 필요함
+
+        groupRepository.delete(
+                groupRepository.findById(groupId).orElseThrow(
+                        () -> new NoSuchElementException(ErrorMessage.NO_GROUP)
+                )
+        );
     }
 }

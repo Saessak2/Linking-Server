@@ -35,9 +35,15 @@ public class BlockController {
         }
     }
 
-//    @DeleteMapping
-//    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
-//    public ResponseEntity<Object> deleteBlock(@RequestBody @Valid) {
-//    }
+    @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
+    public ResponseEntity<Object> deleteBlock(@PathVariable("id") Long blockId) {
+        try {
+            blockService.deleteBlock(blockId);
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+        }
+    }
 
 }

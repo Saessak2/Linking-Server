@@ -1,7 +1,5 @@
 package com.linking.document.service;
 
-import com.linking.document.dto.DocumentOrderReq;
-import com.linking.document.dto.DocumentRes;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupOrderReq;
@@ -13,8 +11,6 @@ import com.linking.page.dto.PageOrderReq;
 import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
-import com.linking.project.domain.Project;
-import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +34,21 @@ public class DocumentService {
         List<GroupRes> groupResList = new ArrayList<>();
         for (Group group : groupList) {
             GroupRes groupRes = groupMapper.toDto(group);
-            for (Page page : group.getPageList())
-                groupRes.getPageResList().add(pageMapper.toDto(page));
+            List<Page> pageList = group.getPageList();
+            if (pageList.size() == 0) {
+                //TODO refactoring
+                PageRes pageRes = PageRes.builder()
+                        .pageId(-1L)
+                        .groupId(-1L)
+                        .title("")
+                        .annotNotiCnt(-1)
+                        .build();
+                groupRes.getPageResList().add(pageRes);
+            }
+            else {
+                for (Page page : pageList)
+                    groupRes.getPageResList().add(pageMapper.toDto(page));
+            }
             groupResList.add(groupRes);
         }
         return groupResList;

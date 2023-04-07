@@ -3,6 +3,7 @@ package com.linking.page.persistence;
 import com.linking.block.dto.BlockRes;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageCreateReq;
+import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.pageCheck.dto.PageCheckRes;
 import org.mapstruct.Mapper;
@@ -26,21 +27,19 @@ public interface PageMapper {
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
-                .blockResList(new ArrayList<>())
-                .pageCheckResList(new ArrayList<>())
                 .annotNotiCnt(0);
         //TODO annotation noti 채우기
 
         return builder.build();
     }
 
-    default PageRes toDto(  // 페이지 생성 시 사옹
-            Page source, List<PageCheckRes> pageCheckResList)
+    default PageDetailedRes toDto(  // 페이지 생성 시 사옹
+                                    Page source, List<PageCheckRes> pageCheckResList)
     {
         if (source == null) {
             return null;
         }
-        PageRes.PageResBuilder builder = PageRes.builder();
+        PageDetailedRes.PageDetailedResBuilder builder = PageDetailedRes.builder();
         builder
                 .pageId(source.getId())
                 .title(source.getTitle())
@@ -53,13 +52,13 @@ public interface PageMapper {
     }
 
 
-    default PageRes toDto(  // 페이지 상세 조회 시 사용
-            Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
+    default PageDetailedRes toDto(  // 페이지 상세 조회 시 사용
+                                    Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
         if (source == null) {
             return null;
         }
-        PageRes.PageResBuilder builder = PageRes.builder();
+        PageDetailedRes.PageDetailedResBuilder builder = PageDetailedRes.builder();
         builder
                 .pageId(source.getId())
                 .title(source.getTitle())

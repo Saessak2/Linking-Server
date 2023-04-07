@@ -11,6 +11,7 @@ import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageCreateReq;
+import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.page.dto.PageUpdateTitleReq;
 import com.linking.page.persistence.PageMapper;
@@ -23,11 +24,9 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.persistence.UserMapper;
-import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -51,7 +50,7 @@ public class PageService {
 
     // TODO 한번에 select 날리는 방법 찾아보기
     // TODO code refactoring
-    public PageRes getPage(Long pageId) throws NoSuchElementException{
+    public PageDetailedRes getPage(Long pageId) throws NoSuchElementException{
         Page findPage = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
@@ -83,7 +82,7 @@ public class PageService {
     }
 
     // TODO code refactoring
-    public PageRes createPage(PageCreateReq req) throws NoSuchElementException{
+    public PageDetailedRes createPage(PageCreateReq req) throws NoSuchElementException{
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 

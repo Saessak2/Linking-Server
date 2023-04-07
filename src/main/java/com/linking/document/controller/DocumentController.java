@@ -43,4 +43,6 @@ public class DocumentController {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
+
+    
 }

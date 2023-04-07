@@ -1,9 +1,8 @@
 package com.linking.page.controller;
 
-import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
-import com.linking.page.dto.PageRes;
+import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.service.PageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/pages")
@@ -27,10 +25,10 @@ public class PageController {
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getPage(@PathVariable("id") Long pageId) {
         try {
-            PageRes pageRes = pageService.getPage(pageId);
-            if (pageRes == null)
+            PageDetailedRes pageDetailedRes = pageService.getPage(pageId);
+            if (pageDetailedRes == null)
                 return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageDetailedRes);
         } catch (NoSuchElementException e){
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
@@ -40,10 +38,10 @@ public class PageController {
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postPage(@RequestBody @Valid PageCreateReq pageCreateReq) {
         try {
-            PageRes pageRes = pageService.createPage(pageCreateReq);
-            if (pageRes == null)
+            PageDetailedRes pageDetailedRes = pageService.createPage(pageCreateReq);
+            if (pageDetailedRes == null)
                 return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageRes);
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageDetailedRes);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }

@@ -34,6 +34,14 @@ public class BlockService {
         return blockMapper.toDto(blockRepository.save(block));
     }
 
+    public void deleteBlock(Long blockId) {
+        blockRepository.delete(
+                blockRepository.findById(blockId).orElseThrow(
+                        () -> new NoSuchElementException(ErrorMessage.NO_BLOCK)
+                )
+        );
+    }
+
 
 //    private final BlockRepository blockRepository;
 //    private final BlockMapper blockMapper;

@@ -51,15 +51,12 @@ public class GroupController {
     }
 
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
-    public ResponseEntity<Object> deleteGroup(@RequestParam("id") Long docId) {
+    public ResponseEntity<Object> deleteGroup(@PathVariable("id") Long groupId) {
 
-        if (docId == null) {
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_400, HttpStatus.BAD_REQUEST, null);
-        }
         try {
-            groupService.deleteGroup(docId);
+            groupService.deleteGroup(groupId);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
