@@ -19,6 +19,6 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @Query(value = "update Page p set p.title = :title where p.id = :pageId")
     void updateTitle(@Param("pageId") Long pageId, @Param("title") String title);
 
-    @Query(value = "select p from Page p where p.group.id = :groupId")
-    List<Page> findAllByGroup(@Param("groupId") Long groupId);
+    @Query(value = "select p from Page p where p.group.id = :groupId order by p.pageOrder asc")
+    List<Page> findAllByGroupId(@Param("groupId") Long groupId);
 }

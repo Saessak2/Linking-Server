@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserTempRes {
+public class UserRes {
     private Long userId;
     private String lastName;
     private String firstName;

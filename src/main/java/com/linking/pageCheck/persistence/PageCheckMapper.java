@@ -2,14 +2,10 @@ package com.linking.pageCheck.persistence;
 
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
-import com.linking.user.dto.UserDetailedRes;
-import com.linking.user.dto.UserTempRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 @Mapper(
@@ -25,6 +21,7 @@ public interface PageCheckMapper {
         builder
                 .pageCheckId(source.getId())
                 .pageId(source.getId())
+                .isChecked(true)
                 .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
                 .userName(userName)
                 .userId(userId);

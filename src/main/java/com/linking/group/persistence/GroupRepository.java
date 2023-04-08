@@ -20,5 +20,7 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
 //
 
     @Query("select g from Group g where g.project.projectId = :projectId order by g.groupOrder asc")
-    List<Group> findAllByProject(@Param("projectId") Long projectId);
+    List<Group> findAllByProjectId(@Param("projectId") Long projectId);
+
+
 }

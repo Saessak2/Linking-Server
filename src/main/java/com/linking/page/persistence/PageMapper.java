@@ -66,7 +66,7 @@ public interface PageMapper {
                 .blockResList(blockResList)
                 .pageCheckResList(pageCheckResList)
                 .annotNotiCnt(0);
-        //TODO annotation noti 채우기
+        //TODO annotation noti 채우기. 페이지조회 하면 annotationNotiCnt가 0으로 설정!
 
         return builder.build();
     }

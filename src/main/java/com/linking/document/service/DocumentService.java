@@ -30,7 +30,7 @@ public class DocumentService {
     public List<GroupTempRes> findAllDocumentsTemp(Long projectId)  {
         // TODO projectid 가 존재하는지 어떻게 확인하지?
 
-        List<Group> groupList = groupRepository.findAllByProject(projectId);
+        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
         List<GroupTempRes> groupResList = new ArrayList<>();
         for (Group group : groupList) {
             GroupTempRes groupTempRes = GroupTempRes.builder()
@@ -47,7 +47,7 @@ public class DocumentService {
     public List<GroupRes> findAllDocuments(Long projectId)  {
         // TODO projectid 가 존재하는지 어떻게 확인하지?
 
-        List<Group> groupList = groupRepository.findAllByProject(projectId);
+        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
         List<GroupRes> groupResList = new ArrayList<>();
         for (Group group : groupList) {
             GroupRes groupRes = groupMapper.toDto(group);

@@ -23,9 +23,13 @@ public class PageController {
 
     @GetMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
-    public ResponseEntity<Object> getPage(@PathVariable("id") Long pageId) {
+    public ResponseEntity<Object> getPage(
+            @PathVariable("id") Long pageId,
+            @RequestParam("userId") Long userId
+            )
+    {
         try {
-            PageDetailedRes pageDetailedRes = pageService.getPage(pageId);
+            PageDetailedRes pageDetailedRes = pageService.getPage(pageId, userId);
             if (pageDetailedRes == null)
                 return ResponseHandler.generateInternalServerErrorResponse();
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageDetailedRes);
@@ -63,7 +67,7 @@ public class PageController {
         try {
             pageService.deletePage(docId);
             return ResponseHandler.generateNoContentResponse();
-        } catch (NoSuchElementException e) {
+        } catch (RuntimeException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }

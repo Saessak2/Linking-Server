@@ -13,5 +13,5 @@ import java.util.List;
 @Getter
 public class BlockOrderReq {
 
-    private List<Long> blockList;
+    private Long blockId;
 }

@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupUpdateTitleReq {
+public class GroupUpdateNameReq {
 
     @NotNull
     private Long groupId;

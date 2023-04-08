@@ -1,6 +1,7 @@
 package com.linking.block.controller;
 
 import com.linking.block.dto.BlockCreateReq;
+import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
 import com.linking.global.ResponseHandler;
@@ -11,13 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/blocks")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST})
+        methods = {RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public class BlockController {
 
     private final BlockService blockService;
@@ -35,6 +37,18 @@ public class BlockController {
         }
     }
 
+    @PutMapping("/order")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
+    public ResponseEntity<Object> putBlockOrder(@RequestBody @Valid List<BlockOrderReq> req) {
+        try {
+            blockService.updateBlockOrder(req);
+            return ResponseHandler.generateOkResponse(true);
+        } catch (RuntimeException e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteBlock(@PathVariable("id") Long blockId) {
@@ -45,5 +59,7 @@ public class BlockController {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
+
+
 
 }

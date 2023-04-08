@@ -2,8 +2,7 @@ package com.linking.group.controller;
 
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
-import com.linking.group.dto.GroupRes;
-import com.linking.group.dto.GroupUpdateTitleReq;
+import com.linking.group.dto.GroupUpdateNameReq;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,7 @@ import java.util.NoSuchElementException;
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.PUT})
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT})
 public class GroupController {
 
     private final GroupService groupService;
@@ -26,12 +25,10 @@ public class GroupController {
     @PostMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postGroup(@RequestBody @Valid GroupCreateReq req) {
-
         try {
-            GroupRes groupRes = groupService.createGroup(req);
-            if (groupRes == null)
-                return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, groupRes);
+            return groupService.createGroup(req)
+                    .map(ResponseHandler::generateCreatedResponse)
+                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
@@ -40,10 +37,10 @@ public class GroupController {
 
     @PutMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
-    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateTitleReq req) {
+    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateNameReq req) {
 
         try {
-            groupService.updateGroup(req);
+            groupService.updateGroupName(req);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);

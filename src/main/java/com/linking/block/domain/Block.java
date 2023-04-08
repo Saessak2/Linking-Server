@@ -62,4 +62,8 @@ public class Block {
             annotation.setBlock(this);
         }
     }
+
+    public void updateOrder(int order) {
+        this.blockOrder = order;
+    }
 }

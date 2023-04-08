@@ -4,7 +4,7 @@ import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
-import com.linking.group.dto.GroupUpdateTitleReq;
+import com.linking.group.dto.GroupUpdateNameReq;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.project.domain.Project;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +24,16 @@ public class GroupService {
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
 
+    public Optional<GroupRes> createGroup(GroupCreateReq req) throws NoSuchElementException{
+        Project refProject = projectRepository.getReferenceById(req.getProjectId());
 
-    // TODO check duplicated docIndex
-    public GroupRes createGroup(GroupCreateReq groupCreateReq) throws NoSuchElementException{
-        Project refProject = projectRepository.getReferenceById(groupCreateReq.getProjectId());
-
-        Group group = groupMapper.toEntity(groupCreateReq);
+        Group group = groupMapper.toEntity(req);
         group.setProject(refProject);
 
-        return groupMapper.toDto(groupRepository.save(group));
+        return Optional.ofNullable(groupMapper.toDto(groupRepository.save(group)));
     }
 
-    public void updateGroup(GroupUpdateTitleReq req) throws NoSuchElementException{
+    public void updateGroupName(GroupUpdateNameReq req) throws NoSuchElementException{
         Group findGroup = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
@@ -45,13 +44,21 @@ public class GroupService {
     }
 
     public void deleteGroup(Long groupId) throws NoSuchElementException{
+        Group group =  groupRepository.findById(groupId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        // TODO 프로젝트의 document 리스트에서 삭제 되는지 확인 필요함
+        Long projectId = group.getProject().getProjectId();
+        groupRepository.delete(group);
 
-        groupRepository.delete(
-                groupRepository.findById(groupId).orElseThrow(
-                        () -> new NoSuchElementException(ErrorMessage.NO_GROUP)
-                )
-        );
+        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
+        updateOrder(groupList);
+    }
+
+    private void updateOrder(List<Group> groupList) {
+        int idx = 0;
+        for (Group group : groupList) {
+            group.updateOrder(idx++);
+        }
+        groupRepository.saveAll(groupList);
     }
 }

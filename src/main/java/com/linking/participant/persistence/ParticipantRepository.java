@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
@@ -21,7 +22,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
      * 작성자 이은빈
      */
     @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
-    Participant findOneByUserAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
-
-
+    Optional<Participant> findOneByUserAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
 }

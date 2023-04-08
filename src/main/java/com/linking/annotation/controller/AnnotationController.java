@@ -23,12 +23,12 @@ public class AnnotationController {
 
     private final AnnotationService annotationService;
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
-    public ResponseEntity<Object> getAnnotations(@PathVariable("id") Long blockId) {
-
-        return ResponseHandler.generateOkResponse(annotationService.findAnnotations(blockId));
-    }
+//    @GetMapping("/{id}")
+//    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+//    public ResponseEntity<Object> getAnnotations(@PathVariable("id") Long blockId) {
+//
+//        return ResponseHandler.generateOkResponse(annotationService.findAnnotations(blockId));
+//    }
 
 
     @PostMapping

@@ -36,4 +36,8 @@ public class User {
     public User(Long ownerId) {
         this.userId = ownerId;
     }
+
+    public String getFullName() {
+        return lastName + firstName;
+    }
 }
