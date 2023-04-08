@@ -3,6 +3,7 @@ package com.linking.group.service;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
+import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupUpdateNameReq;
 import com.linking.group.persistence.GroupMapper;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
+    private int GROUP_FIRST_ORDER = 0;
 
     public Optional<GroupRes> createGroup(GroupCreateReq req) throws NoSuchElementException{
         Project refProject = projectRepository.getReferenceById(req.getProjectId());
@@ -49,16 +52,31 @@ public class GroupService {
 
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
-
+        // 그룹 순서를 0부터 재정렬
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        updateOrder(groupList);
+        int order = GROUP_FIRST_ORDER;
+        for (Group g : groupList) {
+            if (g.getGroupOrder() != order) {
+                g.updateOrder(order++);
+                groupRepository.save(g);
+            }
+            order++;
+        }
     }
 
-    private void updateOrder(List<Group> groupList) {
-        int idx = 0;
-        for (Group group : groupList) {
-            group.updateOrder(idx++);
+    public void updateOrder(List<GroupOrderReq> reqs) throws RuntimeException {
+
+        List<Long> groupIds = reqs.stream()
+                .map(GroupOrderReq::getGroupId)
+                .collect(Collectors.toList());
+
+        List<Group> groupList = groupRepository.findAllById(groupIds);
+        for (Group g : groupList) {
+            int order = groupIds.indexOf(g.getId());
+            if (g.getGroupOrder() != order) {
+                g.updateOrder(order);
+                groupRepository.save(g);
+            }
         }
-        groupRepository.saveAll(groupList);
     }
 }

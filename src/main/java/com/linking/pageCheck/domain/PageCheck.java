@@ -35,7 +35,6 @@ public class PageCheck {
     public PageCheck(Participant participant, Page page) {
         setParticipant(participant);
         setPage(page);
-        updateLastChecked();
     }
 
     public void setParticipant(Participant participant) {

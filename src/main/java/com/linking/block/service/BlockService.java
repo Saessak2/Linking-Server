@@ -10,10 +10,11 @@ import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.ErrorMessage;
-import com.linking.group.dto.GroupRes;
 import com.linking.page.domain.Page;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class BlockService {
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
     private final AnnotationMapper annotationMapper;
+    private int BLOCK_FIRST_ORDER = 0;
+
+    Logger logger = LoggerFactory.getLogger(BlockService.class);
 
     public BlockRes createBlock(BlockCreateReq req) {
         Page page = pageRepository.findById(req.getPageId())
@@ -45,22 +49,23 @@ public class BlockService {
         List<Long> blockIds = req.stream()
                 .map(BlockOrderReq::getBlockId)
                 .collect(Collectors.toList());
-
-        int idx = 0;
-        for (Long id : blockIds) {
-            Block block = blockRepository.findById(id).get();
-            block.updateOrder(idx++);
-            blockRepository.save(block);
+        // 받은 id 순대로 order update 해야함.
+        // findAllById 사용시 id 순 대로 정렬돼서 나오는것 같음.
+        int count = 0;
+        try {
+            List<Block> blockList = blockRepository.findAllById(blockIds);
+            for (Block b : blockList) {
+                int order = blockIds.indexOf(b.getId());
+                if (b.getBlockOrder() != order) {
+                    b.updateOrder(order);
+                    blockRepository.save(b);
+                    count++;
+                }
+            }
+            logger.info("update block count => {}", count);
+        } catch (RuntimeException e) { // id 없는경우
+            throw new RuntimeException(e.getMessage());
         }
-
-
-//        try {
-//            List<Block> blockList = blockRepository.findAllById(blockIds);
-//
-//            updateOrder(blockList);
-//        } catch (RuntimeException e) { // id 없는경우
-//            throw new RuntimeException(e.getMessage());
-//        }
     }
 
     public void deleteBlock(Long blockId) {
@@ -69,23 +74,19 @@ public class BlockService {
         Long pageId = block.getPage().getId();
         blockRepository.delete(block);
 
-        try {
-            List<Block> blockList = blockRepository.findAllByPageId(pageId);
-            updateOrder(blockList);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e.getMessage());
+        List<Block> blockList = blockRepository.findAllByPageId(pageId);
+        int order = BLOCK_FIRST_ORDER;
+        for (Block b : blockList) {
+            if (b.getBlockOrder() != order) {
+                b.updateOrder(order);
+                blockRepository.save(b);  // 그새 블럭이 없이지면 어떡하지?
+            }
+            order++;
         }
     }
 
     public Optional<Block> getBlock(Long blockId) {
         return blockRepository.findById(blockId);
-    }
-
-    private void updateOrder(List<Block> blockList) {
-        int idx = 0;
-        for (Block block1 : blockList)
-            block1.updateOrder(idx++);
-        blockRepository.saveAll(blockList);  // 그새 블럭이 없이지면 어떡하지?
     }
 
     public List<BlockRes> getBlockResList(Page page) {

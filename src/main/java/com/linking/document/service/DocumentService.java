@@ -1,5 +1,6 @@
 package com.linking.document.service;
 
+import com.linking.block.service.BlockService;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupOrderReq;
@@ -7,17 +8,20 @@ import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupTempRes;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
+import com.linking.group.service.GroupService;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageOrderReq;
 import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
+import com.linking.page.service.PageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class DocumentService {
     private final PageRepository pageRepository;
     private final GroupMapper groupMapper;
     private final PageMapper pageMapper;
+    private final GroupService groupService;
+    private final PageService pageService;
 
     public List<GroupTempRes> findAllDocumentsTemp(Long projectId)  {
         // TODO projectid 가 존재하는지 어떻게 확인하지?
@@ -71,22 +77,14 @@ public class DocumentService {
         return groupResList;
     }
 
-    public void updateDocumentsOrder(List<GroupOrderReq> req) throws NoSuchElementException{
-        // TODO 예외처리
-        // TODO 성능 최적화 - 쿼리 많이 안나가게
-        int groupOrder = 0;
-        for (GroupOrderReq groupOrderReq : req) {
-            int pageOrder = 0;
-            for (PageOrderReq pageOrderReq: groupOrderReq.getPageList()) {
-                Page page = pageRepository.findById(pageOrderReq.getPageId())
-                        .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
-                page.updateOrder(pageOrder++);
-                pageRepository.save(page);
+    public void updateDocumentsOrder(List<GroupOrderReq> reqs) throws RuntimeException{
+        try {
+            groupService.updateOrder(reqs);
+            for (GroupOrderReq groupOrderReq : reqs) {
+                pageService.updateOrder(groupOrderReq.getPageList());
             }
-            Group group = groupRepository.findById(groupOrderReq.getGroupId())
-                    .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
-            group.updateOrder(groupOrder++);
-            groupRepository.save(group);
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
         }
     }
 }

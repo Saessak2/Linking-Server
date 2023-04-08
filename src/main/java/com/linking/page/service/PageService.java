@@ -1,30 +1,20 @@
 package com.linking.page.service;
 
-import com.linking.annotation.domain.Annotation;
-import com.linking.annotation.dto.AnnotationRes;
-import com.linking.annotation.persistence.AnnotationMapper;
-import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockRes;
-import com.linking.block.persistence.BlockMapper;
 import com.linking.block.service.BlockService;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
-import com.linking.page.dto.PageCreateReq;
-import com.linking.page.dto.PageDetailedRes;
-import com.linking.page.dto.PageRes;
-import com.linking.page.dto.PageUpdateTitleReq;
+import com.linking.page.dto.*;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
-import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
-import com.linking.user.persistence.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +35,7 @@ public class PageService {
     private final PageCheckRepository pageCheckRepository;
     private final ParticipantRepository participantRepository;
     private final PageCheckService pageCheckService;
+    private int PAGE_FIRST_ORDER = 0;
 
 
     // TODO 한번에 select 날리는 방법 찾아보기
@@ -73,12 +64,11 @@ public class PageService {
         // 페이지가 저장이 안돼서 id 가 없음.
         pageRepository.save(page);
 
-        List<Participant> participants = participantRepository.findByProject(group.getProject());
+        List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
         for (Participant participant : participants) {
             PageCheck pageCheck = new PageCheck(participant, page);
             pageCheckRepository.save(pageCheck);
-//            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userMapper.toDtoTemp(pageCheck.getParticipant().getUser())));
         }
 
         List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
@@ -111,18 +101,33 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
+        // 페이지 순서를 재정렬
         try {
             List<Page> pageList = pageRepository.findAllByGroupId(groupId);
-            updateOrder(pageList);
+            int order = PAGE_FIRST_ORDER;
+            for (Page p : pageList) {
+                if (p.getPageOrder() != order) {
+                    p.updateOrder(order);
+                    pageRepository.save(p);
+                }
+                order++;
+            }
         } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    private void updateOrder(List<Page> pageList) {
-        int idx = 0;
-        for (Page page : pageList)
-            page.updateOrder(idx++);
-        pageRepository.saveAll(pageList);
+    public void updateOrder(List<PageOrderReq> reqs) throws RuntimeException{
+        List<Long> pageIds = reqs.stream()
+                .map(PageOrderReq::getPageId)
+                .collect(Collectors.toList());
+        List<Page> pageList = pageRepository.findAllById(pageIds);
+        for (Page p : pageList) {
+            int order = pageIds.indexOf(p.getId());
+            if (p.getPageOrder() != order) {
+                p.updateOrder(order);
+                pageRepository.save(p);
+            }
+        }
     }
 }

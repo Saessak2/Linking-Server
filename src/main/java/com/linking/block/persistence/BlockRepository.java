@@ -14,4 +14,6 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     @Query("select b from Block b where b.page.id = :pageId order by b.blockOrder asc")
     List<Block> findAllByPageId(@Param("pageId") Long pageId);
 
+
+
 }

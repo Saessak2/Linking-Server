@@ -21,8 +21,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class PageCheckService {
 
-    private final PageRepository pageRepository;
-    private final PageCheckRepository pageCheckRepository;
     private final PageCheckMapper pageCheckMapper;
     private final ParticipantRepository participantRepository;
 
