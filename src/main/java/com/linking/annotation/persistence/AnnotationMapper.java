@@ -7,9 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Mapper(
         componentModel = "spring",
@@ -26,7 +28,7 @@ public interface AnnotationMapper {
                 .annotationId(source.getId())
                 .blockId(source.getBlock().getId())
                 .content(source.getContent())
-                .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd")))
+                .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
                 .userName(source.getUserName());
 
         return builder.build();
@@ -43,7 +45,7 @@ public interface AnnotationMapper {
                     .annotationId(source.getId())
                     .blockId(source.getBlock().getId())
                     .content(source.getContent())
-                    .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd")))
+                    .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
                     .userName(source.getUserName());
         }
         return annotationResList;
@@ -57,7 +59,7 @@ public interface AnnotationMapper {
         builder
                 .content(source.getContent())
                 .userName(source.getUserName())
-                .lastModified(LocalDate.now());
+                .lastModified(LocalDateTime.now());
 
         return builder.build();
     }

@@ -27,7 +27,7 @@ public interface PageMapper {
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
-                .annotNotiCnt(0);
+                .annotNotiCnt(10);
         //TODO annotation noti 채우기
 
         return builder.build();

@@ -4,6 +4,7 @@ import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
+import com.linking.group.dto.GroupTempRes;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
@@ -26,8 +27,24 @@ public class DocumentService {
     private final GroupMapper groupMapper;
     private final PageMapper pageMapper;
 
+    public List<GroupTempRes> findAllDocumentsTemp(Long projectId)  {
+        // TODO projectid 가 존재하는지 어떻게 확인하지?
 
-    public List<GroupRes> findAllDocuments(Long projectId) {
+        List<Group> groupList = groupRepository.findAllByProject(projectId);
+        List<GroupTempRes> groupResList = new ArrayList<>();
+        for (Group group : groupList) {
+            GroupTempRes groupTempRes = GroupTempRes.builder()
+                    .groupId(group.getId())
+                    .name(group.getName())
+                    .projectId(group.getProject().getProjectId())
+                    .build();
+
+            groupResList.add(groupTempRes);
+        }
+        return groupResList;
+    }
+
+    public List<GroupRes> findAllDocuments(Long projectId)  {
         // TODO projectid 가 존재하는지 어떻게 확인하지?
 
         List<Group> groupList = groupRepository.findAllByProject(projectId);

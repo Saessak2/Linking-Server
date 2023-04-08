@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Table(name = "annotation")
 @Getter
@@ -20,7 +21,7 @@ public class Annotation {
     @Column(name = "annotation_id")
     private Long id;
 
-    private LocalDate lastModified;
+    private LocalDateTime lastModified;
 
     private String content;
 
@@ -35,7 +36,7 @@ public class Annotation {
     private String userName;
 
     @Builder
-    public Annotation(LocalDate lastModified, String content, Block block, Participant participant, String userName) {
+    public Annotation(LocalDateTime lastModified, String content, Block block, Participant participant, String userName) {
         this.lastModified = lastModified;
         this.content = content;
         this.block = block;
@@ -56,6 +57,6 @@ public class Annotation {
 
     public void updateContent(String content) {
         this.content = content;
-        this.lastModified = LocalDate.now();
+        this.lastModified = LocalDateTime.now();
     }
 }

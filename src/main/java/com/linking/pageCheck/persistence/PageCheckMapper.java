@@ -3,12 +3,14 @@ package com.linking.pageCheck.persistence;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.user.dto.UserDetailedRes;
+import com.linking.user.dto.UserTempRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Mapper(
         componentModel = "spring",
@@ -16,33 +18,34 @@ import java.util.List;
 )
 public interface PageCheckMapper {
 
-    default PageCheckRes toDto(PageCheck source, UserDetailedRes userDetailedRes) {
+    default PageCheckRes toDto(PageCheck source, String userName, Long userId) {
         if (source == null) return null;
 
         PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
         builder
                 .pageCheckId(source.getId())
                 .pageId(source.getId())
-                .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd HH:mm a")))
-                .userDetailedRes(userDetailedRes);
+                .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
+                .userName(userName)
+                .userId(userId);
         return builder.build();
     }
 
-    default List<PageCheckRes> toDtoBulk(List<PageCheck> sources) {
-        if (sources == null) return null;
-
-        List<PageCheckRes> pageCheckResList = new ArrayList<>();
-
-        for (PageCheck source: sources) {
-            PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
-            builder
-                    .pageCheckId(source.getId())
-                    .pageId(source.getPage().getId())
-                    .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd HH:mm a")))
-                    .userDetailedRes(null);
-
-            pageCheckResList.add(builder.build());
-        }
-        return pageCheckResList;
-    }
+//    default List<PageCheckRes> toDtoBulk(List<PageCheck> sources) {
+//        if (sources == null) return null;
+//
+//        List<PageCheckRes> pageCheckResList = new ArrayList<>();
+//
+//        for (PageCheck source: sources) {
+//            PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
+//            builder
+//                    .pageCheckId(source.getId())
+//                    .pageId(source.getPage().getId())
+//                    .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd hh:mm a").withLocale(Locale.forLanguageTag("en"))))
+//                    .userDetailedRes(null);
+//
+//            pageCheckResList.add(builder.build());
+//        }
+//        return pageCheckResList;
+//    }
 }

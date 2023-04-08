@@ -22,11 +22,14 @@ import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.user.domain.User;
 import com.linking.user.dto.UserDetailedRes;
+import com.linking.user.dto.UserTempRes;
 import com.linking.user.persistence.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -57,22 +60,35 @@ public class PageService {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
         for (PageCheck pageCheck : findPage.getPageCheckList()) {
             Participant participant = participantRepository.findById(pageCheck.getParticipant().getParticipantId()).get();
-            UserDetailedRes userDetailedRes = userMapper.toDto(participant.getUser());
+//            UserTempRes userRes = userMapper.toDtoTemp(participant.getUser());
+            User user = participant.getUser();
 
             pageCheck.updateLastChecked(); // 페이지 확인 시간 업뎃
             pageCheckRepository.save(pageCheck);
-            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userDetailedRes));
+            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getLastName()+user.getFirstName(), user.getUserId()));
         }
 
         List<BlockRes> blockResList = new ArrayList<>();
         for (Block block : findPage.getBlockList()) {
+            List<Annotation> annotations = block.getAnnotationList();
             List<AnnotationRes> annotationResList = new ArrayList<>();
-
-            for (Annotation annotation : block.getAnnotationList()) {
-                annotationResList.add(annotationMapper.toDto(annotation));
+            if (annotations.size() == 0) {
+                AnnotationRes annotationRes = AnnotationRes.builder()
+                        .annotationId(-1L)
+                        .blockId(-1L)
+                        .content("")
+                        .lastModified("22-01-01 AM 01:01")
+                        .userName("")
+                        .build();
+                annotationResList.add(annotationRes);
+            } else {
+                for (Annotation annotation : block.getAnnotationList()) {
+                    annotationResList.add(annotationMapper.toDto(annotation));
+                }
             }
             blockResList.add(blockMapper.toDto(block, annotationResList));
         }
+
         List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
                 .sorted(Comparator.comparing(PageCheckRes::getUserName))
                 .collect(Collectors.toList());
@@ -96,7 +112,7 @@ public class PageService {
         for (Participant participant : participants) {
             PageCheck pageCheck = new PageCheck(participant, page);
             pageCheckRepository.save(pageCheck);
-            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userMapper.toDto(pageCheck.getParticipant().getUser())));
+//            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, userMapper.toDtoTemp(pageCheck.getParticipant().getUser())));
         }
 
         List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()

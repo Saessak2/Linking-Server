@@ -4,8 +4,10 @@ import com.linking.document.dto.DocumentOrderReq;
 import com.linking.document.dto.DocumentRes;
 import com.linking.document.service.DocumentService;
 import com.linking.global.ResponseHandler;
+import com.linking.global.TempResponseHandler;
 import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
+import com.linking.group.dto.GroupTempRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,12 @@ public class DocumentController {
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getDocuments(@PathVariable("id") Long projectId) {
         List<GroupRes> documentRes = documentService.findAllDocuments(projectId);
-        if (documentRes == null)
-            return ResponseHandler.generateInternalServerErrorResponse();
+//        List<GroupTempRes> documentRes = documentService.findAllDocumentsTemp(projectId);
+//        if (documentRes == null)
+//            return ResponseHandler.generateInternalServerErrorResponse();
+//        return TempResponseHandler.generateResponse(HttpStatus.OK, documentRes);
+
+//        return new ResponseEntity<>(documentRes, HttpStatus.OK);
         return ResponseHandler.generateOkResponse(documentRes);
     }
 
@@ -38,11 +44,11 @@ public class DocumentController {
     public ResponseEntity<Object> putDocumentOrder(@RequestBody @Valid List<GroupOrderReq> req) {
         try {
             documentService.updateDocumentsOrder(req);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, "true");
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
-    
+
 }

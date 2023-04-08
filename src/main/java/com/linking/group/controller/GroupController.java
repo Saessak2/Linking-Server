@@ -44,7 +44,7 @@ public class GroupController {
 
         try {
             groupService.updateGroup(req);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, "true");
+            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
         } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }

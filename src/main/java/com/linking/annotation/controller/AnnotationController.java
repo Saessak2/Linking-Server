@@ -4,7 +4,6 @@ import com.linking.annotation.dto.AnnotationCreateReq;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.service.AnnotationService;
-import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,14 @@ import java.util.NoSuchElementException;
 public class AnnotationController {
 
     private final AnnotationService annotationService;
+
+    @GetMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<Object> getAnnotations(@PathVariable("id") Long blockId) {
+
+        return ResponseHandler.generateOkResponse(annotationService.findAnnotations(blockId));
+    }
+
 
     @PostMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
