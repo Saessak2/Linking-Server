@@ -35,11 +35,7 @@ public class Project {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    // TODO: NESTED ERROR ? (Part needs proj -> Proj needs Part)
-    @OneToMany(mappedBy = "project")
-    private final List<Participant> participantList = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 

@@ -1,6 +1,7 @@
 package com.linking.project.dto;
 
 import com.linking.user.domain.User;
+import com.linking.user.dto.UserDetailedRes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,6 @@ public class ProjectContainsPartsRes {
     private String projectName;
     private LocalDate beginDate;
     private LocalDate dueDate;
-    private List<User> partList;
+    private List<UserDetailedRes> partList;
     // TODO: List<User> -> List<UserDetailedDto> (capsule)
 }

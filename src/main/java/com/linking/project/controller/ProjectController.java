@@ -65,6 +65,7 @@ public class ProjectController {
         }
     }
 
+    // TODO: participant create/delete process (After project update, cascade)
     @PutMapping
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
     public ResponseEntity<Object> putProject(

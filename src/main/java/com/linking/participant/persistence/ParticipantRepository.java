@@ -2,6 +2,7 @@ package com.linking.participant.persistence;
 
 import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
+import com.linking.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,10 @@ import java.util.List;
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findByProject(@Param("project") Project project);
+    List<Participant> findByUser(@Param("user") User user);
+
+    @Query(value = "SELECT p.project FROM Participant p WHERE p.user.userId = :userId")
+    List<Project> findProjectsByUser(@Param("userId") Long userId);
 
     @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
     List<Participant> findByUserAndProject(@Param("userId") Long userId, @Param("projectId") Long projectId);

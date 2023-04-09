@@ -5,6 +5,7 @@ import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.service.ParticipantService;
+import com.linking.project.dto.ProjectRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -59,6 +60,20 @@ public class ParticipantController {
             @PathVariable("id") Long projectId){
         try{
             List<ParticipantRes> participantList = participantService.getParticipantsByProjectId(projectId);
+            if(participantList.isEmpty())
+                return ResponseHandler.generateInternalServerErrorResponse();
+            return ResponseHandler.generateOkResponse(participantList);
+        } catch(NoSuchElementException e){
+            return ResponseHandler.generateNotFoundResponse();
+        }
+    }
+
+    @GetMapping("/my-list/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    public ResponseEntity<Object> getParticipantMyList(
+            @PathVariable("id") Long userId){
+        try{
+            List<ProjectRes> participantList = participantService.getPartsByUserId(userId);
             if(participantList.isEmpty())
                 return ResponseHandler.generateInternalServerErrorResponse();
             return ResponseHandler.generateOkResponse(participantList);

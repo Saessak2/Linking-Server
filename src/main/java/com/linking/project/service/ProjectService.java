@@ -10,15 +10,18 @@ import com.linking.project.persistence.ProjectMapper;
 import com.linking.project.domain.Project;
 
 import com.linking.user.domain.User;
+import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,52 +30,61 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
 
+    private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
 
-    // TODO: create logic needs to be optimized
     public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq)
             throws DataIntegrityViolationException {
         Project project = projectRepository.save(projectMapper.toEntity(projectCreateReq));
-        List<Long> participantIdList = projectCreateReq.getPartList();
         Participant.ParticipantBuilder participantBuilder = Participant.builder();
-        for(int i = 0; i < projectCreateReq.getPartList().size(); i++) {
-            participantRepository.save(
-                    participantBuilder
-                            .user(new User(participantIdList.get(i)))
-                            .project(project).build());
+        List<Participant> participantList = new ArrayList<>();
+        for(Long id : projectCreateReq.getPartList()) {
+            participantList.add(
+                    participantRepository.save(
+                            participantBuilder
+                                    .user(userRepository.findById(id).get())
+                                    .project(project).build()));
         }
-        return projectRepository.findById(project.getProjectId()).map(projectMapper::toDto);
+        return Optional.ofNullable(projectMapper.toDto(project, participantList));
     }
 
     public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId)
-            throws NoSuchElementException{
-        return Optional.ofNullable(projectRepository.findById(projectId)
-                .map(projectMapper::toDto)
+            throws NoSuchElementException {
+        Optional<Project> possibleProject = projectRepository.findById(projectId);
+        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
+        return Optional.ofNullable(possibleProject
+                .map(p -> projectMapper.toDto(p, participantList))
                 .orElseThrow(NoSuchElementException::new));
     }
 
     public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId)
             throws NoSuchElementException{
-        List<Project> data = projectRepository.findByOwner(ownerId);
-        if(data.isEmpty())
+        List<Project> projectList = projectRepository.findByOwner(ownerId);
+        if(projectList.isEmpty())
             throw new NoSuchElementException();
-        return projectMapper.toDto(data);
+//        List<Long> projectIdList = projectList.stream().map(Project::getProjectId).collect(Collectors.toList());
+        List<ProjectContainsPartsRes> projectResList = new ArrayList<>();
+        for(Project p : projectList)
+            projectResList.add(projectMapper.toDto(
+                    p, participantRepository.findByProject(p)));
+        return projectResList;
     }
 
     public Optional<ProjectContainsPartsRes> updateProject(ProjectUpdateReq projectUpdateReq)
             throws NoSuchElementException{
         if(!projectRepository.existsById(projectUpdateReq.getProjectId()))
             throw new NoSuchElementException();
-        return Optional.of(projectMapper.toDto(
-                projectRepository.save(
-                        projectMapper.toEntity(projectUpdateReq)))
-        );
+        Project project = projectRepository.save(projectMapper.toEntity(projectUpdateReq));
+        List<Participant> participantList = participantRepository.findByProject(project);
+
+        return Optional.of(projectMapper.toDto(project, participantList));
     }
 
     public void deleteProject(Long projectId)
             throws EmptyResultDataAccessException, SQLIntegrityConstraintViolationException {
         Optional<Project> possibleProject = projectRepository.findById(projectId);
-        if(possibleProject.isPresent() && possibleProject.get().getParticipantList().size() > 1)
+        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
+        if(possibleProject.isPresent() && participantList.size() > 1)
             throw new SQLIntegrityConstraintViolationException();
         projectRepository.deleteById(projectId);
     }
