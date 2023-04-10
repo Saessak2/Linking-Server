@@ -4,21 +4,49 @@ import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
+import com.linking.project.dto.ProjectRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.user.domain.User;
+import com.linking.user.persistence.UserMapper;
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
-public interface ProjectMapper {
+@RequiredArgsConstructor
+//@Mapper(componentModel = "spring")
+@Component
+public class ProjectMapper {
 
-    default ProjectContainsPartsRes toDto(Project project) {
+    private final UserMapper userMapper;
+//    default ProjectContainsPartsRes toDto(Project project) {
+//        if(project == null)
+//            return null;
+//
+//        // TODO: Builder pattern with List needs to be refactored
+//        ProjectContainsPartsRes.ProjectContainsPartsResBuilder projResBuilder
+//                = ProjectContainsPartsRes.builder();
+//        projResBuilder
+//                .projectId(project.getProjectId())
+//                .projectName(project.getProjectName())
+//                .beginDate(project.getBeginDate())
+//                .dueDate(project.getDueDate());
+//
+////        if(!project.getParticipantList().isEmpty())
+////                projResBuilder.partList(project.getParticipantList()
+////                        .stream().map(Participant::getUser)
+////                        .collect(Collectors.toList()));
+//
+//        return projResBuilder.build();
+//    }
+
+    public ProjectContainsPartsRes toDto(Project project, List<Participant> participantList){
         if(project == null)
             return null;
 
-        // TODO: Builder pattern with List needs to be refactored
         ProjectContainsPartsRes.ProjectContainsPartsResBuilder projResBuilder
                 = ProjectContainsPartsRes.builder();
         projResBuilder
@@ -27,21 +55,32 @@ public interface ProjectMapper {
                 .beginDate(project.getBeginDate())
                 .dueDate(project.getDueDate());
 
-        if(!project.getParticipantList().isEmpty())
-                projResBuilder.partList(project.getParticipantList()
-                        .stream().map(Participant::getUser)
-                        .collect(Collectors.toList()));
+        if(!participantList.isEmpty())
+                projResBuilder.partList(
+                        userMapper.toDto(
+                        participantList.stream()
+                                .map(Participant::getUser).collect(Collectors.toList())));
+
+
 
         return projResBuilder.build();
     }
 
-    default List<ProjectContainsPartsRes> toDto(List<Project> projectList) {
-        if(projectList.isEmpty())
-            return null;
-        return projectList.stream().map(this::toDto).collect(Collectors.toList());
+//    default List<ProjectContainsPartsRes> toDto(List<Project> projectList) {
+//        if(projectList.isEmpty())
+//            return null;
+//        return projectList.stream().map(this::toDto).collect(Collectors.toList());
+//    }
+
+    public List<ProjectRes> toResDto(List<Project> list){
+        List<ProjectRes> list1 = new ArrayList<>();
+        for (Project project : list) {
+            list1.add(new ProjectRes(project.getProjectId(), project.getProjectName()));
+        }
+        return list1;
     }
 
-    default Project toEntity(ProjectCreateReq projectCreateReq) {
+    public Project toEntity(ProjectCreateReq projectCreateReq) {
         if (projectCreateReq == null)
             return null;
 
@@ -55,7 +94,7 @@ public interface ProjectMapper {
         return projBuilder.build();
     }
 
-    default Project toEntity(ProjectUpdateReq projectUpdateReq) {
+    public Project toEntity(ProjectUpdateReq projectUpdateReq) {
         if(projectUpdateReq == null)
             return null;
 
@@ -65,7 +104,7 @@ public interface ProjectMapper {
                 .projectName(projectUpdateReq.getProjectName())
                 .beginDate(projectUpdateReq.getBeginDate())
                 .dueDate(projectUpdateReq.getDueDate())
-                .owner(new User(projectUpdateReq.getOwnerId()));
+                .owner(new User(projectUpdateReq.getPartList().get(0)));
 
         return projBuilder.build();
     }

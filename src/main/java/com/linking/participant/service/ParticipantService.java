@@ -7,6 +7,9 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
+import com.linking.project.dto.ProjectRes;
+import com.linking.project.persistence.ProjectMapper;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,7 +28,8 @@ public class ParticipantService {
     private final ParticipantRepository participantRepository;
     private final ParticipantMapper participantMapper;
 
-    // TODO: create Logic needs to be optimized
+    private final ProjectMapper projectMapper;
+
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
         List<Participant> partData = participantRepository.findByUserAndProject(
@@ -47,10 +51,25 @@ public class ParticipantService {
 
     public List<ParticipantRes> getParticipantsByProjectId(Long projectId)
             throws NoSuchElementException {
-        List<Participant> data = participantRepository.findByProject(new Project(projectId));
-        if (data.isEmpty())
+        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
+        if (participantList.isEmpty())
             throw new NoSuchElementException();
-        return participantMapper.toDto(data);
+        return participantMapper.toDto(participantList);
+    }
+
+    public List<ProjectRes> getPartsByUserId(Long userId)
+            throws NoSuchElementException {
+        List<Project> projectList = participantRepository.findProjectsByUser(userId);
+        if (projectList.isEmpty())
+            throw new NoSuchElementException();
+//        List<ProjectRes> projectList = new ArrayList<>();
+//        for (Participant participant : participantList) {
+//            projectList.add(new ProjectRes(
+//                    participant.getParticipantId(),
+//                    participant.getProject().getProjectName()));
+//        }
+        return projectMapper.toResDto(projectList);
+//        return projectList;
     }
 
     public void deleteParticipant(ParticipantDeleteReq participantDeleteReq)

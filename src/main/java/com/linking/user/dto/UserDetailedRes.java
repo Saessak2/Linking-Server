@@ -16,6 +16,6 @@ public class UserDetailedRes {
     private String firstName;
     private String email;
     private String phoneNumber;
-    private String password;
+//    private String password;
 
 }
