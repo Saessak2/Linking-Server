@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Table(name = "pagecheck")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 public class PageCheck {
 
     @Id

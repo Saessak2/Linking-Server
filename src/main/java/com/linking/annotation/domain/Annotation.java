@@ -21,6 +21,7 @@ public class Annotation {
     @Column(name = "annotation_id")
     private Long id;
 
+    private LocalDateTime createdDatetime;
     private LocalDateTime lastModified;
 
     private String content;
@@ -42,6 +43,11 @@ public class Annotation {
         this.block = block;
         this.participant = participant;
         this.userName = userName;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdDatetime = LocalDateTime.now();
     }
 
     public void setBlock(Block block) {

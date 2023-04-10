@@ -15,8 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DynamicUpdate
+//@DynamicUpdate
 @Table(name = "project")
+@ToString
 public class Project {
 
     @Id
@@ -33,12 +34,15 @@ public class Project {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Participant> participantList;
+
 
     public Project(Long projectId) {
         this.projectId = projectId;
     }
-
 }

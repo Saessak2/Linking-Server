@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class PageCheckService {
+    private final PageCheckRepository pageCheckRepository;
 
     private final PageCheckMapper pageCheckMapper;
     private final ParticipantRepository participantRepository;
@@ -29,32 +30,22 @@ public class PageCheckService {
 
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
         if (pageCheckList.size() == 0) {
-            PageCheckRes pageCheckRes = PageCheckRes.builder()
-                    .pageCheckId(-1L)
-                    .pageId(-1L)
-                    .lastChecked("23-01-01 AM 01:01")
-                    .userId(-1L)
-                    .userName("")
-                    .isChecked(false)
-                    .build();
-            pageCheckResList.add(pageCheckRes);
-            return pageCheckResList;
+            pageCheckResList.add(pageCheckMapper.toEmptyDto());
         }
+
         for (PageCheck pageCheck : pageCheckList) {
             Long participantId = pageCheck.getParticipant().getParticipantId();
             Participant participant = participantRepository.findById(participantId)
                     .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
             User user = participant.getUser();
-            if (user.getUserId() == userId) {
-                updatePageCheckTime(pageCheck);
+            if (user.getUserId() == userId) { // 페이지를 조회한 사용자 -> 확인 시간 업뎃
+                pageCheck.updateLastChecked();
+                pageCheckRepository.save(pageCheck);
             }
+
             pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));
         }
         return pageCheckResList;
-    }
-
-    private void updatePageCheckTime(PageCheck pageCheck) {
-        pageCheck.updateLastChecked();
     }
 }

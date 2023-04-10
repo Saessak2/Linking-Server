@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DocumentService {
     private final GroupRepository groupRepository;
-    private final PageRepository pageRepository;
     private final GroupMapper groupMapper;
     private final PageMapper pageMapper;
     private final GroupService groupService;

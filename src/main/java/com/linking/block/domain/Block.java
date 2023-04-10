@@ -31,7 +31,7 @@ public class Block {
     private Page page;
 
     @OneToMany(mappedBy = "block", cascade = CascadeType.ALL)
-    @OrderBy("id asc")
+    @OrderBy("createdDatetime asc")
     private List<Annotation> annotationList;
 
 

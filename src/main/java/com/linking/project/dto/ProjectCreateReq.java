@@ -28,6 +28,7 @@ public class ProjectCreateReq {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
+    @NotNull
     private List<Long> partList;
 
 }

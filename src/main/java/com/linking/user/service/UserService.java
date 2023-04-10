@@ -38,6 +38,7 @@ public class UserService {
         return userRepository.findUserByEmail(emailReq.getEmail()).isPresent();
     }
 
+    //TODO 여기가문제라는건가??
     public List<UserDetailedRes> getUsersByPartOfEmail(UserEmailReq userEmailReq)
         throws NoSuchElementException{
         List<User> userList = userRepository.findUsersByPartOfEmail(userEmailReq.getPartOfEmail());

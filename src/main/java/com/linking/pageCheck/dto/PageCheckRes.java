@@ -17,4 +17,5 @@ public class PageCheckRes {
     private String lastChecked;
     private Long userId;
     private String userName;
+
 }

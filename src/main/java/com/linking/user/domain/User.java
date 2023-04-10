@@ -3,11 +3,9 @@ package com.linking.user.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Builder
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -26,10 +24,6 @@ public class User {
     private String firstName;
 
     private String email;
-
-    // TODO: phoneNumber should be unique key
-    @Column(name = "phone_number")
-    private String phoneNumber;
 
     private String password;
 

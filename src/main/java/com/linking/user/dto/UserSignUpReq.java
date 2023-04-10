@@ -25,8 +25,6 @@ public class UserSignUpReq {
     @Email
     private String email;
 
-    private String phoneNumber;
-
     @NotNull
     @NotBlank
     private String password;

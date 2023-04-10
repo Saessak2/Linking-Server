@@ -20,14 +20,27 @@ public interface PageCheckMapper {
         PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
         builder
                 .pageCheckId(source.getId())
-                .pageId(source.getId())
-                .isChecked(true)
-                .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
+                .pageId(source.getId());
+        if (source.getLastChecked() == null)
+            builder
+                    .isChecked(false)
+                    .lastChecked("23-01-01 AM 01:01");
+        else
+            builder
+                    .isChecked(true)
+                    .lastChecked(source.getLastChecked().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))));
+        builder
                 .userName(userName)
                 .userId(userId);
         return builder.build();
     }
 
+    default PageCheckRes toEmptyDto() {
+        PageCheckRes builder = PageCheckRes.builder()
+                .pageCheckId(-1L)
+                .lastChecked("23-01-01 AM 01:01").build();
+        return builder;
+    }
 //    default List<PageCheckRes> toDtoBulk(List<PageCheck> sources) {
 //        if (sources == null) return null;
 //

@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findByProject(@Param("project") Project project);
+
     List<Participant> findByUser(@Param("user") User user);
 
     @Query(value = "SELECT p.project FROM Participant p WHERE p.user.userId = :userId")

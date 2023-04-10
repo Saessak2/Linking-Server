@@ -5,6 +5,7 @@ import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.PushbackReader;
 import java.time.LocalDateTime;
 
 @Getter
@@ -28,4 +29,14 @@ public class Participant {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+        if (!project.getParticipantList().contains(this)) {
+            project.getParticipantList().add(this);
+        }
+    }
 }
