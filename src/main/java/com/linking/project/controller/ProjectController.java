@@ -19,11 +19,14 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/projects")
+@CrossOrigin(origins = "*", allowedHeaders = "*",
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @PostMapping
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postProject(
             @RequestBody @Valid ProjectCreateReq projectCreateReq){
         try {
@@ -36,6 +39,7 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getProject(
             @PathVariable("id") Long projectId){
         try {
@@ -48,6 +52,7 @@ public class ProjectController {
     }
 
     @GetMapping("/list/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getProjectList(
             @PathVariable("id") Long userId){
         try {
@@ -75,6 +80,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteProject(
             @PathVariable("id") Long projectId){
         try{

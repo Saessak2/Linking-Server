@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT})
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class GroupController {
 
     private final GroupService groupService;

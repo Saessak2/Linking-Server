@@ -1,5 +1,7 @@
 package com.linking.participant.service;
 
+import com.linking.document.controller.DocumentController;
+import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantIdReq;
@@ -9,8 +11,9 @@ import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectRes;
 import com.linking.project.persistence.ProjectMapper;
-import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -25,10 +28,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ParticipantService {
 
+    private final PageCheckService pageCheckService;
     private final ParticipantRepository participantRepository;
     private final ParticipantMapper participantMapper;
 
     private final ProjectMapper projectMapper;
+
+    Logger logger = LoggerFactory.getLogger(ParticipantService.class);
+
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
@@ -37,9 +44,10 @@ public class ParticipantService {
         if (!partData.isEmpty())
             throw new DuplicateKeyException("Already in project");
 
-        return Optional.of(participantMapper.toDto(
-                participantRepository.save(
-                        participantMapper.toEntity(participantIdReq))));
+        Participant participant = participantRepository.save(participantMapper.toEntity(participantIdReq));
+        pageCheckService.createPageCheckForAddParticipant(participant);
+
+        return Optional.of(participantMapper.toDto(participant));
     }
 
     public Optional<ParticipantRes> getParticipant(Long participantId)
@@ -77,8 +85,10 @@ public class ParticipantService {
         List<Participant> participantList = setParticipantList(participantDeleteReq.getPartIdList());
         if(participantList.isEmpty())
             throw new NoSuchElementException();
-        if(containsOwner(participantList))
+        if(containsOwner(participantList)) {
+            logger.info("\ncontains Owner ===================+> cannot delete participants");
             throw new SQLIntegrityConstraintViolationException();
+        }
         participantRepository.deleteAll(participantList);
     }
 

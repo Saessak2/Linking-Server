@@ -75,6 +75,7 @@ public class UserService {
     public void deleteUser(Long userId)
             throws EmptyResultDataAccessException, DataIntegrityViolationException {
         userRepository.deleteById(userId);
+        // TODO 프젝을 소유하는 소유자에 해당한느 사용자인 경우 ㄹ소유자 이전해야힘.
     }
 
 }

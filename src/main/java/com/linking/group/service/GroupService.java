@@ -28,6 +28,7 @@ public class GroupService {
     private int GROUP_FIRST_ORDER = 0;
 
     public Optional<GroupRes> createGroup(GroupCreateReq req) throws NoSuchElementException{
+        // TODO project 존재 여부 확인
         Project refProject = projectRepository.getReferenceById(req.getProjectId());
 
         Group group = groupMapper.toEntity(req);

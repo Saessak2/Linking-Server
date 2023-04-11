@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/participants")
 @CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ParticipantController {
 
     private final ParticipantService participantService;
@@ -42,7 +42,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @CrossOrigin(origins = "*", allowedHeaders = "*",   methods = {RequestMethod.GET})
     public ResponseEntity<Object> getParticipant(
             @PathVariable("id") Long participantId){
         try {
@@ -55,7 +55,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @CrossOrigin(origins = "*", allowedHeaders = "*",  methods = {RequestMethod.GET})
     public ResponseEntity<Object> getParticipantList(
             @PathVariable("id") Long projectId){
         try{
@@ -83,7 +83,7 @@ public class ParticipantController {
     }
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
+    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteParticipants(
             @RequestBody ParticipantDeleteReq participantDeleteReq){
         try{
