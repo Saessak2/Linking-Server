@@ -62,18 +62,4 @@ public class    AnnotationService {
                 annotationRepository.findById(annotationId).orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_ANNOTATION))
         );
     }
-
-//    public List<AnnotationRes> findAnnotations(Long blockId) {
-//        Annotation annotation = annotationRepository.findByBlockId(blockId);
-//        List<AnnotationRes> annotationResList = new ArrayList<>();
-//        AnnotationRes annotationRes = AnnotationRes.builder()
-//                .annotationId(annotation.getId())
-//                .content(annotation.getContent())
-//                .userName("LeeEunBin")
-//                .lastModified(annotation.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd HH:mm a")))
-//                .blockId(annotation.getBlock().getId())
-//                .build();
-//        annotationResList.add(annotationRes);
-//        return annotationResList;
-//    }
 }

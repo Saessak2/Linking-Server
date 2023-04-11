@@ -57,7 +57,6 @@ public class ProjectService {
     public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId)
             throws NoSuchElementException {
         Optional<Project> possibleProject = projectRepository.findById(projectId);
-
         List<Participant> participantList = possibleProject.get().getParticipantList();
 
 //        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
