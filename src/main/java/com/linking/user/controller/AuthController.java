@@ -17,13 +17,11 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
 public class AuthController {
 
     private final UserService userService;
 
     @PostMapping("/sign-up/default")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> signUpDefault(@RequestBody @Valid UserSignUpReq userSignUpReq){
         try {
             return userService.addUser(userSignUpReq)
@@ -35,7 +33,6 @@ public class AuthController {
     }
 
     @PostMapping("/verify/email")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> verifyEmail(@RequestBody @Valid UserEmailVerifyReq emailReq) {
         if(userService.isUniqueEmail(emailReq))
             return ResponseHandler.generateResponse("이미 존재하는 이메일", HttpStatus.OK, false);
@@ -44,7 +41,6 @@ public class AuthController {
 
     // TODO: login security needs to be upgraded
     @PostMapping("/sign-in")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> signIn(@RequestBody @Valid UserSignInReq userSignInReq){
         try {
             return userService.getUserWithEmailAndPw(userSignInReq)

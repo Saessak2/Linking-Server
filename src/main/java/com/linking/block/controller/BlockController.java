@@ -18,14 +18,11 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/blocks")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public class BlockController {
 
     private final BlockService blockService;
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postBlock(@RequestBody @Valid BlockCreateReq req) {
         try {
             BlockRes blockRes = blockService.createBlock(req);
@@ -38,7 +35,6 @@ public class BlockController {
     }
 
     @PutMapping("/order")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
     public ResponseEntity<Object> putBlockOrder(@RequestBody @Valid List<BlockOrderReq> req) {
         try {
             blockService.updateBlockOrder(req);
@@ -50,7 +46,6 @@ public class BlockController {
 
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteBlock(@PathVariable("id") Long blockId) {
         try {
             blockService.deleteBlock(blockId);

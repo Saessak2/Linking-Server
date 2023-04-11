@@ -11,4 +11,6 @@ import java.util.List;
 @Getter
 public class DocumentRes {
     private List<GroupRes> groupResList;
+
+
 }

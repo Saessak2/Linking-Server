@@ -20,14 +20,11 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/participants")
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ParticipantController {
 
     private final ParticipantService participantService;
 
     @PostMapping("/new")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postParticipant(
             @RequestBody @Valid ParticipantIdReq participantIdReq){
         try {
@@ -41,8 +38,7 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*",   methods = {RequestMethod.GET})
+    @PostMapping("/{id}")
     public ResponseEntity<Object> getParticipant(
             @PathVariable("id") Long participantId){
         try {
@@ -54,8 +50,7 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*",  methods = {RequestMethod.GET})
+    @PostMapping("/list/{id}")
     public ResponseEntity<Object> getParticipantList(
             @PathVariable("id") Long projectId){
         try{
@@ -68,8 +63,7 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/my-list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/my-list/{id}")
     public ResponseEntity<Object> getParticipantMyList(
             @PathVariable("id") Long userId){
         try{
@@ -83,7 +77,6 @@ public class ParticipantController {
     }
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteParticipants(
             @RequestBody ParticipantDeleteReq participantDeleteReq){
         try{

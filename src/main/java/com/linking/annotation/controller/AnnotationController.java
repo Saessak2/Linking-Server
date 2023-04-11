@@ -19,8 +19,6 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping(value = "/annotations")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class AnnotationController {
 
     private final AnnotationService annotationService;
@@ -34,7 +32,6 @@ public class AnnotationController {
 
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postAnnotation(@RequestBody @Valid AnnotationCreateReq req) {
         try {
             return annotationService.createAnnotation(req)
@@ -48,7 +45,6 @@ public class AnnotationController {
     }
 
     @PutMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
     public ResponseEntity<Object> putAnnotation(@RequestBody @Valid AnnotationUpdateReq req) {
 
         try {
@@ -60,7 +56,6 @@ public class AnnotationController {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteAnnotation(@PathVariable("id") Long id) {
         try {
             annotationService.deleteAnnotation(id);

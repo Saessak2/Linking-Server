@@ -32,42 +32,15 @@ public class DocumentService {
     private final GroupService groupService;
     private final PageService pageService;
 
-    public List<GroupTempRes> findAllDocumentsTemp(Long projectId)  {
-        // TODO projectid 가 존재하는지 어떻게 확인하지?
-
-        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        List<GroupTempRes> groupResList = new ArrayList<>();
-        for (Group group : groupList) {
-            GroupTempRes groupTempRes = GroupTempRes.builder()
-                    .groupId(group.getId())
-                    .name(group.getName())
-                    .projectId(group.getProject().getProjectId())
-                    .build();
-
-            groupResList.add(groupTempRes);
-        }
-        return groupResList;
-    }
-
+    // 문서리스트 조회 (그룹 + 페이지)
     public List<GroupRes> findAllDocuments(Long projectId)  {
-        // TODO projectid 가 존재하는지 어떻게 확인하지?
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
         List<GroupRes> groupResList = new ArrayList<>();
         for (Group group : groupList) {
             GroupRes groupRes = groupMapper.toDto(group);
             List<Page> pageList = group.getPageList();
-            if (pageList.size() == 0) {
-                //TODO refactoring
-                PageRes pageRes = PageRes.builder()
-                        .pageId(-1L)
-                        .groupId(-1L)
-                        .title("")
-                        .annotNotiCnt(-1)
-                        .build();
-                groupRes.getPageResList().add(pageRes);
-            }
-            else {
+            if (!pageList.isEmpty()) {
                 for (Page page : pageList)
                     groupRes.getPageResList().add(pageMapper.toDto(page));
             }
@@ -76,14 +49,10 @@ public class DocumentService {
         return groupResList;
     }
 
-    public void updateDocumentsOrder(List<GroupOrderReq> reqs) throws RuntimeException{
-        try {
-            groupService.updateOrder(reqs);
-            for (GroupOrderReq groupOrderReq : reqs) {
-                pageService.updateOrder(groupOrderReq.getPageList());
-            }
-        } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
-        }
+    // 문서 순서 변경 (그룹 + 페이지)
+    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) throws RuntimeException{
+        groupService.updateOrder(groupOrderReqList);
+        for (GroupOrderReq groupOrderReq : groupOrderReqList)
+            pageService.updateOrder(groupOrderReq.getPageList());
     }
 }

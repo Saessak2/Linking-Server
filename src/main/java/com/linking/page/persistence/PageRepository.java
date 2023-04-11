@@ -22,5 +22,4 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @Query(value = "select p from Page p where p.group.id = :groupId order by p.pageOrder asc")
     List<Page> findAllByGroupId(@Param("groupId") Long groupId);
 
-
 }

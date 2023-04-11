@@ -24,33 +24,25 @@ import java.util.*;
 @RestController
 @RequestMapping("/pages")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class PageController extends TextWebSocketHandler {
     Logger logger = LoggerFactory.getLogger(PageController.class);
 
     private final PageService pageService;
 
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/{id}")
     public ResponseEntity<Object> getPage(
-            @PathVariable("id") Long pageId,
-            @RequestParam("userId") Long userId
-            )
-    {
+            @PathVariable("id") Long pageId, @RequestParam("userId") Long userId) {
         try {
-            PageDetailedRes pageDetailedRes = pageService.getPage(pageId, userId);
-            if (pageDetailedRes == null)
-                return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageDetailedRes);
+            return pageService.getPage(pageId, userId)
+                    .map(ResponseHandler::generateOkResponse)
+                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
         } catch (NoSuchElementException e){
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         }
     }
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postPage(@RequestBody @Valid PageCreateReq pageCreateReq) {
         try {
             PageDetailedRes pageDetailedRes = pageService.createPage(pageCreateReq);
@@ -63,13 +55,15 @@ public class PageController extends TextWebSocketHandler {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deletePage(@PathVariable("id") Long docId) {
         try {
             pageService.deletePage(docId);
             return ResponseHandler.generateNoContentResponse();
-        } catch (RuntimeException e) {
+        } catch (NoSuchElementException e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+        } catch (RuntimeException e) {
+            logger.error("\n{} ===============> {}", e.getClass(), e.getMessage());
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
 
@@ -94,8 +88,8 @@ public class PageController extends TextWebSocketHandler {
         Map<String, Object> attributes = session.getAttributes();
         logger.info("\nattributes ======++> {}", attributes);
 
-        PageDetailedRes page = pageService.getPage(44L, 3L);
-        session.sendMessage(new TextMessage(JsonMapper.toJsonString(page)));
+//        PageDetailedRes page = pageService.getPage(44L, 3L);
+//        session.sendMessage(new TextMessage(JsonMapper.toJsonString(page)));
     }
 
     @Override

@@ -31,7 +31,6 @@ public class BlockService {
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
     private final AnnotationMapper annotationMapper;
-    private int BLOCK_FIRST_ORDER = 0;
 
     Logger logger = LoggerFactory.getLogger(BlockService.class);
 
@@ -75,7 +74,7 @@ public class BlockService {
         blockRepository.delete(block);
 
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
-        int order = BLOCK_FIRST_ORDER;
+        int order = 0;
         for (Block b : blockList) {
             if (b.getBlockOrder() != order) {
                 b.updateOrder(order);

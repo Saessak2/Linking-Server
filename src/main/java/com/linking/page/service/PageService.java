@@ -18,10 +18,7 @@ import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,12 +32,10 @@ public class PageService {
     private final PageCheckRepository pageCheckRepository;
     private final ParticipantRepository participantRepository;
     private final PageCheckService pageCheckService;
-    private int PAGE_FIRST_ORDER = 0;
 
 
     // TODO 한번에 select 날리는 방법 찾아보기
-    // TODO code refactoring
-    public PageDetailedRes getPage(Long pageId, Long userId) throws NoSuchElementException{
+    public Optional<PageDetailedRes> getPage(Long pageId, Long userId) throws NoSuchElementException{
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
@@ -51,7 +46,7 @@ public class PageService {
                 .sorted(Comparator.comparing(PageCheckRes::getUserName))
                 .collect(Collectors.toList());
 
-        return pageMapper.toDto(page, blockResList, sortedPageCheckList);
+        return Optional.ofNullable(pageMapper.toDto(page, blockResList, sortedPageCheckList));
     }
 
     // TODO code refactoring
@@ -101,10 +96,10 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        // 페이지 순서를 재정렬
+        // 페이지 순서를 0부터 재정렬
         try {
             List<Page> pageList = pageRepository.findAllByGroupId(groupId);
-            int order = PAGE_FIRST_ORDER;
+            int order = 0;
             for (Page p : pageList) {
                 if (p.getPageOrder() != order) {
                     p.updateOrder(order);
@@ -117,12 +112,15 @@ public class PageService {
         }
     }
 
-    public void updateOrder(List<PageOrderReq> reqs) throws RuntimeException{
-        List<Long> pageIds = reqs.stream()
+
+
+    public void updateOrder(List<PageOrderReq> pageOrderReqList) throws RuntimeException{
+        List<Long> pageIds = pageOrderReqList.stream()
                 .map(PageOrderReq::getPageId)
                 .collect(Collectors.toList());
-        List<Page> pageList = pageRepository.findAllById(pageIds);
-        for (Page p : pageList) {
+
+        for (Page p : pageRepository.findAllById(pageIds)) {
+            // 요청 온 순서대로 order 지정
             int order = pageIds.indexOf(p.getId());
             if (p.getPageOrder() != order) {
                 p.updateOrder(order);

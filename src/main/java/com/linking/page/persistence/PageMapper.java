@@ -18,6 +18,17 @@ import java.util.List;
 )
 public interface PageMapper {
 
+    default PageRes toEmptyDto() {
+        PageRes pageRes = PageRes.builder()
+                .pageId(-1L)
+                .groupId(-1L)
+                .title("")
+                .annotNotiCnt(-1)
+                .build();
+
+        return pageRes;
+    }
+
     default PageRes toDto(Page source) { // 문서 리스트 조회 시 사용
         if (source == null) {
             return null;

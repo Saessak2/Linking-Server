@@ -25,12 +25,8 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
-    private int GROUP_FIRST_ORDER = 0;
-
-    public Optional<GroupRes> createGroup(GroupCreateReq req) throws NoSuchElementException{
-        // TODO project 존재 여부 확인
+    public Optional<GroupRes> createGroup(GroupCreateReq req) {
         Project refProject = projectRepository.getReferenceById(req.getProjectId());
-
         Group group = groupMapper.toEntity(req);
         group.setProject(refProject);
 
@@ -50,19 +46,24 @@ public class GroupService {
     public void deleteGroup(Long groupId) throws NoSuchElementException{
         Group group =  groupRepository.findById(groupId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
-
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
+
         // 그룹 순서를 0부터 재정렬
-        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        int order = GROUP_FIRST_ORDER;
-        for (Group g : groupList) {
-            if (g.getGroupOrder() != order) {
-                g.updateOrder(order++);
-                groupRepository.save(g);
+        try {
+            List<Group> groupList = groupRepository.findAllByProjectId(projectId);
+            int order = 0;
+            for (Group g : groupList) {
+                if (g.getGroupOrder() != order) {
+                    g.updateOrder(order);
+                    groupRepository.save(g);
+                }
+                order++;
             }
-            order++;
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
         }
+
     }
 
     public void updateOrder(List<GroupOrderReq> reqs) throws RuntimeException {
@@ -71,8 +72,8 @@ public class GroupService {
                 .map(GroupOrderReq::getGroupId)
                 .collect(Collectors.toList());
 
-        List<Group> groupList = groupRepository.findAllById(groupIds);
-        for (Group g : groupList) {
+        for (Group g : groupRepository.findAllById(groupIds)) {
+            // 요청 온 순서대로 order 지정
             int order = groupIds.indexOf(g.getId());
             if (g.getGroupOrder() != order) {
                 g.updateOrder(order);

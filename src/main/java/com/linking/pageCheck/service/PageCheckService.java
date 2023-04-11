@@ -34,8 +34,9 @@ public class PageCheckService {
         List<PageCheck> pageCheckList = page.getPageCheckList();
 
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
-        if (pageCheckList.size() == 0) {
-            pageCheckResList.add(pageCheckMapper.toEmptyDto());
+        // TODO 팀원이 없는경우가 없는데 size가 0일 수 있나?
+        if (pageCheckList.isEmpty()) {
+            throw new RuntimeException("cannot pageCheckList is empty");
         }
 
         for (PageCheck pageCheck : pageCheckList) {
@@ -53,6 +54,7 @@ public class PageCheckService {
         }
         return pageCheckResList;
     }
+
 
     // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 추가해야함.
     public void createPageCheckForAddParticipant(Participant participant) {
