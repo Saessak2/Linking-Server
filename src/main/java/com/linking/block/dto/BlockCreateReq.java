@@ -17,4 +17,6 @@ public class BlockCreateReq {
     private int order;
     @NotNull
     private Long pageId;
+
+    private String title;
 }

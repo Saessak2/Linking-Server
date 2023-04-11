@@ -50,6 +50,7 @@ public interface BlockMapper {
         }
         Block.BlockBuilder builder = Block.builder();
         builder
+                .title(source.getTitle())
                 .blockOrder(source.getOrder());
 
         return builder.build();

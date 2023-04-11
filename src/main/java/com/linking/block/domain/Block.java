@@ -37,10 +37,9 @@ public class Block {
 
 
     @Builder
-    public Block(int blockOrder, Page page, List<Annotation> annotationList) {
+    public Block(int blockOrder, String title) {
         this.blockOrder = blockOrder;
-        this.page = page;
-        this.annotationList = annotationList;
+        this.title = title;
     }
 
     @PrePersist
