@@ -50,7 +50,7 @@ public class DocumentService {
     }
 
     // 문서 순서 변경 (그룹 + 페이지)
-    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) throws RuntimeException{
+    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) {
         groupService.updateOrder(groupOrderReqList);
         for (GroupOrderReq groupOrderReq : groupOrderReqList)
             pageService.updateOrder(groupOrderReq.getPageList());

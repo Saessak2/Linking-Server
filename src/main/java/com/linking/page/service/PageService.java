@@ -114,7 +114,7 @@ public class PageService {
 
 
 
-    public void updateOrder(List<PageOrderReq> pageOrderReqList) throws RuntimeException{
+    public void updateOrder(List<PageOrderReq> pageOrderReqList) {
         List<Long> pageIds = pageOrderReqList.stream()
                 .map(PageOrderReq::getPageId)
                 .collect(Collectors.toList());

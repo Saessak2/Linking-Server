@@ -66,7 +66,7 @@ public class GroupService {
 
     }
 
-    public void updateOrder(List<GroupOrderReq> reqs) throws RuntimeException {
+    public void updateOrder(List<GroupOrderReq> reqs)  {
 
         List<Long> groupIds = reqs.stream()
                 .map(GroupOrderReq::getGroupId)
