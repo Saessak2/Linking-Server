@@ -1,5 +1,7 @@
 package com.linking.group.service;
 
+import com.linking.document.dto.DocumentEvent;
+import com.linking.document.service.DocumentService;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
@@ -11,6 +13,9 @@ import com.linking.group.persistence.GroupRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,12 +30,26 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
+    private final ApplicationEventPublisher publisher;
+    private final DocumentService documentService;
+    Logger logger = LoggerFactory.getLogger(GroupService.class);
+
     public Optional<GroupRes> createGroup(GroupCreateReq req) {
         Project refProject = projectRepository.getReferenceById(req.getProjectId());
         Group group = groupMapper.toEntity(req);
         group.setProject(refProject);
+        GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
 
-        return Optional.ofNullable(groupMapper.toDto(groupRepository.save(group)));
+        if (groupRes != null) {
+            publisher.publishEvent(
+                    new DocumentEvent(
+                            refProject.getProjectId(),
+                            documentService.findAllDocuments(refProject.getProjectId()))
+            );
+            logger.info("create group publisher");
+        }
+
+        return Optional.ofNullable(groupRes);
     }
 
     public void updateGroupName(GroupUpdateNameReq req) throws NoSuchElementException{
@@ -64,21 +83,5 @@ public class GroupService {
             throw new RuntimeException(e.getMessage());
         }
 
-    }
-
-    public void updateOrder(List<GroupOrderReq> reqs)  {
-
-        List<Long> groupIds = reqs.stream()
-                .map(GroupOrderReq::getGroupId)
-                .collect(Collectors.toList());
-
-        for (Group g : groupRepository.findAllById(groupIds)) {
-            // 요청 온 순서대로 order 지정
-            int order = groupIds.indexOf(g.getId());
-            if (g.getGroupOrder() != order) {
-                g.updateOrder(order);
-                groupRepository.save(g);
-            }
-        }
     }
 }

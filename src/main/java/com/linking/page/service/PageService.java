@@ -112,20 +112,4 @@ public class PageService {
         }
     }
 
-
-
-    public void updateOrder(List<PageOrderReq> pageOrderReqList) {
-        List<Long> pageIds = pageOrderReqList.stream()
-                .map(PageOrderReq::getPageId)
-                .collect(Collectors.toList());
-
-        for (Page p : pageRepository.findAllById(pageIds)) {
-            // 요청 온 순서대로 order 지정
-            int order = pageIds.indexOf(p.getId());
-            if (p.getPageOrder() != order) {
-                p.updateOrder(order);
-                pageRepository.save(p);
-            }
-        }
-    }
 }

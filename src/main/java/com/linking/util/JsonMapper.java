@@ -11,4 +11,5 @@ public class JsonMapper {
 
         return mapper.writeValueAsString(object);
     }
+
 }

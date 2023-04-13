@@ -16,6 +16,7 @@ import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import com.linking.page.service.PageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,10 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DocumentService {
     private final GroupRepository groupRepository;
+    private final PageRepository pageRepository;
     private final GroupMapper groupMapper;
     private final PageMapper pageMapper;
-    private final GroupService groupService;
-    private final PageService pageService;
+
 
     // 문서리스트 조회 (그룹 + 페이지)
     public List<GroupRes> findAllDocuments(Long projectId)  {
@@ -51,8 +52,34 @@ public class DocumentService {
 
     // 문서 순서 변경 (그룹 + 페이지)
     public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) {
-        groupService.updateOrder(groupOrderReqList);
-        for (GroupOrderReq groupOrderReq : groupOrderReqList)
-            pageService.updateOrder(groupOrderReq.getPageList());
+
+
+        List<Long> groupIds = groupOrderReqList.stream()
+                .map(GroupOrderReq::getGroupId)
+                .collect(Collectors.toList());
+
+        for (Group g : groupRepository.findAllById(groupIds)) {
+            // 요청 온 순서대로 order 지정
+            int order = groupIds.indexOf(g.getId());
+            if (g.getGroupOrder() != order) {
+                g.updateOrder(order);
+                groupRepository.save(g);
+            }
+        }
+
+        for (GroupOrderReq groupOrderReq : groupOrderReqList) {
+            List<Long> pageIds = groupOrderReq.getPageList().stream()
+                    .map(PageOrderReq::getPageId)
+                    .collect(Collectors.toList());
+
+            for (Page p : pageRepository.findAllById(pageIds)) {
+                // 요청 온 순서대로 order 지정
+                int order = pageIds.indexOf(p.getId());
+                if (p.getPageOrder() != order) {
+                    p.updateOrder(order);
+                    pageRepository.save(p);
+                }
+            }
+        }
     }
 }

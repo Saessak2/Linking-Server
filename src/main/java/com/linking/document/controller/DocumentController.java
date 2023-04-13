@@ -18,12 +18,10 @@ import java.util.*;
 @RestController
 @RequestMapping(value = "/documents")
 @RequiredArgsConstructor
-public class DocumentController extends TextWebSocketHandler {
+public class DocumentController {
     Logger logger = LoggerFactory.getLogger(DocumentController.class);
 
     private final DocumentService documentService;
-
-
 
 
     @PostMapping("/{id}")

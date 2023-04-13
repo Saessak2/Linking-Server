@@ -63,7 +63,7 @@ public class ParticipantController {
         }
     }
 
-    @PostMapping("/my-list/{id}")
+    @GetMapping("/my-list/{id}")
     public ResponseEntity<Object> getParticipantMyList(
             @PathVariable("id") Long userId){
         try{
@@ -88,5 +88,4 @@ public class ParticipantController {
             return ResponseHandler.generateBadRequestResponse();
         }
     }
-
 }
