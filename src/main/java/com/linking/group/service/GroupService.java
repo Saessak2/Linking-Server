@@ -41,12 +41,14 @@ public class GroupService {
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
 
         if (groupRes != null) {
-            publisher.publishEvent(
-                    new DocumentEvent(
-                            refProject.getProjectId(),
-                            documentService.findAllDocuments(refProject.getProjectId()))
-            );
-            logger.info("create group publisher");
+            if (publisher != null) {
+                publisher.publishEvent(
+                        new DocumentEvent(
+                                refProject.getProjectId(),
+                                documentService.findAllDocuments(refProject.getProjectId()))
+                );
+                logger.info("create group publisher");
+            }
         }
 
         return Optional.ofNullable(groupRes);

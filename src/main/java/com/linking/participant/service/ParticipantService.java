@@ -9,6 +9,7 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectRes;
 import com.linking.project.persistence.ProjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class ParticipantService {
         return participantMapper.toDto(participantList);
     }
 
-    public List<ProjectRes> getPartsByUserId(Long userId)
+    public List<ProjectContainsPartsRes> getPartsByUserId(Long userId)
             throws NoSuchElementException {
         List<Project> projectList = participantRepository.findProjectsByUser(userId);
         if (projectList.isEmpty())
@@ -76,8 +77,12 @@ public class ParticipantService {
 //                    participant.getParticipantId(),
 //                    participant.getProject().getProjectName()));
 //        }
-        return projectMapper.toResDto(projectList);
-//        return projectList;
+        List<ProjectContainsPartsRes> result = new ArrayList<>();
+        for (Project project : projectList) {
+            result.add(projectMapper.toDto(project, project.getParticipantList()));
+        }
+
+        return result;
     }
 
     public void deleteParticipant(ParticipantDeleteReq participantDeleteReq)
