@@ -39,17 +39,9 @@ public class BlockService {
 
         for (Block block : blockList) {
             List<AnnotationRes> annotationResList = new ArrayList<>();
-            
             List<Annotation> annotations = block.getAnnotationList();
-            if (annotations.size() == 0) {
-                AnnotationRes annotationRes = AnnotationRes.builder()
-                        .annotationId(-1L)
-                        .blockId(-1L)
-                        .content("")
-                        .lastModified("22-01-01 AM 01:01")
-                        .userName("")
-                        .build();
-                annotationResList.add(annotationRes);
+            if (annotations.isEmpty()) {
+                annotationResList.add(annotationMapper.toEmptyDto());
             } else {
                 for (Annotation annotation : block.getAnnotationList()) {
                     annotationResList.add(annotationMapper.toDto(annotation));
@@ -67,7 +59,7 @@ public class BlockService {
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
 
-        return blockMapper.toDto(blockRepository.save(block));
+        return blockMapper.toDto(blockRepository.save(block), new ArrayList<>());
     }
 
     public void updateBlockOrder(List<BlockOrderReq> req) throws RuntimeException{

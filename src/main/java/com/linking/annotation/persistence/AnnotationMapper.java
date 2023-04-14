@@ -34,21 +34,16 @@ public interface AnnotationMapper {
         return builder.build();
     }
 
-    default List<AnnotationRes> toDtoBulk(List<Annotation> sources) {
-        if (sources == null) return null;
+    default AnnotationRes toEmptyDto() {
+        AnnotationRes annotationRes = AnnotationRes.builder()
+                .annotationId(-1L)
+                .blockId(-1L)
+                .content("")
+                .lastModified("22-01-01 AM 01:01")
+                .userName("")
+                .build();
 
-        List<AnnotationRes> annotationResList = new ArrayList<>();
-
-        for (Annotation source : sources) {
-            AnnotationRes.AnnotationResBuilder builder = AnnotationRes.builder();
-            builder
-                    .annotationId(source.getId())
-                    .blockId(source.getBlock().getId())
-                    .content(source.getContent())
-                    .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
-                    .userName(source.getUserName());
-        }
-        return annotationResList;
+        return annotationRes;
     }
 
     default Annotation toEntity(AnnotationCreateReq source) {

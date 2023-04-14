@@ -16,21 +16,6 @@ import java.util.List;
 )
 public interface BlockMapper {
 
-    default BlockRes toDto(Block source) {
-        if (source == null) {
-            return null;
-        }
-        BlockRes.BlockResBuilder builder = BlockRes.builder();
-        builder
-                .blockId(source.getId())
-                .title(source.getTitle())
-                .pageId(source.getPage().getId())
-                .content(source.getContent())
-                .order(source.getBlockOrder())
-                .annotationResList(new ArrayList<>());
-        return builder.build();
-    }
-
     default BlockRes toDto(Block source, List<AnnotationRes> annotationResList) {
         if (source == null) return null;
 
