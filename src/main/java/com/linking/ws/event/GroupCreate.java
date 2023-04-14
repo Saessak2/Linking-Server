@@ -1,7 +1,7 @@
 package com.linking.ws.event;
 
 import com.linking.group.dto.GroupRes;
-import com.linking.ws.handler.WsResponseType;
+import com.linking.ws.WsResponseType;
 
 public class GroupCreate {
 

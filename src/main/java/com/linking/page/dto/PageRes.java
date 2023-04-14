@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageRes {
+public class  PageRes {
 
     private Long pageId;
     private Long groupId;

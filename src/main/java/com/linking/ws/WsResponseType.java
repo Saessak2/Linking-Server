@@ -1,4 +1,4 @@
-package com.linking.ws.handler;
+package com.linking.ws;
 
 public class WsResponseType {
 

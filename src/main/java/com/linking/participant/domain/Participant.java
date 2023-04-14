@@ -29,8 +29,11 @@ public class Participant {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    private String userName;
+
     public void setUser(User user) {
         this.user = user;
+        this.userName = user.getFullName();
     }
 
     public void setProject(Project project) {

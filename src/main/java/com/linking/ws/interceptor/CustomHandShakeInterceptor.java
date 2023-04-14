@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.Map;
 
 public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor {
@@ -16,23 +19,33 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
 
-
         logger.info("beforeHandshake()");
-        String param = request.getURI().getQuery();
-        String str = null;
+
+        ServletServerHttpRequest ssreq = (ServletServerHttpRequest) request;
+        HttpServletRequest req =  ssreq.getServletRequest();
+
+        System.out.println("param, id:"+req.getParameter("projectId"));
+        System.out.println("param, id:"+req.getParameter("userId"));
+
+        String uri = req.getRequestURI();
 
         try {
-            if (param.contains("projectId=")) {  // ws documents
-                str = param.replace("projectId=", "");
-                long id = Long.parseLong(str);
-                attributes.put("projectId", id);
-
-            } else {
-                logger.error("Uri not contains necessary params");
+            if (uri.equals("/ws/documents")) {
+                String projectId = req.getParameter("projectId");
+                if (projectId != null) {
+                    attributes.put("projectId", Long.parseLong(projectId));
+                }
+            } else if (uri.equals("/ws/page")) {
+                String projectId = req.getParameter("projectId");
+                String userId = req.getParameter("userId");
+                String pageId = req.getParameter("pageId");
+                if (projectId != null && userId != null && pageId != null) {
+                    attributes.put("projectId", Long.parseLong(projectId));
+                    attributes.put("userId", Long.parseLong(userId));
+                    attributes.put("pageId", Long.parseLong(pageId));
+                }
             }
-
-        } catch (NumberFormatException e) {
-            logger.error("LongParse cannot parse string => {}", str);
+        }catch (NumberFormatException e) {
             throw new NumberFormatException();
         }
 

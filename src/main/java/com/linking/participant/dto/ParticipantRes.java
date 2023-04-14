@@ -14,5 +14,4 @@ public class ParticipantRes {
     private Long participantId;
     private Long userId;
     private Long projectId;
-
 }

@@ -21,7 +21,9 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // 연결 중인 세션 저장
+    // ket -> sessionId
     private static Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    // key -> projectId
     private static Map<Long, Set<WebSocketSession>> sessionsByProject = new ConcurrentHashMap<>();
 
     private final WsDocumentService wsService;

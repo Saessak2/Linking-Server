@@ -23,6 +23,8 @@ public class PageCheck {
     // nullable
     private LocalDateTime lastChecked;
 
+    private int annotNotiCnt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
     private Participant participant;
