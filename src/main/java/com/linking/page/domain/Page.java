@@ -6,6 +6,7 @@ import com.linking.pageCheck.domain.PageCheck;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -67,10 +68,11 @@ public class Page {
     @PrePersist
     public void prePersist(){
         this.title = this.title == null ? "untitled" : this.title;
+        this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
+        this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
     }
 
     public void updateOrder(int order) {
         this.pageOrder = order;
     }
-
 }

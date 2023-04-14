@@ -39,7 +39,7 @@ public class PageService {
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        List<PageCheckRes> pageCheckResList = pageCheckService.getPageCheckResList(page, userId);
+        List<PageCheckRes> pageCheckResList = pageCheckService.getPageCheckList(page, userId);
         List<BlockRes> blockResList = blockService.getBlockResList(page);
 
         List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
@@ -56,21 +56,17 @@ public class PageService {
 
         Page page = pageMapper.toEntity(req);
         page.setGroup(group);
-        // 페이지가 저장이 안돼서 id 가 없음.
+        // 페이지 저장을 해야 id를 얻을 수 있음
         pageRepository.save(page);
 
+        // 팀원 마다 pageCheck create
         List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());
-        List<PageCheckRes> pageCheckResList = new ArrayList<>();
         for (Participant participant : participants) {
             PageCheck pageCheck = new PageCheck(participant, page);
             pageCheckRepository.save(pageCheck);
         }
 
-        List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
-                .sorted(Comparator.comparing(PageCheckRes::getUserName))
-                .collect(Collectors.toList());
-
-        return pageMapper.toDto(pageRepository.save(page), sortedPageCheckList);
+        return pageMapper.toDto(pageRepository.save(page), new ArrayList<>(), new ArrayList<>());
     }
 
     public PageRes updatePageTitle(PageUpdateTitleReq pageUpdateTitleReq) throws Exception{

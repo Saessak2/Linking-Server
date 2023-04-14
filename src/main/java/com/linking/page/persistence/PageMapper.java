@@ -45,26 +45,7 @@ public interface PageMapper {
         return builder.build();
     }
 
-    default PageDetailedRes toDto(  // 페이지 생성 시 사옹
-                                    Page source, List<PageCheckRes> pageCheckResList)
-    {
-        if (source == null) {
-            return null;
-        }
-        PageDetailedRes.PageDetailedResBuilder builder = PageDetailedRes.builder();
-        builder
-                .pageId(source.getId())
-                .title(source.getTitle())
-                .groupId(source.getGroup().getId())
-                .blockResList(new ArrayList<>())
-                .pageCheckResList(pageCheckResList)
-                .annotNotiCnt(0);
-
-        return builder.build();
-    }
-
-
-    default PageDetailedRes toDto(  // 페이지 상세 조회 시 사용
+    default PageDetailedRes toDto(
                                     Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
         if (source == null) {
@@ -90,9 +71,7 @@ public interface PageMapper {
         Page.PageBuilder builder = Page.builder();
         builder
                 .title(source.getTitle())
-                .pageOrder(source.getOrder())
-                .pageCheckList(new ArrayList<>())
-                .blockList(new ArrayList<>());
+                .pageOrder(source.getOrder());
 
         return builder.build();
     }
