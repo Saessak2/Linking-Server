@@ -26,11 +26,10 @@ import java.util.stream.Stream;
 public class PageCheckService {
     private final PageCheckRepository pageCheckRepository;
     private final GroupRepository groupRepository;
-    private final PageRepository pageRepository;
 
     private final PageCheckMapper pageCheckMapper;
 
-    public List<PageCheckRes> getPageCheckList(Page page, Long userId) throws NoSuchElementException{
+    public List<PageCheckRes> getPageCheckList(Page page, Long userId) {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
 
         List<PageCheck> pageCheckList = page.getPageCheckList();
