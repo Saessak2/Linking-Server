@@ -1,7 +1,6 @@
 package com.linking.group.dto;
 
 
-import com.linking.project.dto.ProjectReqDto;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;

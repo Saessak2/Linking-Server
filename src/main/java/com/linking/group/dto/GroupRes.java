@@ -1,6 +1,5 @@
 package com.linking.group.dto;
 
-import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import lombok.*;
 
@@ -16,5 +15,6 @@ public class GroupRes{
     private Long groupId;
     private Long projectId;
     private String name;
+    private int order;
     private List<PageRes> pageResList;
 }

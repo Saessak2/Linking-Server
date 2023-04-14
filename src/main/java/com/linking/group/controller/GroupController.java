@@ -2,7 +2,9 @@ package com.linking.group.controller;
 
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
-import com.linking.group.dto.GroupUpdateNameReq;
+import com.linking.group.dto.GroupOrderReq;
+import com.linking.group.dto.GroupRes;
+import com.linking.group.dto.GroupNameReq;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -12,18 +14,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
-
+    Logger logger = LoggerFactory.getLogger(GroupController.class);
     private final GroupService groupService;
 
-    Logger logger = LoggerFactory.getLogger(GroupController.class);
-
-
+//    // http 요청으론 안 쓰일 예정
+//    @PostMapping("/{id}")
+//    public ResponseEntity<Object> getGroups(@PathVariable("id") Long projectId) {
+//        List<GroupRes> documentRes = groupService.findAllGroups(projectId);
+//        return ResponseHandler.generateOkResponse(documentRes);
+//    }
 
 
     @PostMapping
@@ -38,9 +44,21 @@ public class GroupController {
         }
     }
 
+//    @PutMapping("/order")
+//    public ResponseEntity<Object> putDocumentOrder(@RequestBody @Valid List<GroupOrderReq> req) {
+//        try {
+//            groupService.updateDocumentsOrder(req);
+//            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
+//        } catch (NoSuchElementException e) {
+//            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
+//        } catch (RuntimeException e) {
+//            logger.error("{} ============> {}", e.getClass(), e.getMessage());
+//            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+//        }
+//    }
 
     @PutMapping
-    public ResponseEntity<Object> putGroup(@RequestBody @Valid GroupUpdateNameReq req) {
+    public ResponseEntity<Object> putGroupName(@RequestBody @Valid GroupNameReq req) {
         try {
             groupService.updateGroupName(req);
             return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);

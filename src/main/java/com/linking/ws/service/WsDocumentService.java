@@ -1,8 +1,8 @@
 package com.linking.ws.service;
 
 
-import com.linking.document.service.DocumentService;
-import com.linking.ws.dto.WsMessage;
+import com.linking.group.service.GroupService;
+import com.linking.ws.message.WsMessage;
 import com.linking.ws.handler.WsResponseType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,10 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WsDocumentService {
 
-    private final DocumentService documentService;
+    private final GroupService groupService;
 
     public WsMessage getAllDocumentsByProjectId(Long projectId) {
 
-        return new WsMessage(WsResponseType.ALL_GROUPS, documentService.findAllDocuments(projectId));
+        return new WsMessage(
+                WsResponseType.GROUPS, WsResponseType.READ,
+                groupService.findAllGroups(projectId));
     }
+
+
 }

@@ -26,7 +26,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PageController extends TextWebSocketHandler {
     Logger logger = LoggerFactory.getLogger(PageController.class);
-
     private final PageService pageService;
 
 
@@ -66,41 +65,5 @@ public class PageController extends TextWebSocketHandler {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
-
-
-    /**
-     * websocket
-     */
-
-    private List<WebSocketSession> sessions = new ArrayList<>();
-    private Map<String, WebSocketSession> userSessions = new HashMap<>();
-
-
-//    @Scheduled(fixedRate =1000)
-//    public void expire() {
-//        sessions.values()
-//
-//    }
-
-    @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.info("\nafterConnectionEstablished : {}" , session);
-        Map<String, Object> attributes = session.getAttributes();
-        logger.info("\nattributes ======++> {}", attributes);
-
-//        PageDetailedRes page = pageService.getPage(44L, 3L);
-//        session.sendMessage(new TextMessage(JsonMapper.toJsonString(page)));
-    }
-
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        session.sendMessage(message);
-        super.handleTextMessage(session, message);
-    }
-
-
-
-
-
 }
 

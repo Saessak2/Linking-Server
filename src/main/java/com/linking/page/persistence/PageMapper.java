@@ -18,18 +18,18 @@ import java.util.List;
 )
 public interface PageMapper {
 
-    default PageRes toEmptyDto() {
-        PageRes pageRes = PageRes.builder()
-                .pageId(-1L)
-                .groupId(-1L)
-                .title("")
-                .annotNotiCnt(-1)
-                .build();
+//    default PageRes toEmptyDto() {
+//        PageRes pageRes = PageRes.builder()
+//                .pageId(-1L)
+//                .groupId(-1L)
+//                .title("")
+//                .annotNotCnt(-1)
+//                .build();
+//
+//        return pageRes;
+//    }
 
-        return pageRes;
-    }
-
-    default PageRes toDto(Page source) { // 문서 리스트 조회 시 사용
+    default PageRes toDto(Page source) {
         if (source == null) {
             return null;
         }
@@ -38,6 +38,7 @@ public interface PageMapper {
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
+                .order(source.getPageOrder())
                 .annotNotiCnt(10);
         //TODO annotation noti 채우기
 

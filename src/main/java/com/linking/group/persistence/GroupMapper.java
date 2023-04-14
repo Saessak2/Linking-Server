@@ -3,10 +3,12 @@ package com.linking.group.persistence;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
+import com.linking.page.dto.PageRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -15,8 +17,8 @@ import java.util.ArrayList;
 public interface GroupMapper {
 
 
-    default GroupRes toDto(Group source) {
-        if (source == null) {
+    default GroupRes toDto(Group source, List<PageRes> pageResList) {
+        if (source == null || pageResList == null) {
             return null;
         }
         GroupRes.GroupResBuilder builder = GroupRes.builder();
@@ -24,7 +26,9 @@ public interface GroupMapper {
                 .groupId(source.getId())
                 .projectId(source.getProject().getProjectId())
                 .name(source.getName())
-                .pageResList(new ArrayList<>());
+                .order(source.getGroupOrder())
+                .pageResList(pageResList);
+
         return builder.build();
     }
 

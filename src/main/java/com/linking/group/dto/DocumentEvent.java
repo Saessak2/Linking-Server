@@ -1,7 +1,5 @@
-package com.linking.document.dto;
+package com.linking.group.dto;
 
-
-import com.linking.group.dto.GroupRes;
 
 import java.util.List;
 

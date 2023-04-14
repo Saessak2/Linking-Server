@@ -1,12 +1,10 @@
 package com.linking.ws.handler;
 
-import com.linking.document.dto.DocumentEvent;
 import com.linking.util.JsonMapper;
 import com.linking.ws.service.WsDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -66,22 +64,22 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
         // TODO sessionByProject에서도 삭제하기
     }
 
-
-    @EventListener
-    public void sendDocuments(DocumentEvent documentEvent) {
-        logger.info("event listener");
-        logger.info("currentThread =====+++> {}", Thread.currentThread().getName());
-
-        Set<WebSocketSession> webSocketSessions = sessionsByProject.get(documentEvent.getProjectId());
-        for (WebSocketSession session : webSocketSessions) {
-            try {
-                if (session.isOpen())
-                    session.sendMessage(new TextMessage(JsonMapper.toJsonString(documentEvent.getGroupResList())));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+//
+//    @EventListener
+//    public void sendGroups(DocumentEvent documentEvent) {
+//        logger.info("event listener");
+////        logger.info("currentThread =====+++> {}", Thread.currentThread().getName());
+//
+//        Set<WebSocketSession> webSocketSessions = sessionsByProject.get(documentEvent.getProjectId());
+//        for (WebSocketSession session : webSocketSessions) {
+//            try {
+//                if (session.isOpen())
+//                    session.sendMessage(new TextMessage(JsonMapper.toJsonString(documentEvent.getGroupResList())));
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
 
 //    @Override
 //    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
