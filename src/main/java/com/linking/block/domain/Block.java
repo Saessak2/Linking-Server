@@ -49,8 +49,10 @@ public class Block {
     }
 
     public void setPage(Page page) {
+        if (this.page != null)
+            this.page.getBlockList().remove(this);
         this.page = page;
-        if (page.getBlockList().contains(this)) {
+        if (!page.getBlockList().contains(this)) {
             page.getBlockList().add(this);
         }
     }

@@ -52,20 +52,6 @@ public class Page {
         }
     }
 
-    public void addBlock(Block block) {
-        this.blockList.add(block);
-        if (block.getPage() != this) {
-            block.setPage(this);
-        }
-    }
-
-    public void addPageCheck(PageCheck pageCheck) {
-        this.pageCheckList.add(pageCheck);
-        if (pageCheck.getPage() != this) {
-            pageCheck.setPage(this);
-        }
-    }
-
     @PrePersist
     public void prePersist(){
         this.title = this.title == null ? "untitled" : this.title;
