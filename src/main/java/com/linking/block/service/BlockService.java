@@ -34,6 +34,32 @@ public class BlockService {
 
     Logger logger = LoggerFactory.getLogger(BlockService.class);
 
+    public List<BlockRes> getBlockResList(Page page) {
+        List<Block> blockList = page.getBlockList();
+
+        List<BlockRes> blockResList = new ArrayList<>();
+        for (Block block : blockList) {
+            List<Annotation> annotations = block.getAnnotationList();
+            List<AnnotationRes> annotationResList = new ArrayList<>();
+            if (annotations.size() == 0) {
+                AnnotationRes annotationRes = AnnotationRes.builder()
+                        .annotationId(-1L)
+                        .blockId(-1L)
+                        .content("")
+                        .lastModified("22-01-01 AM 01:01")
+                        .userName("")
+                        .build();
+                annotationResList.add(annotationRes);
+            } else {
+                for (Annotation annotation : block.getAnnotationList()) {
+                    annotationResList.add(annotationMapper.toDto(annotation));
+                }
+            }
+            blockResList.add(blockMapper.toDto(block, annotationResList));
+        }
+        return blockResList;
+    }
+
     public BlockRes createBlock(BlockCreateReq req) {
         Page page = pageRepository.findById(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
@@ -88,29 +114,5 @@ public class BlockService {
         return blockRepository.findById(blockId);
     }
 
-    public List<BlockRes> getBlockResList(Page page) {
-        List<Block> blockList = page.getBlockList();
 
-        List<BlockRes> blockResList = new ArrayList<>();
-        for (Block block : blockList) {
-            List<Annotation> annotations = block.getAnnotationList();
-            List<AnnotationRes> annotationResList = new ArrayList<>();
-            if (annotations.size() == 0) {
-                AnnotationRes annotationRes = AnnotationRes.builder()
-                        .annotationId(-1L)
-                        .blockId(-1L)
-                        .content("")
-                        .lastModified("22-01-01 AM 01:01")
-                        .userName("")
-                        .build();
-                annotationResList.add(annotationRes);
-            } else {
-                for (Annotation annotation : block.getAnnotationList()) {
-                    annotationResList.add(annotationMapper.toDto(annotation));
-                }
-            }
-            blockResList.add(blockMapper.toDto(block, annotationResList));
-        }
-        return blockResList;
-    }
 }

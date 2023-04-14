@@ -15,6 +15,7 @@ import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +36,29 @@ public class PageService {
 
 
     // TODO 한번에 select 날리는 방법 찾아보기
-    public Optional<PageDetailedRes> getPage(Long pageId, Long userId) throws NoSuchElementException{
-        Page page = pageRepository.findById(pageId)
+    public Optional<PageDetailedRes> getPage(Long pageId, Long userId) {
+        Page page = pageRepository.findFetchPageById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        List<PageCheckRes> pageCheckResList = pageCheckService.getPageCheckList(page, userId);
-        List<BlockRes> blockResList = blockService.getBlockResList(page);
+//        List<PageCheckRes> pageCheckResList = pageCheckService.getPageCheckList(page, userId);
+//        List<BlockRes> blockResList = blockService.getBlockResList(page);
+
+        List<PageCheckRes> pageCheckResList = new ArrayList<>();
+
+        List<PageCheck> pageCheckList = page.getPageCheckList();
+        if (pageCheckList.isEmpty())
+            throw new RuntimeException("cannot pageCheckList is empty");
+
+        pageCheckList.forEach(pageCheck -> {
+            User user = pageCheck.getParticipant().getUser();
+
+            if (user.getUserId() == userId) {  // 조회한 사용자의 페이지 확인 시간 업뎃
+                pageCheck.updateLastChecked();
+                pageCheckRepository.save(pageCheck);
+            }
+            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));
+        });
+
 
         List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
                 .sorted(Comparator.comparing(PageCheckRes::getUserName))
