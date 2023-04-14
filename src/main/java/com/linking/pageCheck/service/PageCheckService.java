@@ -1,25 +1,21 @@
 package com.linking.pageCheck.service;
 
-import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
-import com.linking.page.persistence.PageRepository;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
-import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -29,13 +25,11 @@ public class PageCheckService {
 
     private final PageCheckMapper pageCheckMapper;
 
-    public List<PageCheckRes> getPageCheckList(Page page, Long userId) {
+    public List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Long userId) {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
 
-        List<PageCheck> pageCheckList = page.getPageCheckList();
         if (pageCheckList.isEmpty())
-            throw new RuntimeException("cannot pageCheckList is empty");
-
+            throw new RuntimeException("PageCheckList cannot be empty");
 
         pageCheckList.forEach(pageCheck -> {
             User user = pageCheck.getParticipant().getUser();
@@ -47,7 +41,12 @@ public class PageCheckService {
             pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));
         });
 
-        return pageCheckResList;
+        // pageCheck -> user fullName 순으로 정렬
+        List<PageCheckRes> sortedPageCheckList = pageCheckResList.stream()
+                .sorted(Comparator.comparing(PageCheckRes::getUserName))
+                .collect(Collectors.toList());
+
+        return sortedPageCheckList;
     }
 
 

@@ -1,13 +1,13 @@
-package com.linking.participant.persistence;
+package com.linking.page.persistence;
 
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-04-14T00:26:53+0900",
+    date = "2023-04-14T23:36:36+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 11.0.16.1 (Oracle Corporation)"
 )
 @Component
-public class ParticipantMapperImpl implements ParticipantMapper {
+public class PageMapperImpl implements PageMapper {
 }

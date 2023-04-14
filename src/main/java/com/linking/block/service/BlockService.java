@@ -34,13 +34,13 @@ public class BlockService {
 
     Logger logger = LoggerFactory.getLogger(BlockService.class);
 
-    public List<BlockRes> getBlockResList(Page page) {
-        List<Block> blockList = page.getBlockList();
-
+    public List<BlockRes> toBlockResList(List<Block> blockList) {
         List<BlockRes> blockResList = new ArrayList<>();
+
         for (Block block : blockList) {
-            List<Annotation> annotations = block.getAnnotationList();
             List<AnnotationRes> annotationResList = new ArrayList<>();
+            
+            List<Annotation> annotations = block.getAnnotationList();
             if (annotations.size() == 0) {
                 AnnotationRes annotationRes = AnnotationRes.builder()
                         .annotationId(-1L)
