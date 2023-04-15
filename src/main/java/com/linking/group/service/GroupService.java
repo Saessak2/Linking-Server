@@ -10,6 +10,11 @@ import com.linking.page.dto.PageOrderReq;
 import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
+import com.linking.pageCheck.domain.PageCheck;
+import com.linking.pageCheck.dto.PageCheckRes;
+import com.linking.pageCheck.persistence.PageCheckRepository;
+import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,19 +37,31 @@ public class GroupService {
     private final ProjectRepository projectRepository;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
+    private final ParticipantRepository participantRepository;
+    private final PageCheckRepository pageCheckRepository;
 
     // 그룹 리스트 조회
     public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
 
         List<GroupRes> groupResList = new ArrayList<>();
+        // page에서 pageCheckList를 가져올수 있지만 모든 팀원의 데이터를 들고 오기 떄문에 참여자로 pageCheckList를 들고옴
+        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
+                .orElseThrow(() -> new NoSuchElementException());
+        List<PageCheck> pageCheckList = pageCheckRepository.findAllAByParticipantId(participant.getParticipantId());
+        Map<Long, Integer> annoNotiCnts = new HashMap<>(); // key -> pageId
+        pageCheckList.forEach(pageCheck -> {
+            annoNotiCnts.put(pageCheck.getPage().getId(), pageCheck.getAnnotNotiCnt());
+        });
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        for (Group group : groupList) {
+        for (Group group : groupList) {  // order 순
             List<PageRes> pageResList = new ArrayList<>();
 
-            List<Page> pageList = group.getPageList();
+            List<Page> pageList = group.getPageList();   // order순
             if (!pageList.isEmpty())
-                pageList.forEach(p -> {pageResList.add(pageMapper.toDto(p));});
+                pageList.forEach(p -> {
+                    pageResList.add(pageMapper.toDto(p, annoNotiCnts.get(p.getId())));
+                });
             groupResList.add(groupMapper.toDto(group, pageResList));
         }
         return groupResList;

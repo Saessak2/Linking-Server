@@ -29,6 +29,22 @@ public interface PageMapper {
 //        return pageRes;
 //    }
 
+    default PageRes toDto(Page source, int annoNotiCnt) {
+        if (source == null) {
+            return null;
+        }
+        PageRes.PageResBuilder builder = PageRes.builder();
+        builder
+                .pageId(source.getId())
+                .title(source.getTitle())
+                .groupId(source.getGroup().getId())
+                .order(source.getPageOrder())
+                .annotNotiCnt(annoNotiCnt);
+        //TODO annotation noti 채우기
+
+        return builder.build();
+    }
+
     default PageRes toDto(Page source) {
         if (source == null) {
             return null;

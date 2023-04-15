@@ -1,6 +1,5 @@
 package com.linking.participant.service;
 
-import com.linking.document.controller.DocumentController;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
@@ -10,7 +9,6 @@ import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectContainsPartsRes;
-import com.linking.project.dto.ProjectRes;
 import com.linking.project.persistence.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -119,6 +117,6 @@ public class ParticipantService {
      * 작성자 : 이은빈
      */
     public Optional<Participant> getParticipant(Long userId, Long projectId) {
-        return participantRepository.findOneByUserAndProjectId(userId, projectId);
+        return participantRepository.findByUserAndProjectId(userId, projectId);
     }
 }

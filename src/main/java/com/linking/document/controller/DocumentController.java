@@ -25,7 +25,8 @@ public class DocumentController {
 
     // http 요청으론 안 쓰일 예정
     @PostMapping("/{id}")
-    public ResponseEntity<Object> getDocuments(@PathVariable("id") Long projectId, @RequestParam("userId") Long userId) {
+    public ResponseEntity<Object> getDocuments(@PathVariable("id") Long projectId) {
+        Long userId = 1L;
         List<GroupRes> documentRes = groupService.findAllGroups(projectId, userId);
         return ResponseHandler.generateOkResponse(documentRes);
     }
