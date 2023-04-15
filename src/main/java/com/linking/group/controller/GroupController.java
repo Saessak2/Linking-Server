@@ -1,14 +1,14 @@
 package com.linking.group.controller;
 
-import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
-import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupNameReq;
 import com.linking.group.event.GroupEvent;
 import com.linking.group.service.GroupService;
 import com.linking.ws.WsResponseType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
+@Tag(name = "Group", description = "그룹 API Document")
 public class GroupController {
     Logger logger = LoggerFactory.getLogger(GroupController.class);
     private final ApplicationEventPublisher publisher;
@@ -42,6 +41,7 @@ public class GroupController {
     //TODO 원래 코드
 //    @RequestHeader("userid") Long userId,
 
+    @Operation(summary = "그룹 생성")
     @PostMapping
     public ResponseEntity<Object> postGroup(
             @RequestHeader Map<String, String> headers,
@@ -81,6 +81,7 @@ public class GroupController {
 //        }
 //    }
 
+    @Operation(summary = "그룹 이름 수정")
     @PutMapping
     public ResponseEntity<Object> putGroupName(@RequestBody @Valid GroupNameReq req) {
         try {
@@ -107,5 +108,9 @@ public class GroupController {
             logger.error("\n{} ===============> {}", e.getClass(), e.getMessage());
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
+    }
+
+    public void publishEvent(int publishType, Object event) {
+
     }
 }

@@ -26,6 +26,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+	// swagger
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+	// gson
 	implementation 'com.google.code.gson:gson:2.10.1'
 	// MySql
 	runtimeOnly 'com.mysql:mysql-connector-j'

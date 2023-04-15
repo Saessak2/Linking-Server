@@ -1,5 +1,6 @@
 package com.linking.annotation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,5 +19,6 @@ public class AnnotationUpdateReq {
     private Long annotationId;
     @NotNull
     @Size(min = 1, max = 255)
+    @Schema(description = "주석 내용", minLength = 1, maxLength = 255)
     private String content;
 }
