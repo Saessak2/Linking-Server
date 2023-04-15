@@ -1,7 +1,10 @@
 package com.linking.ws.handler;
 
 import com.linking.group.dto.DocumentEvent;
+import com.linking.group.event.GroupEvent;
 import com.linking.util.JsonMapper;
+import com.linking.ws.WsResponseType;
+import com.linking.ws.message.WsMessage;
 import com.linking.ws.service.WsDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,29 +36,31 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.info("@@ session.id = {} connection established @@ projectId = {}" , session, session.getAttributes().get("projectId") );
 
-        Long key = (Long) session.getAttributes().get("projectId");
+        logger.info("@@ connect session.id = {} @@ projectId = {}" , session, session.getAttributes().get("projectId") );
+
+        Long projectIdKey = (Long) session.getAttributes().get("projectId");
+        Long userId = (Long) session.getAttributes().get("userId");
 
         // 즉시 전체 문서 리스트 전송
-        session.sendMessage(new TextMessage(JsonMapper.toJsonString(wsService.getAllDocumentsByProjectAndUser(key, (Long) session.getAttributes().get("userId")))));
+        session.sendMessage(new TextMessage(JsonMapper.toJsonString(wsService.getAllDocumentsByProjectAndUser(projectIdKey, userId))));
 
 //        long beforeTime = System.currentTimeMillis();
 
-        if (!sessionsByProject.containsKey(key)) {
+        if (!sessionsByProject.containsKey(projectIdKey)) {
             Set<WebSocketSession> hashSet = Collections.synchronizedSet(new HashSet<>());
             hashSet.add(session);
-            sessionsByProject.put(key, hashSet);
+            sessionsByProject.put(projectIdKey, hashSet);
         } else {
-            if (!sessionsByProject.get(key).contains(session)) {
-                sessionsByProject.get(key).add(session);
+            if (!sessionsByProject.get(projectIdKey).contains(session)) {
+                sessionsByProject.get(projectIdKey).add(session);
             }
         }
         if (!sessions.containsKey(session.getId())) {
             sessions.put(session.getId(), session);
         }
 
-        logger.info("@@ sessionsByProjects -> projectId = {}, size = {}", key, sessionsByProject.get(key).size());
+        logger.info("@@ sessionsByProjects -> projectId = {}, size = {}", projectIdKey, sessionsByProject.get(projectIdKey).size());
         logger.info("@@ sessions -> size = {}", sessions.size());
 //        long afterTime = System.currentTimeMillis();
 //        logger.info("session 저장하는 데 걸린 시간 (m) : ", (afterTime-beforeTime)/1000);
@@ -90,7 +95,7 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-        logger.info("receive pong from session.id = {}", session.getId());
+//        logger.info("receive pong from session.id = {}", session.getId());
 
     }
 
@@ -117,6 +122,35 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    @EventListener
+    public void sendGroupEvent(GroupEvent groupEvent) {
+        logger.info("groupEvent Listener");
+        try {
+            Set<WebSocketSession> sessions = sessionsByProject.get(groupEvent.getProjectId());
+            if (sessions != null && !sessions.isEmpty()) {
+                WsMessage message = WsMessage.builder()
+                        .resType(groupEvent.getResType())
+                        .publishType(groupEvent.getPublishType())
+                        .data(groupEvent.getGroupRes())
+                        .build();
+                sessions.forEach(session -> {
+                    if (groupEvent.getUserId() != session.getAttributes().get("userId")) {
+                        if (session.isOpen()) {
+                            try {
+                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(message)));
+                            } catch (IOException e) {
+                                logger.error("IOException in sendGroupEventMethod -> {}", e.getMessage());
+                            }
+                        }
+                    }
+                });
+                logger.info("complete sendGroupEvent");
+            }
+        } catch (RuntimeException e) {
+            logger.error("{} in sendGroupEventMethod -> {}", e.getClass(), e.getMessage());
         }
     }
 

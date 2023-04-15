@@ -3,6 +3,7 @@ package com.linking.group.service;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
+import com.linking.group.event.GroupEvent;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
@@ -11,12 +12,13 @@ import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import com.linking.pageCheck.domain.PageCheck;
-import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
+import com.linking.ws.WsResponseType;
+import com.linking.ws.message.WsMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
-    private final ApplicationEventPublisher publisher;
     Logger logger = LoggerFactory.getLogger(GroupService.class);
 
     private final GroupRepository groupRepository;
@@ -67,19 +68,15 @@ public class GroupService {
         return groupResList;
     }
 
-    public Optional<GroupRes> createGroup(GroupCreateReq req) {
-        Project refProject = projectRepository.getReferenceById(req.getProjectId());
+    public GroupRes createGroup(GroupCreateReq req) {
+        Project project = projectRepository.findById(req.getProjectId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
+
         Group group = groupMapper.toEntity(req);
-        group.setProject(refProject);
+        group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
-        // 이벤트 발행
-//        if (groupRes != null) {
-//            publisher.publishEvent(groupRes);
-//            logger.info("GroupCreate is published");
-//        }
-
-        return Optional.ofNullable(groupRes);
+        return groupRes;
     }
 
     // 순서 변경 (그룹 + 페이지)
@@ -130,7 +127,8 @@ public class GroupService {
             findGroup.updateName(req.getName());
             Group group = groupRepository.save(findGroup);
             // 이벤트 발행
-//            publisher.publishEvent(groupMapper.toDto(group, new ArrayList<>()));
+//            logger.info("GroupUpdateName is published");
+//            publisher.publishEvent(new GroupEvent(WsResponseType.GROUP, WsResponseType.PUT, group.getProject().getProjectId(), groupMapper.toDto(group, new ArrayList<>())));
         }
     }
 

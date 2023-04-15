@@ -18,9 +18,7 @@ public interface GroupMapper {
 
 
     default GroupRes toDto(Group source, List<PageRes> pageResList) {
-        if (source == null || pageResList == null) {
-            return null;
-        }
+
         GroupRes.GroupResBuilder builder = GroupRes.builder();
         builder
                 .groupId(source.getId())

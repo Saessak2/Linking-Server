@@ -1,5 +1,6 @@
 package com.linking.ws.interceptor;
 
+import com.linking.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -18,7 +19,7 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
-
+        logger.info("header usrid {}", request.getHeaders().get("userid"));
         logger.info("beforeHandshake()");
 
         ServletServerHttpRequest ssreq = (ServletServerHttpRequest) request;
@@ -33,6 +34,8 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
                 if (projectId != null && userId != null) {
                     attributes.put("projectId", Long.parseLong(projectId));
                     attributes.put("userId", Long.parseLong(userId));
+                } else {
+                    throw new BadRequestException("필수 파라미터가 없습니다.");
                 }
             } else if (uri.equals("/ws/page")) {
                 String projectId = req.getParameter("projectId");
@@ -42,10 +45,13 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
                     attributes.put("projectId", Long.parseLong(projectId));
                     attributes.put("userId", Long.parseLong(userId));
                     attributes.put("pageId", Long.parseLong(pageId));
+                } else {
+                    throw new BadRequestException("필수 파라미터가 없습니다.");
                 }
+
             }
         } catch (NumberFormatException e) {
-            throw new NumberFormatException();
+            throw new NumberFormatException("파라미터 값이 숫자가 아닙니다.");
         }
 
         return super.beforeHandshake(request, response, wsHandler, attributes);

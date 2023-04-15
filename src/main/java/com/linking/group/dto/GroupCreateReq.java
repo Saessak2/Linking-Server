@@ -15,7 +15,6 @@ public class GroupCreateReq {
     @NotNull
     private Long projectId;
     @NotNull
-    @Size(max = 10)
     private String name;
     @NotNull
     private int order;

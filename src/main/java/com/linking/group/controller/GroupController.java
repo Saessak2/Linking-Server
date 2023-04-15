@@ -1,27 +1,34 @@
 package com.linking.group.controller;
 
+import com.linking.global.ErrorMessage;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupNameReq;
+import com.linking.group.event.GroupEvent;
 import com.linking.group.service.GroupService;
+import com.linking.ws.WsResponseType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
     Logger logger = LoggerFactory.getLogger(GroupController.class);
+    private final ApplicationEventPublisher publisher;
     private final GroupService groupService;
 
 //    // http 요청으론 안 쓰일 예정
@@ -32,12 +39,29 @@ public class GroupController {
 //    }
 
 
+    //TODO 원래 코드
+//    @RequestHeader("userid") Long userId,
+
     @PostMapping
-    public ResponseEntity<Object> postGroup(@RequestBody @Valid GroupCreateReq req) {
+    public ResponseEntity<Object> postGroup(
+            @RequestHeader Map<String, String> headers,
+            @RequestBody @Valid GroupCreateReq req) {
+
         try {
-            return groupService.createGroup(req)
-                    .map(ResponseHandler::generateCreatedResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+            Long userId = 1L;
+//            Long userId = Long.parseLong(headers.get("userId"));
+
+            GroupRes groupRes = groupService.createGroup(req);
+
+            logger.info("GroupCreate is published");
+            publisher.publishEvent(new GroupEvent(WsResponseType.GROUP, WsResponseType.CREATE, userId, groupRes.getProjectId(), groupRes));
+
+            return ResponseHandler.generateCreatedResponse(groupRes);
+
+        } catch (NumberFormatException e) {
+            return ResponseHandler.generateResponse("userId must be NUMBER", HttpStatus.BAD_REQUEST, null);
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
         } catch (RuntimeException e) {
             logger.error("\n{} ===============> {}", e.getClass(), e.getMessage());
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);

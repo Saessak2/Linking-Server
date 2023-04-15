@@ -4,6 +4,7 @@ public class ErrorMessage {
 
     public static final String NO_ARGUMENT = "check request field";
     public static final String NO_PARAM = "check request param";
+    public static final String NO_HEADER = "no necessary headers";
     public static final String ERROR = "기타 에러";
 
     public static final String NO_USER = "no such user";

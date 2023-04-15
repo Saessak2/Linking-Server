@@ -17,6 +17,5 @@ public class GroupNameReq {
     @NotNull
     private Long groupId;
     @NotNull
-    @Size(max = 10)
     private String name;
 }
