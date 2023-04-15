@@ -13,11 +13,11 @@ public class WsDocumentService {
 
     private final GroupService groupService;
 
-    public WsMessage getAllDocumentsByProjectId(Long projectId) {
+    public WsMessage getAllDocumentsByProjectAndUser(Long projectId, Long userId) {
 
         return new WsMessage(
                 WsResponseType.GROUPS, WsResponseType.READ,
-                groupService.findAllGroups(projectId));
+                groupService.findAllGroups(projectId, userId));
     }
 
 

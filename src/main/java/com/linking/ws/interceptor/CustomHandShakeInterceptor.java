@@ -24,16 +24,15 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
         ServletServerHttpRequest ssreq = (ServletServerHttpRequest) request;
         HttpServletRequest req =  ssreq.getServletRequest();
 
-        System.out.println("param, id:"+req.getParameter("projectId"));
-        System.out.println("param, id:"+req.getParameter("userId"));
-
         String uri = req.getRequestURI();
 
         try {
             if (uri.equals("/ws/documents")) {
                 String projectId = req.getParameter("projectId");
-                if (projectId != null) {
+                String userId = req.getParameter("userId");
+                if (projectId != null && userId != null) {
                     attributes.put("projectId", Long.parseLong(projectId));
+                    attributes.put("userId", Long.parseLong(userId));
                 }
             } else if (uri.equals("/ws/page")) {
                 String projectId = req.getParameter("projectId");
@@ -45,7 +44,7 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
                     attributes.put("pageId", Long.parseLong(pageId));
                 }
             }
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new NumberFormatException();
         }
 

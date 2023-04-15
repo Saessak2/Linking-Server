@@ -37,7 +37,7 @@ public class GroupService {
     private final PageMapper pageMapper;
 
     // 그룹 리스트 조회
-    public List<GroupRes> findAllGroups(Long projectId)  {
+    public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
 
         List<GroupRes> groupResList = new ArrayList<>();
 
