@@ -1,9 +1,18 @@
 package com.linking.document.controller;
 
+import com.linking.annotation.dto.AnnotationRes;
 import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupOrderReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.service.GroupService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,22 +34,20 @@ public class DocumentController {
 
     // http 요청으론 안 쓰일 예정
     @PostMapping("/{id}")
-    public ResponseEntity<Object> getDocuments(@PathVariable("id") Long projectId) {
-        Long userId = 1L;
+    @Operation(summary = "그룹 리스트 조회")
+    public ResponseEntity<Object> getDocuments(
+            @RequestHeader(value = "userid", required = false) Long userId,
+            @Parameter(description = "프로젝트 id", in = ParameterIn.PATH) @PathVariable("id") Long projectId) {
         List<GroupRes> documentRes = groupService.findAllGroups(projectId, userId);
         return ResponseHandler.generateOkResponse(documentRes);
     }
 
     @PutMapping
-    public ResponseEntity<Object> putDocumentOrder(@RequestBody @Valid List<GroupOrderReq> req) {
-        try {
-            groupService.updateDocumentsOrder(req);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        } catch (RuntimeException e) {
-            logger.error("{} ============> {}", e.getClass(), e.getMessage());
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    @Operation(summary = "그룹 및 페이지 순서 변경")
+    public ResponseEntity<Object> putDocumentOrder(
+            @RequestHeader(value = "userid", required = false) Long userId,
+            @RequestBody @Valid List<GroupOrderReq> req) {
+        groupService.updateDocumentsOrder(req, userId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, true);
     }
 }

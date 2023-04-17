@@ -3,7 +3,6 @@ package com.linking.group.service;
 import com.linking.global.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
-import com.linking.group.event.GroupEvent;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
@@ -17,8 +16,8 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
-import com.linking.ws.WsResponseType;
-import com.linking.ws.message.WsMessage;
+import com.linking.ws.code.WsResType;
+import com.linking.ws.event.DocumentEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GroupService {
     Logger logger = LoggerFactory.getLogger(GroupService.class);
+    private final ApplicationEventPublisher publisher;
 
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
@@ -40,6 +40,8 @@ public class GroupService {
     private final PageMapper pageMapper;
     private final ParticipantRepository participantRepository;
     private final PageCheckRepository pageCheckRepository;
+
+    DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
 
     // 그룹 리스트 조회
     public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
@@ -65,10 +67,12 @@ public class GroupService {
                 });
             groupResList.add(groupMapper.toDto(group, pageResList));
         }
+
+
         return groupResList;
     }
 
-    public GroupRes createGroup(GroupCreateReq req) {
+    public GroupRes createGroup(GroupCreateReq req, Long userId) {
         Project project = projectRepository.findById(req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
@@ -76,22 +80,31 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
+        // 이벤트 발행
+        publisher.publishEvent(
+                docEvent
+                        .resType(WsResType.CREATE_GROUP)
+                        .userId(userId)
+                        .projectId(project.getProjectId())
+                        .data(groupRes).build()
+        );
         return groupRes;
     }
 
     // 순서 변경 (그룹 + 페이지)
-    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) {
+    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList, Long userId) {
 
         // 그룹 순서 변경
         List<Long> groupIds = groupOrderReqList.stream()
                 .map(GroupOrderReq::getGroupId)
                 .collect(Collectors.toList());
 
+        List<Group> groups = groupRepository.findAllById(groupIds);
         Long projectId = null;
-        int temp = 0;
+        if (!groups.isEmpty())
+            projectId = groups.get(0).getProject().getProjectId();
 
-        for (Group g : groupRepository.findAllById(groupIds)) {
-            if (temp == 0) {projectId = g.getProject().getProjectId(); temp++;}
+        for (Group g : groups) {
             // 요청 온 순서대로 order 지정
             int order = groupIds.indexOf(g.getId());
             if (g.getGroupOrder() != order) {
@@ -114,12 +127,11 @@ public class GroupService {
             }
         }
 
-        // 이벤트 발행
-//        publisher.publishEvent(this.findAllGroups(projectId));
-
+//         이벤트 발행
+//        groupPublisher.publishUpdateOrder(userId, projectId);
     }
 
-    public void updateGroupName(GroupNameReq req) throws NoSuchElementException{
+    public boolean updateGroupName(GroupNameReq req, Long userId) throws NoSuchElementException{
         Group findGroup = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
@@ -127,33 +139,42 @@ public class GroupService {
             findGroup.updateName(req.getName());
             Group group = groupRepository.save(findGroup);
             // 이벤트 발행
-//            logger.info("GroupUpdateName is published");
-//            publisher.publishEvent(new GroupEvent(WsResponseType.GROUP, WsResponseType.PUT, group.getProject().getProjectId(), groupMapper.toDto(group, new ArrayList<>())));
+
+            publisher.publishEvent(
+                    docEvent
+                            .resType(WsResType.UPDATE_GROUP)
+                            .userId(userId)
+                            .projectId(findGroup.getProject().getProjectId())
+                            .data(groupMapper.toDto(group, new ArrayList<>())).build()
+            );
         }
+        return true;
     }
 
-    public void deleteGroup(Long groupId) throws NoSuchElementException{
+    public boolean deleteGroup(Long groupId, Long userId) throws NoSuchElementException{
         Group group =  groupRepository.findById(groupId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
 
         // 그룹 순서를 0부터 재정렬
-        try {
-            List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-            int order = 0;
-            for (Group g : groupList) {
-                if (g.getGroupOrder() != order) {
-                    g.updateOrder(order);
-                    groupRepository.save(g);
-                }
-                order++;
+        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
+        int order = 0;
+        for (Group g : groupList) {
+            if (g.getGroupOrder() != order) {
+                g.updateOrder(order);
+                groupRepository.save(g);
             }
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e.getMessage());
+            order++;
         }
-
         // 이벤트 발행
-//        publisher.publishEvent();
+        publisher.publishEvent(
+                docEvent
+                        .resType(WsResType.DELETE_GROUP)
+                        .projectId(projectId)
+                        .userId(userId)
+                        .data(group.getId()).build()
+        );
+        return true;
     }
 }

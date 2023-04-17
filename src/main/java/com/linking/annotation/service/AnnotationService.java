@@ -33,18 +33,18 @@ public class    AnnotationService {
     private final BlockService blockService;
     private final ParticipantService participantService;
 
-    public Optional<AnnotationRes> createAnnotation(AnnotationCreateReq req) throws RuntimeException {
+    public AnnotationRes createAnnotation(AnnotationCreateReq req) {
         Block block = blockService.getBlock(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
         Participant participant = participantService.getParticipant(req.getUserId(), req.getProjectId())
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER + " or " + ErrorMessage.NO_PROJECT));
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
         Annotation annotation = annotationMapper.toEntity(req);
         annotation.setBlock(block);
         annotation.setParticipant(participant);
 
-        return Optional.ofNullable(annotationMapper.toDto(annotationRepository.save(annotation)));
+        return annotationMapper.toDto(annotationRepository.save(annotation));
     }
 
     public AnnotationRes updateAnnotation(AnnotationUpdateReq annotationReq) {
@@ -57,7 +57,6 @@ public class    AnnotationService {
     }
 
     public void deleteAnnotation(Long annotationId) {
-
         annotationRepository.delete(
                 annotationRepository.findById(annotationId).orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_ANNOTATION))
         );

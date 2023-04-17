@@ -19,7 +19,6 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
-        logger.info("header usrid {}", request.getHeaders().get("userid"));
         logger.info("beforeHandshake()");
 
         ServletServerHttpRequest ssreq = (ServletServerHttpRequest) request;
@@ -29,29 +28,22 @@ public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor 
 
         try {
             if (uri.equals("/ws/documents")) {
-                String projectId = req.getParameter("projectId");
-                String userId = req.getParameter("userId");
-                if (projectId != null && userId != null) {
-                    attributes.put("projectId", Long.parseLong(projectId));
-                    attributes.put("userId", Long.parseLong(userId));
-                } else {
-                    throw new BadRequestException("필수 파라미터가 없습니다.");
-                }
+                String projectId = request.getHeaders().get("projectid").get(0);
+                String userId = request.getHeaders().get("userid").get(0);
+                attributes.put("projectId", Long.parseLong(projectId));
+                attributes.put("userId", Long.parseLong(userId));
             } else if (uri.equals("/ws/page")) {
-                String projectId = req.getParameter("projectId");
-                String userId = req.getParameter("userId");
-                String pageId = req.getParameter("pageId");
-                if (projectId != null && userId != null && pageId != null) {
-                    attributes.put("projectId", Long.parseLong(projectId));
-                    attributes.put("userId", Long.parseLong(userId));
-                    attributes.put("pageId", Long.parseLong(pageId));
-                } else {
-                    throw new BadRequestException("필수 파라미터가 없습니다.");
-                }
-
+                String projectId = request.getHeaders().get("projectid").get(0);
+                String userId = request.getHeaders().get("userid").get(0);
+                String pageId = request.getHeaders().get("pageid").get(0);
+                attributes.put("projectId", Long.parseLong(projectId));
+                attributes.put("userId", Long.parseLong(userId));
+                attributes.put("pageId", Long.parseLong(pageId));
             }
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("파라미터 값이 숫자가 아닙니다.");
+            throw new NumberFormatException("Header Value type must be number");
+        } catch (NullPointerException e) {
+            throw new NullPointerException("There is no necessary headers");
         }
 
         return super.beforeHandshake(request, response, wsHandler, attributes);

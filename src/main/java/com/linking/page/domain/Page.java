@@ -62,4 +62,5 @@ public class Page {
     public void updateOrder(int order) {
         this.pageOrder = order;
     }
+
 }

@@ -20,4 +20,5 @@ public class PageDetailedRes {
     private List<PageCheckRes> pageCheckResList;
     private int annotNotiCnt;
 
+
 }

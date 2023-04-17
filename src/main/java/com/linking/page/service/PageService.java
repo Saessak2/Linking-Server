@@ -16,7 +16,10 @@ import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.ws.code.WsResType;
+import com.linking.ws.event.DocumentEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,7 +27,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PageService {
-
+    private final ApplicationEventPublisher publisher;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final BlockService blockService;
@@ -34,7 +37,7 @@ public class PageService {
     private final PageCheckService pageCheckService;
     private final BlockRepository blockRepository;
 
-    public Optional<PageDetailedRes> getPage(Long pageId, Long userId) {
+    public PageDetailedRes getPage(Long pageId, Long userId) {
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
@@ -42,11 +45,11 @@ public class PageService {
         List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
         List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId);
 
-        return Optional.ofNullable(pageMapper.toDto(page, blockResList, pageCheckResList));
+        return pageMapper.toDto(page, blockResList, pageCheckResList);
     }
 
     // TODO code refactoring
-    public PageDetailedRes createPage(PageCreateReq req) throws NoSuchElementException{
+    public PageRes createPage(PageCreateReq req, Long userId) throws NoSuchElementException{
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
@@ -61,31 +64,53 @@ public class PageService {
             PageCheck pageCheck = new PageCheck(participant, page);
             pageCheckRepository.save(pageCheck);
         }
+        PageRes pageRes = pageMapper.toDto(pageRepository.save(page));
 
-        return pageMapper.toDto(pageRepository.save(page), new ArrayList<>(), new ArrayList<>());
+        // 이벤트 발행
+        DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
+        publisher.publishEvent(
+                docEvent
+                        .resType(WsResType.CREATE_PAGE)
+                        .projectId(group.getProject().getProjectId())
+                        .userId(userId)
+                        .data(pageRes).build()
+        );
+
+        return pageRes;
     }
 
-    public PageRes updatePageTitle(PageUpdateTitleReq pageUpdateTitleReq) throws Exception{
+//    public PageRes updatePageTitle(PageUpdateTitleReq pageUpdateTitleReq, Long userId) throws Exception{
+//
+//        try {
+//            pageRepository.updateTitle(pageUpdateTitleReq.getPageId(), pageUpdateTitleReq.getTitle());
+//
+//            Page findPage = pageRepository.findById(pageUpdateTitleReq.getPageId())
+//                    .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+//
+//            return pageMapper.toDto(findPage);
+//
+//            // 이벤트 발행
+//            DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
+//            publisher.publishEvent(
+//                    docEvent
+//                            .resType(WsResType.CREATE_PAGE)
+//                            .projectId(group.getProject().getProjectId())
+//                            .userId(userId)
+//                            .data(pageRes)
+//            );
+//
+//        } catch (Exception e) {
+//            System.out.println(e.getClass());
+//            System.out.println(e.getMessage());
+//            throw new NoSuchElementException(ErrorMessage.NO_PAGE);
+//        }
+//    }
 
-        try {
-            pageRepository.updateTitle(pageUpdateTitleReq.getPageId(), pageUpdateTitleReq.getTitle());
-
-            Page findPage = pageRepository.findById(pageUpdateTitleReq.getPageId())
-                    .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
-
-            return pageMapper.toDto(findPage);
-
-        } catch (Exception e) {
-            System.out.println(e.getClass());
-            System.out.println(e.getMessage());
-            throw new NoSuchElementException(ErrorMessage.NO_PAGE);
-        }
-    }
-
-    public void deletePage(Long pageId) throws NoSuchElementException{
+    public void deletePage(Long pageId, Long userId) throws NoSuchElementException{
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
         Long groupId = page.getGroup().getId();
+        Long projectId = page.getGroup().getProject().getProjectId();
         pageRepository.delete(page);
 
         // 페이지 순서를 0부터 재정렬
@@ -99,6 +124,17 @@ public class PageService {
                 }
                 order++;
             }
+
+            // 이벤트 발행
+            DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
+            publisher.publishEvent(
+                    docEvent
+                            .resType(WsResType.DELETE_PAGE)
+                            .projectId(projectId)
+                            .userId(userId)
+                            .data(pageId).build()
+            );
+
         } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }

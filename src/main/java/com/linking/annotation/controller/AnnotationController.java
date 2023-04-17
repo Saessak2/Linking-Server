@@ -7,6 +7,7 @@ import com.linking.annotation.service.AnnotationService;
 import com.linking.global.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -42,49 +43,32 @@ public class AnnotationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = AnnotationRes.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "500", description = "Server error"),
+            @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> postAnnotation(@RequestBody @Valid AnnotationCreateReq req) {
-        try {
-            return annotationService.createAnnotation(req)
-                    .map(ResponseHandler::generateCreatedResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        } catch (Exception e) {
-            return ResponseHandler.generateBadRequestResponse();
-        }
+        AnnotationRes res = annotationService.createAnnotation(req);
+        return ResponseHandler.generateCreatedResponse(res);
     }
 
     @PutMapping
     @Operation(summary = "주석 내용 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "변경 완료"),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Object> putAnnotation(@RequestBody @Valid AnnotationUpdateReq req) {
-
-        try {
-            AnnotationRes annotationRes = annotationService.updateAnnotation(req);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, annotationRes);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, null);
-        }
+        AnnotationRes annotationRes = annotationService.updateAnnotation(req);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, annotationRes);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "주석 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "삭제 완료. body 없음"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Object> deleteAnnotation(@Parameter(description = "주석 id") @PathVariable("id") Long id) {
-        try {
-            annotationService.deleteAnnotation(id);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
+    public ResponseEntity<Object> deleteAnnotation(@Parameter(description = "주석 id", in = ParameterIn.PATH) @PathVariable("id") Long id) {
+        annotationService.deleteAnnotation(id);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
     }
 }

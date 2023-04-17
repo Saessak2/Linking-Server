@@ -26,6 +26,8 @@ public class Annotation {
 
     private String content;
 
+    private String writer;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "block_id")
     private Block block;
@@ -34,15 +36,12 @@ public class Annotation {
     @JoinColumn(name = "participant_id")
     private Participant participant;
 
-    private String userName;
-
     @Builder
-    public Annotation(LocalDateTime lastModified, String content, Block block, Participant participant, String userName) {
+    public Annotation(LocalDateTime lastModified, String content, Block block, Participant participant) {
         this.lastModified = lastModified;
         this.content = content;
         this.block = block;
         this.participant = participant;
-        this.userName = userName;
     }
 
     @PrePersist
@@ -59,6 +58,7 @@ public class Annotation {
 
     public void setParticipant(Participant participant) {
         this.participant = participant;
+        this.writer = participant.getUserName();
     }
 
     public void updateContent(String content) {

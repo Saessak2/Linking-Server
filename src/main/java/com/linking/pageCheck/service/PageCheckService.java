@@ -8,6 +8,7 @@ import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class PageCheckService {
     private final PageCheckRepository pageCheckRepository;
     private final GroupRepository groupRepository;
+    private final ParticipantRepository participantRepository;
 
     private final PageCheckMapper pageCheckMapper;
 
@@ -34,7 +37,7 @@ public class PageCheckService {
         pageCheckList.forEach(pageCheck -> {
             User user = pageCheck.getParticipant().getUser();
 
-            if (user.getUserId() == userId) {  // 조회한 사용자의 페이지 확인 시간 업뎃
+            if (user.getUserId() == userId) {  // 조회한 사용자(userId)의 페이지 확인 시간 업뎃
                 pageCheck.updateLastChecked();
                 pageCheckRepository.save(pageCheck);
             }
@@ -59,5 +62,27 @@ public class PageCheckService {
                 pageCheckRepository.save(pageCheck);
             }
         }
+    }
+
+    // 페이지 나갈 때 페이지 마지막 열람 시간 업뎃
+    public PageCheckRes updatePageLastChecked(Long pageId, Long projectId, Long userId) {
+        // 팀원 조회
+        Optional<Participant> participantOptional = participantRepository.findByUserAndProjectId(userId, projectId);
+        if (participantOptional.isPresent()) {
+            Participant participant = participantOptional.get();
+            // 페이지 체크 조회
+            Optional<PageCheck> pageCheckOptional = pageCheckRepository.findByPageAndPartId(pageId, participant.getParticipantId());
+            if (pageCheckOptional.isPresent()) {
+                PageCheck pageCheck = pageCheckOptional.get();
+                pageCheck.updateLastChecked(); // 마지막 열람 시간 업뎃
+                pageCheckRepository.save(pageCheck);
+                // 페이지 체크 응답으로  변환
+                PageCheckRes pageCheckRes = pageCheckMapper.toDto(pageCheck, participant.getUserName(), participant.getUser().getUserId());
+                pageCheckRes.setIsEntering(false);
+                return pageCheckRes;
+            }
+            return null;
+        }
+        return null;
     }
 }

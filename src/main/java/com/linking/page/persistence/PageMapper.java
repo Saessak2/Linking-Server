@@ -64,9 +64,6 @@ public interface PageMapper {
     default PageDetailedRes toDto(
                                     Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
-        if (source == null) {
-            return null;
-        }
         PageDetailedRes.PageDetailedResBuilder builder = PageDetailedRes.builder();
         builder
                 .pageId(source.getId())

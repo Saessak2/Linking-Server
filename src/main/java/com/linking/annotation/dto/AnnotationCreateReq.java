@@ -26,7 +26,4 @@ public class AnnotationCreateReq {
     private Long blockId;
     @NotNull
     private Long userId;
-    @NotNull
-    private String userName;
-
 }

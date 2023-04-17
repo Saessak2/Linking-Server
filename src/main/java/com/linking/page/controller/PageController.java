@@ -5,6 +5,7 @@ import com.linking.global.ResponseHandler;
 import com.linking.group.dto.GroupRes;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
+import com.linking.page.dto.PageRes;
 import com.linking.page.service.PageService;
 import com.linking.util.JsonMapper;
 import lombok.RequiredArgsConstructor;
@@ -32,38 +33,26 @@ public class PageController extends TextWebSocketHandler {
     @PostMapping("/{id}")
     public ResponseEntity<Object> getPage(
             @PathVariable("id") Long pageId, @RequestParam("userId") Long userId) {
-        try {
-            return pageService.getPage(pageId, userId)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch (NoSuchElementException e){
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
+
+        PageDetailedRes res = pageService.getPage(pageId, userId);
+        return ResponseHandler.generateOkResponse(res);
     }
 
     @PostMapping
-    public ResponseEntity<Object> postPage(@RequestBody @Valid PageCreateReq pageCreateReq) {
-        try {
-            PageDetailedRes pageDetailedRes = pageService.createPage(pageCreateReq);
-            if (pageDetailedRes == null)
-                return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageDetailedRes);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
+    public ResponseEntity<Object> postPage(
+            @RequestHeader(value = "userId", required = false) Long userId,
+            @RequestBody @Valid PageCreateReq pageCreateReq) {
+
+        PageRes res = pageService.createPage(pageCreateReq, userId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletePage(@PathVariable("id") Long docId) {
-        try {
-            pageService.deletePage(docId);
-            return ResponseHandler.generateNoContentResponse();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        } catch (RuntimeException e) {
-            logger.error("\n{} ===============> {}", e.getClass(), e.getMessage());
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseEntity<Object> deletePage(
+            @RequestHeader(value = "userId", required = false) Long userId,
+            @PathVariable("id") Long docId) {
+        pageService.deletePage(docId, userId);
+        return ResponseHandler.generateNoContentResponse();
     }
 }
 

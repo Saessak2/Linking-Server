@@ -20,16 +20,13 @@ import java.util.Locale;
 public interface AnnotationMapper {
 
     default AnnotationRes toDto(Annotation source) {
-        if (source == null) {
-            return null;
-        }
         AnnotationRes.AnnotationResBuilder builder = AnnotationRes.builder();
         builder
                 .annotationId(source.getId())
                 .blockId(source.getBlock().getId())
                 .content(source.getContent())
                 .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
-                .userName(source.getUserName());
+                .userName(source.getWriter());
 
         return builder.build();
     }
@@ -53,7 +50,6 @@ public interface AnnotationMapper {
         Annotation.AnnotationBuilder builder = Annotation.builder();
         builder
                 .content(source.getContent())
-                .userName(source.getUserName())
                 .lastModified(LocalDateTime.now());
 
         return builder.build();

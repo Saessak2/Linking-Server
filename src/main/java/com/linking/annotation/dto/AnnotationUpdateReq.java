@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "주석 내용 수정 요청 DTO")
 public class AnnotationUpdateReq {
 
     @NotNull

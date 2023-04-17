@@ -62,32 +62,29 @@ public class BlockService {
         return blockMapper.toDto(blockRepository.save(block), new ArrayList<>());
     }
 
-    public void updateBlockOrder(List<BlockOrderReq> req) throws RuntimeException{
+    public void updateBlockOrder(List<BlockOrderReq> req) {
         List<Long> blockIds = req.stream()
                 .map(BlockOrderReq::getBlockId)
                 .collect(Collectors.toList());
         // 받은 id 순대로 order update 해야함.
         // findAllById 사용시 id 순 대로 정렬돼서 나오는것 같음.
         int count = 0;
-        try {
-            List<Block> blockList = blockRepository.findAllById(blockIds);
-            for (Block b : blockList) {
-                int order = blockIds.indexOf(b.getId());
-                if (b.getBlockOrder() != order) {
-                    b.updateOrder(order);
-                    blockRepository.save(b);
-                    count++;
-                }
+        List<Block> blockList = blockRepository.findAllById(blockIds);
+        for (Block b : blockList) {
+            int order = blockIds.indexOf(b.getId());
+            if (b.getBlockOrder() != order) {
+                b.updateOrder(order);
+                blockRepository.save(b);
+                count++;
             }
-            logger.info("update block count => {}", count);
-        } catch (RuntimeException e) { // id 없는경우
-            throw new RuntimeException(e.getMessage());
         }
+        logger.info("update block count => {}", count);
     }
 
     public void deleteBlock(Long blockId) {
         Block block = blockRepository.findById(blockId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+
         Long pageId = block.getPage().getId();
         blockRepository.delete(block);
 
@@ -96,7 +93,7 @@ public class BlockService {
         for (Block b : blockList) {
             if (b.getBlockOrder() != order) {
                 b.updateOrder(order);
-                blockRepository.save(b);  // 그새 블럭이 없이지면 어떡하지?
+                blockRepository.save(b);
             }
             order++;
         }
@@ -105,6 +102,4 @@ public class BlockService {
     public Optional<Block> getBlock(Long blockId) {
         return blockRepository.findById(blockId);
     }
-
-
 }

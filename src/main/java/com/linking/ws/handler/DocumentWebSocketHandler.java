@@ -1,16 +1,13 @@
 package com.linking.ws.handler;
 
-import com.linking.group.dto.DocumentEvent;
-import com.linking.group.event.GroupEvent;
+import com.linking.ws.event.DocumentEvent;
 import com.linking.util.JsonMapper;
-import com.linking.ws.WsResponseType;
 import com.linking.ws.message.WsMessage;
 import com.linking.ws.service.WsDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -26,8 +23,6 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // 연결 중인 세션 저장
-    // ket -> sessionId
-    private static Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     // key -> projectId
     private static Map<Long, Set<WebSocketSession>> sessionsByProject = new ConcurrentHashMap<>();
 
@@ -35,82 +30,74 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
 
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession session) {
 
-        logger.info("@@ connect session.id = {} @@ projectId = {}" , session, session.getAttributes().get("projectId") );
+        logger.info("@@ [DOC] connect session.id = {} @@ projectId = {}" , session, session.getAttributes().get("projectId") );
 
         Long projectIdKey = (Long) session.getAttributes().get("projectId");
         Long userId = (Long) session.getAttributes().get("userId");
 
         // 즉시 전체 문서 리스트 전송
-        session.sendMessage(new TextMessage(JsonMapper.toJsonString(wsService.getAllDocumentsByProjectAndUser(projectIdKey, userId))));
-
-//        long beforeTime = System.currentTimeMillis();
+        try {
+            session.sendMessage(new TextMessage(JsonMapper.toJsonString(wsService.getAllDocuments(projectIdKey, userId))));
+        } catch (IOException e) {
+            logger.error("JsonMapper.toJsonString IOException");
+        }
 
         if (!sessionsByProject.containsKey(projectIdKey)) {
             Set<WebSocketSession> hashSet = Collections.synchronizedSet(new HashSet<>());
             hashSet.add(session);
             sessionsByProject.put(projectIdKey, hashSet);
         } else {
-            if (!sessionsByProject.get(projectIdKey).contains(session)) {
+            if (!sessionsByProject.get(projectIdKey).contains(session))
                 sessionsByProject.get(projectIdKey).add(session);
-            }
         }
-        if (!sessions.containsKey(session.getId())) {
-            sessions.put(session.getId(), session);
-        }
-
-        logger.info("@@ sessionsByProjects -> projectId = {}, size = {}", projectIdKey, sessionsByProject.get(projectIdKey).size());
-        logger.info("@@ sessions -> size = {}", sessions.size());
-//        long afterTime = System.currentTimeMillis();
-//        logger.info("session 저장하는 데 걸린 시간 (m) : ", (afterTime-beforeTime)/1000);
+        logger.info("@@ [DOC] sessionsByProject -> projectId = {}, size = {}", projectIdKey, sessionsByProject.get(projectIdKey).size());
     }
 
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        logger.info("@@ ws -> session.id = [{}] closed ... and status is = {}", session.getId(), status);
-        close(session);
-
-        // TODO sessionByProject에서도 삭제하기
+        logger.info("@@ [DOC] -> session.id = [{}] closed ... and status is = {}", session.getId(), status);
+        this.close(session);
     }
 
-    @Scheduled(cron = "0/30 * * * * *")
-    public void ping() {
-//        logger.info("현재 쓰레드 : {}", Thread.currentThread().getName());
-        try {
-            for (WebSocketSession session : sessions.values()) {
-                if (session.isOpen()) {
-                    session.sendMessage(new PingMessage());
-//                    logger.info("session is opened");
-                }
-                else {
-                    close(session);
-                }
-            }
-        } catch (IOException e) {
-            logger.error("Exception while ping session");
-        }
-    }
+//    @Scheduled(cron = "0/30 * * * * *")
+//    public void ping() {
+////        logger.info("현재 쓰레드 : {}", Thread.currentThread().getName());
+//        try {
+//            for (WebSocketSession session : sessions.values()) {
+//                if (session.isOpen()) {
+//                    session.sendMessage(new PingMessage());
+////                    logger.info("session is opened");
+//                }
+//                else {
+//                    close(session);
+//                }
+//            }
+//        } catch (IOException e) {
+//            logger.error("Exception while ping session");
+//        }
+//    }
 
-    @Override
-    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-//        logger.info("receive pong from session.id = {}", session.getId());
-
-    }
+//    @Override
+//    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
+////        logger.info("receive pong from session.id = {}", session.getId());
+//
+//    }
 
     private void close(WebSocketSession session) throws IOException {
         Long projectId = (Long) session.getAttributes().get("projectId");
         session.close();
-        sessions.remove(session.getId());
-        sessionsByProject.get(projectId).remove(session);
-        logger.info("@@ sessionsByProjects -> projectId = {}, size = {}", projectId, sessionsByProject.get(projectId).size());
-        logger.info("@@ sessions -> size = {}", sessions.size());
+        Set<WebSocketSession> webSocketSessions = sessionsByProject.get(projectId);
+        if (webSocketSessions != null && session != null)
+            webSocketSessions.remove(session);
+        logger.info("@@ [DOC]a projectId = {} session size = {}", projectId, webSocketSessions.size());
     }
 
 
     @EventListener
-    public void sendGroups(DocumentEvent documentEvent) {
+    public void sendGroups(com.linking.group.dto.DocumentEvent documentEvent) {
         logger.info("event listener");
 //        logger.info("currentThread =====+++> {}", Thread.currentThread().getName());
 
@@ -126,18 +113,20 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
     }
 
     @EventListener
-    public void sendGroupEvent(GroupEvent groupEvent) {
-        logger.info("groupEvent Listener");
+    public void sendEvent(DocumentEvent documentEvent) {
+        logger.info("documentEvent Listener");
         try {
-            Set<WebSocketSession> sessions = sessionsByProject.get(groupEvent.getProjectId());
+            Set<WebSocketSession> sessions = sessionsByProject.get(documentEvent.getProjectId());
             if (sessions != null && !sessions.isEmpty()) {
+
                 WsMessage message = WsMessage.builder()
-                        .resType(groupEvent.getResType())
-                        .publishType(groupEvent.getPublishType())
-                        .data(groupEvent.getGroupRes())
+                        .resType(documentEvent.getResType())
+                        .data(documentEvent.getData())
                         .build();
+
                 sessions.forEach(session -> {
-                    if (groupEvent.getUserId() != session.getAttributes().get("userId")) {
+                    // 이벤트를 발생시킨 사용자가 아닌 팀원에게만 전송
+                    if (documentEvent.getUserId() != session.getAttributes().get("userId")) {
                         if (session.isOpen()) {
                             try {
                                 session.sendMessage(new TextMessage(JsonMapper.toJsonString(message)));
@@ -154,15 +143,5 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-//    @Override
-//    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-//        logger.info("===================== handleTextMessage ============================");
-//        logger.info("attributes : {} ", session.getAttributes());
-//
-//        String payload = message.getPayload();
-//        if (payload.contains("DOC")) {
-//            List<GroupRes> allDocuments = documentService.findAllDocuments(8L);
-//            session.sendMessage(new TextMessage(JsonMapper.toJsonString(allDocuments)));
-//        }
-//    }
+
 }

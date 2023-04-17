@@ -13,9 +13,13 @@ public class PageCheckRes {
 
     private Long pageCheckId;
     private Long pageId;
+    private Boolean isEntering;
     private Boolean isChecked;
     private String lastChecked;
     private Long userId;
     private String userName;
 
+    public void setIsEntering(boolean isEntering) {
+        this.isEntering = isEntering;
+    }
 }

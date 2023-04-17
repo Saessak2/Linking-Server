@@ -7,10 +7,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PageCheckRepository extends JpaRepository<PageCheck, Long> {
 
     @Query("SELECT p FROM PageCheck p WHERE p.participant.participantId = :id")
     List<PageCheck> findAllAByParticipantId(@Param("id") Long participant);
+
+    @Query("SELECT p FROM PageCheck p WHERE p.page.id = :pageId AND p.participant.participantId = :partId")
+    Optional<PageCheck> findByPageAndPartId(@Param("pageId") Long pageId, @Param("partId") Long partId);
 }
