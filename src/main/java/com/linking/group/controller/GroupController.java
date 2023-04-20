@@ -1,6 +1,5 @@
 package com.linking.group.controller;
 
-import com.linking.annotation.dto.AnnotationRes;
 import com.linking.global.common.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupOrderReq;
@@ -18,11 +17,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/groups")
@@ -30,20 +32,37 @@ import java.util.List;
 @Tag(name = "Group")
 @Slf4j
 public class GroupController {
+
+    private final SseEmitters sseEmitters;
     private final GroupService groupService;
+    /**
+     * 연결 중인 세션 저장
+     * key : (Long) project id
+     * value : Set<WebSocketSession>
+     */
 
-    // TODO http 요청으론 안 쓰일 예정
-    @PostMapping("/{id}")
-    @Operation(summary = "그룹 리스트 조회")
 
-    public ResponseEntity<Object> getDocuments(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
-            @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId) {
+    @GetMapping(value = "/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> getDocuments(
+            @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId
+    ) {
+        log.info("@@ [DOC][CONNECT] @@ projectId = {}", projectId);
+        SseEmitter emitter = new SseEmitter(30 * 1000L);  // timeout -> 30s. 만료시간이 되면 브라우저에서 자동으로 서버에 재연결 요청을 보냄. default -> 30s
+        sseEmitters.add(projectId, emitter);
 
-        List<GroupRes> documentRes = groupService.findAllGroups(projectId, userId);
-        return ResponseHandler.generateOkResponse(documentRes);
+        // 그룹 리스트 조회
+        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userId);
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data(allGroups));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(emitter);
     }
-
 
     @PostMapping
     @Operation(summary = "그룹 생성")
@@ -53,10 +72,10 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> postGroup(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
             @RequestBody @Valid GroupCreateReq req) {
 
-        GroupRes groupRes = groupService.createGroup(req, userId);
+        GroupRes groupRes = groupService.createGroup(req);
+        sseEmitters.send(groupRes.getProjectId(), "postGroup", groupRes);
 
         return ResponseHandler.generateCreatedResponse(groupRes);
     }
@@ -69,10 +88,9 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> putGroupName(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
             @RequestBody @Valid GroupNameReq req) {
 
-        boolean res = groupService.updateGroupName(req, userId);
+        boolean res = groupService.updateGroupName(req);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 
@@ -105,4 +123,15 @@ public class GroupController {
         boolean res = groupService.updateDocumentsOrder(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
+
+//    @PostMapping("/{id}")
+//    @Operation(summary = "그룹 리스트 조회")
+//
+//    public ResponseEntity<Object> getDocuments(
+//            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
+//            @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId) {
+//
+//        List<GroupRes> documentRes = groupService.findAllGroups(projectId, userId);
+//        return ResponseHandler.generateOkResponse(documentRes);
+//    }
 }

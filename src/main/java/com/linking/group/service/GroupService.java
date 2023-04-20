@@ -72,7 +72,7 @@ public class GroupService {
         return groupResList;
     }
 
-    public GroupRes createGroup(GroupCreateReq req, Long userId) {
+    public GroupRes createGroup(GroupCreateReq req) {
         Project project = projectRepository.findById(req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
@@ -80,15 +80,19 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
-        // 이벤트 발행
-        publisher.publishEvent(
-                docEvent
-                        .resType(WsResType.CREATE_GROUP)
-                        .userId(userId)
-                        .projectId(project.getProjectId())
-                        .data(groupRes).build()
-        );
         return groupRes;
+    }
+
+    public boolean updateGroupName(GroupNameReq req) {
+
+        Group findGroup = groupRepository.findById(req.getGroupId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
+
+        if (!findGroup.getName().equals(req.getName())) {
+            findGroup.updateName(req.getName());
+            Group group = groupRepository.save(findGroup);
+        }
+        return true;
     }
 
     // 순서 변경 (그룹 + 페이지)
@@ -132,25 +136,7 @@ public class GroupService {
 //        groupPublisher.publishUpdateOrder(userId, projectId);
     }
 
-    public boolean updateGroupName(GroupNameReq req, Long userId) throws NoSuchElementException{
-        Group findGroup = groupRepository.findById(req.getGroupId())
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        if (!findGroup.getName().equals(req.getName())) {
-            findGroup.updateName(req.getName());
-            Group group = groupRepository.save(findGroup);
-            // 이벤트 발행
-
-            publisher.publishEvent(
-                    docEvent
-                            .resType(WsResType.UPDATE_GROUP)
-                            .userId(userId)
-                            .projectId(findGroup.getProject().getProjectId())
-                            .data(groupMapper.toDto(group, new ArrayList<>())).build()
-            );
-        }
-        return true;
-    }
 
     public boolean deleteGroup(Long groupId, Long userId) throws NoSuchElementException{
         Group group =  groupRepository.findById(groupId)
