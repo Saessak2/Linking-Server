@@ -68,6 +68,7 @@ public class ParticipantController {
         }
     }
 
+    // TODO:
     @GetMapping("/my-list/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getParticipantMyList(

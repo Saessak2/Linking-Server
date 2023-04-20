@@ -17,12 +17,12 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.POST})
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
 public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/sign-up/default")
+    @PostMapping("/sign-up")
     @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> signUpDefault(@RequestBody @Valid UserSignUpReq userSignUpReq){
         try {

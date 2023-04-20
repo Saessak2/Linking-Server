@@ -75,9 +75,17 @@ public class ProjectMapper {
     public List<ProjectRes> toResDto(List<Project> list){
         List<ProjectRes> list1 = new ArrayList<>();
         for (Project project : list) {
-            list1.add(new ProjectRes(project.getProjectId(), project.getProjectName()));
+            ProjectRes.ProjectResBuilder projectResBuilder = ProjectRes.builder();
+            projectResBuilder
+                    .projectId(project.getProjectId())
+                            .projectName(project.getProjectName())
+                                    .beginDate(project.getBeginDate())
+                                            .dueDate(project.getDueDate())
+                    .partList(new ArrayList<>());
+            list1.add(projectResBuilder.build());
         }
         return list1;
+        // 리스트는 항상 주기(빈 리스트라도,,, 리스트를 안 보내면 응답에서 parseError 발생 가능)
     }
 
     public Project toEntity(ProjectCreateReq projectCreateReq) {

@@ -9,7 +9,6 @@ import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.project.persistence.ProjectMapper;
 import com.linking.project.domain.Project;
 
-import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

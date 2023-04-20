@@ -27,10 +27,6 @@ public class User {
 
     private String email;
 
-    // TODO: phoneNumber should be unique key
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
     private String password;
 
     public User(Long ownerId) {
