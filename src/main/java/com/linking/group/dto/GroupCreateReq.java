@@ -17,8 +17,12 @@ public class GroupCreateReq {
     @NotNull
     @Schema(description = "프로젝트 pk")
     private Long projectId;
+
     @NotNull
+    @Schema(description = "그룹 이름")
     private String name;
+
     @NotNull
+    @Schema(description = "그룹 순서 (index)")
     private int order;
 }

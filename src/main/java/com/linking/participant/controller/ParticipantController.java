@@ -6,6 +6,7 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.service.ParticipantService;
 import com.linking.project.dto.ProjectContainsPartsRes;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -20,6 +21,8 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/participants")
+@Tag(name = "Participant")
+
 public class ParticipantController {
 
     private final ParticipantService participantService;

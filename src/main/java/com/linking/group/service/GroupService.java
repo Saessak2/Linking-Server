@@ -92,7 +92,7 @@ public class GroupService {
     }
 
     // 순서 변경 (그룹 + 페이지)
-    public void updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList, Long userId) {
+    public boolean updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList, Long userId) {
 
         // 그룹 순서 변경
         List<Long> groupIds = groupOrderReqList.stream()
@@ -126,6 +126,7 @@ public class GroupService {
                 }
             }
         }
+        return true;
 
 //         이벤트 발행
 //        groupPublisher.publishUpdateOrder(userId, projectId);

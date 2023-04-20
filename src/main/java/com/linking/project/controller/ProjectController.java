@@ -5,6 +5,7 @@ import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,6 +20,8 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/projects")
+@Tag(name = "Project")
+
 public class ProjectController {
 
     private final ProjectService projectService;

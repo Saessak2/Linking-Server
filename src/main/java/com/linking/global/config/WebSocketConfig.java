@@ -1,6 +1,6 @@
 package com.linking.global.config;
 
-import com.linking.document.controller.DocumentWebSocketHandler;
+import com.linking.group.controller.DocumentWebSocketHandler;
 import com.linking.page.controller.PageWebSocketHandler;
 import com.linking.interceptor.CustomHandShakeInterceptor;
 import lombok.RequiredArgsConstructor;

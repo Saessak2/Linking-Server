@@ -17,7 +17,9 @@ import javax.validation.constraints.Size;
 public class AnnotationUpdateReq {
 
     @NotNull
+    @Schema(description = "annotation id")
     private Long annotationId;
+
     @NotNull
     @Size(min = 1, max = 255)
     @Schema(description = "주석 내용", minLength = 1, maxLength = 255)

@@ -1,13 +1,13 @@
-package com.linking.document.controller;
+package com.linking.group.controller;
 
 import com.linking.ws.event.DocumentEvent;
 import com.linking.global.util.JsonMapper;
 import com.linking.ws.message.WsMessage;
-import com.linking.ws.service.WsDocumentService;
+import com.linking.group.service.WsDocumentService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -16,14 +16,16 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentWebSocketHandler extends TextWebSocketHandler {
-    Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // 연결 중인 세션 저장
-    // key -> projectId
+    /**
+     * 연결 중인 세션 저장
+     * key : (Long) project id
+     * value : Set<WebSocketSession>
+     */
     private static Map<Long, Set<WebSocketSession>> sessionsByProject = new ConcurrentHashMap<>();
 
     private final WsDocumentService wsService;
@@ -32,33 +34,40 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
 
-        logger.info("@@ [DOC] connect session.id = {} @@ projectId = {}" , session, session.getAttributes().get("projectId") );
-
-        Long projectIdKey = (Long) session.getAttributes().get("projectId");
+        Long projectId = (Long) session.getAttributes().get("projectId");
         Long userId = (Long) session.getAttributes().get("userId");
 
-        // 즉시 전체 문서 리스트 전송
+        Set<WebSocketSession> sessions = this.addSession(projectId, session);
+
+        // 문서 리스트 전송
         try {
-            session.sendMessage(new TextMessage(JsonMapper.toJsonString(wsService.getAllDocuments(projectIdKey, userId))));
+            session.sendMessage(wsService.getAllDocuments(projectId, userId));
         } catch (IOException e) {
-            logger.error("JsonMapper.toJsonString IOException");
+            log.info(e.getMessage());
         }
 
-        if (!sessionsByProject.containsKey(projectIdKey)) {
-            Set<WebSocketSession> hashSet = Collections.synchronizedSet(new HashSet<>());
-            hashSet.add(session);
-            sessionsByProject.put(projectIdKey, hashSet);
-        } else {
-            if (!sessionsByProject.get(projectIdKey).contains(session))
-                sessionsByProject.get(projectIdKey).add(session);
-        }
-        logger.info("@@ [DOC] sessionsByProject -> projectId = {}, size = {}", projectIdKey, sessionsByProject.get(projectIdKey).size());
+        log.info("@@ [DOC][CONNECT] @@ projectId = {} @@ userId = {}" , projectId, userId);
+        log.info("@@ [DOC][SESSIONS] @@ projectId = {} @@ sessions.size = {}", projectId, sessions.size());
     }
 
+    private Set<WebSocketSession> addSession(Long key, WebSocketSession session) {
+
+        Set<WebSocketSession> sessions = sessionsByProject.get(key);
+
+        if (sessions == null) {
+            sessions = Collections.synchronizedSet(new HashSet<>());
+            sessions.add(session);
+            sessionsByProject.put(key, sessions);
+
+        } else {
+            sessions.add(session);
+        }
+        return sessions;
+    }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        logger.info("@@ [DOC] -> session.id = [{}] closed ... and status is = {}", session.getId(), status);
+
         this.close(session);
     }
 
@@ -76,29 +85,31 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
 //                }
 //            }
 //        } catch (IOException e) {
-//            logger.error("Exception while ping session");
+//            log.error("Exception while ping session");
 //        }
 //    }
-
+//
 //    @Override
 //    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
 ////        logger.info("receive pong from session.id = {}", session.getId());
-//
 //    }
 
     private void close(WebSocketSession session) throws IOException {
+
         Long projectId = (Long) session.getAttributes().get("projectId");
         session.close();
-        Set<WebSocketSession> webSocketSessions = sessionsByProject.get(projectId);
-        if (webSocketSessions != null && session != null)
-            webSocketSessions.remove(session);
-        logger.info("@@ [DOC]a projectId = {} session size = {}", projectId, webSocketSessions.size());
+        Set<WebSocketSession> sessions = sessionsByProject.get(projectId);
+        if (sessions != null)
+            sessions.remove(session);
+
+        log.info("@@ [DOC][CLOSE] @@ projectId = {} @@ userId = {}" , projectId, session.getAttributes().get("userId"));
+        log.info("@@ [DOC][SESSIONS] @@ projectId = {} @@ session size = {}", projectId, sessions.size());
     }
 
 
     @EventListener
     public void sendGroups(com.linking.group.dto.DocumentEvent documentEvent) {
-        logger.info("event listener");
+        log.info("event listener");
 //        logger.info("currentThread =====+++> {}", Thread.currentThread().getName());
 
         Set<WebSocketSession> webSocketSessions = sessionsByProject.get(documentEvent.getProjectId());
@@ -114,7 +125,7 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
 
     @EventListener
     public void sendEvent(DocumentEvent documentEvent) {
-        logger.info("documentEvent Listener");
+        log.info("documentEvent Listener");
         try {
             Set<WebSocketSession> sessions = sessionsByProject.get(documentEvent.getProjectId());
             if (sessions != null && !sessions.isEmpty()) {
@@ -131,15 +142,15 @@ public class DocumentWebSocketHandler extends TextWebSocketHandler {
                             try {
                                 session.sendMessage(new TextMessage(JsonMapper.toJsonString(message)));
                             } catch (IOException e) {
-                                logger.error("IOException in sendGroupEventMethod -> {}", e.getMessage());
+                                log.error("IOException in sendGroupEventMethod -> {}", e.getMessage());
                             }
                         }
                     }
                 });
-                logger.info("complete sendGroupEvent");
+                log.info("complete sendGroupEvent");
             }
         } catch (RuntimeException e) {
-            logger.error("{} in sendGroupEventMethod -> {}", e.getClass(), e.getMessage());
+            log.error("{} in sendGroupEventMethod -> {}", e.getClass(), e.getMessage());
         }
     }
 

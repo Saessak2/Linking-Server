@@ -23,7 +23,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/annotations")
 @RequiredArgsConstructor
-@Tag(name = "주석")
+@Tag(name = "Annotation")
 public class AnnotationController {
 
     private final AnnotationService annotationService;
@@ -44,7 +44,7 @@ public class AnnotationController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> postAnnotation(
-            @RequestHeader(value = "userId", required = false) Long userId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @RequestBody @Valid AnnotationCreateReq req) {
 
         AnnotationRes res = annotationService.createAnnotation(req, userId);
@@ -54,11 +54,11 @@ public class AnnotationController {
     @PutMapping
     @Operation(summary = "주석 내용 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 완료"),
+            @ApiResponse(responseCode = "200", description = "변경 완료", content = @Content(schema = @Schema(implementation = AnnotationRes.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Object> putAnnotation(
-            @RequestHeader(value = "userId", required = false) Long userId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @RequestBody @Valid AnnotationUpdateReq req) {
 
         AnnotationRes annotationRes = annotationService.updateAnnotation(req, userId);
@@ -73,7 +73,7 @@ public class AnnotationController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> deleteAnnotation(
-            @RequestHeader(value = "userId", required = false) Long userId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @Parameter(description = "주석 id", in = ParameterIn.PATH) @PathVariable("id") Long id) {
 
         annotationService.deleteAnnotation(id, userId);

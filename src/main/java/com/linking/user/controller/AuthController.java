@@ -5,6 +5,7 @@ import com.linking.user.dto.UserEmailVerifyReq;
 import com.linking.user.dto.UserSignUpReq;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserSignInReq;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Tag(name = "Auth")
+
 public class AuthController {
 
     private final UserService userService;
