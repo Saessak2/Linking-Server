@@ -78,9 +78,10 @@ public class ProjectMapper {
             ProjectRes.ProjectResBuilder projectResBuilder = ProjectRes.builder();
             projectResBuilder
                     .projectId(project.getProjectId())
-                            .projectName(project.getProjectName())
-                                    .beginDate(project.getBeginDate())
-                                            .dueDate(project.getDueDate())
+                    .projectName(project.getProjectName())
+                    .beginDate(project.getBeginDate())
+                    .dueDate(project.getDueDate())
+                    .ownerId(project.getOwner().getUserId())
                     .partList(new ArrayList<>());
             list1.add(projectResBuilder.build());
         }
