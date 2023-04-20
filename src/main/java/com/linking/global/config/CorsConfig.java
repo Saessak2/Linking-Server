@@ -1,4 +1,4 @@
-package com.linking.config;
+package com.linking.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

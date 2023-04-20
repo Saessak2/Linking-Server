@@ -3,7 +3,7 @@ package com.linking.page.service;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
-import com.linking.global.ErrorMessage;
+import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
@@ -16,7 +16,7 @@ import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
-import com.linking.ws.code.WsResType;
+import com.linking.global.common.WsResType;
 import com.linking.ws.event.DocumentEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +36,8 @@ public class PageService {
     private final ParticipantRepository participantRepository;
     private final PageCheckService pageCheckService;
     private final BlockRepository blockRepository;
+    DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
+
 
     public PageDetailedRes getPage(Long pageId, Long userId) {
         // toMany는 하나만 Fetch join 가능
@@ -44,6 +46,7 @@ public class PageService {
 
         List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
         List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId);
+
 
         return pageMapper.toDto(page, blockResList, pageCheckResList);
     }
@@ -67,7 +70,6 @@ public class PageService {
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page));
 
         // 이벤트 발행
-        DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
         publisher.publishEvent(
                 docEvent
                         .resType(WsResType.CREATE_PAGE)
@@ -126,7 +128,6 @@ public class PageService {
             }
 
             // 이벤트 발행
-            DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
             publisher.publishEvent(
                     docEvent
                             .resType(WsResType.DELETE_PAGE)

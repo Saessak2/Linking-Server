@@ -1,11 +1,14 @@
-package com.linking.ws.handler;
+package com.linking.page.controller;
 
-import com.linking.util.JsonMapper;
+import com.linking.global.util.JsonMapper;
+import com.linking.ws.event.PageCheckEvent;
+import com.linking.ws.event.PageEvent;
 import com.linking.ws.message.WsMessage;
 import com.linking.ws.service.WsPageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -50,14 +53,16 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         sessionsByPage.get(pageIdKey).forEach(s -> {
             enteringUsers.add((Long) s.getAttributes().get("userId"));
         });
+        WsMessage page = wsPageService.getPage(pageIdKey, projectId, userId, enteringUsers);
         // 페이지 전송
         try {
-            session.sendMessage(new TextMessage(JsonMapper.toJsonString(
-                    wsPageService.getPage(pageIdKey, projectId, userId, enteringUsers)
-            )));
+            session.sendMessage(new TextMessage(JsonMapper.toJsonString(page)));
         } catch (IOException e) {
         logger.error("JsonMapper.toJsonString IOException");
         }
+
+        // 페이지 조회 중인 다른 사용자한테 업데이트된 페이지 체크 리스트를 보내줘야함.
+//        리스트?를 보내줘야하나..? 들어온 사람꺼 하나만 보내주면 안되나?
     }
 
     @Override
@@ -85,5 +90,49 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
             });
         }
         logger.info("@@ [PAGE] sessionsByPage -> pageId = {}, size = {}", pageId, webSocketSessions.size());
+    }
+
+    @EventListener
+    public void sendEvent(PageEvent pageEvent) {
+        logger.info("pageEvent Listener");
+        try {
+            Set<WebSocketSession> sessions = sessionsByPage.get(pageEvent.getPageId());
+            if (sessions != null && !sessions.isEmpty()) {
+
+                WsMessage message = WsMessage.builder()
+                        .resType(pageEvent.getResType())
+                        .data(pageEvent.getData())
+                        .build();
+
+                sessions.forEach(session -> {
+                    // 이벤트를 발생시킨 사용자가 아닌 팀원에게만 전송
+                    if (pageEvent.getUserId() != session.getAttributes().get("userId")) {
+                        if (session.isOpen()) {
+                            try {
+                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(message)));
+                            } catch (IOException e) {
+                                logger.error("IOException in sendPageEventMethod -> {}", e.getMessage());
+                            }
+                        }
+                    }
+                });
+                logger.info("complete sendPageEvent");
+            }
+        } catch (RuntimeException e) {
+            logger.error("{} in sendGroupEventMethod -> {}", e.getClass(), e.getMessage());
+        }
+    }
+
+    @EventListener
+    public void pageCheckEvent(PageCheckEvent pageCheckEvent) {
+        List<Long> userIds = new ArrayList<>();
+
+        // null확인
+        sessionsByPage.get(pageCheckEvent.getPageId()).forEach(s -> {
+                    userIds.add((Long) s.getAttributes().get("userId"));
+                }
+        );
+        if (!userIds.isEmpty())
+            wsPageService.sendUserIds(userIds);
     }
 }

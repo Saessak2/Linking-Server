@@ -1,15 +1,13 @@
-package com.linking.config;
+package com.linking.global.config;
 
-import com.linking.ws.handler.DocumentWebSocketHandler;
-import com.linking.ws.handler.PageWebSocketHandler;
-import com.linking.ws.interceptor.CustomHandShakeInterceptor;
+import com.linking.document.controller.DocumentWebSocketHandler;
+import com.linking.page.controller.PageWebSocketHandler;
+import com.linking.interceptor.CustomHandShakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-
-import java.util.Map;
 
 @Configuration
 @EnableWebSocket

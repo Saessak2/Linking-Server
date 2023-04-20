@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @NoArgsConstructor
+@Getter
 public class WsMessage<T>  {
 
     @JsonProperty

@@ -4,7 +4,7 @@ import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.service.PageService;
 import com.linking.pageCheck.dto.PageCheckRes;
 import com.linking.pageCheck.service.PageCheckService;
-import com.linking.ws.code.WsResType;
+import com.linking.global.common.WsResType;
 import com.linking.ws.message.WsMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -34,5 +34,9 @@ public class WsPageService {
         if (pageCheckRes != null)
             return new WsMessage(WsResType.PAGE_CHECK, pageCheckRes);
         return null;
+    }
+
+    public void sendUserIds(List<Long> userIds) {
+//        pageCheckService.
     }
 }

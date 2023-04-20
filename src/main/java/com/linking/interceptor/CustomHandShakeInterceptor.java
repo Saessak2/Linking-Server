@@ -1,6 +1,5 @@
-package com.linking.ws.interceptor;
+package com.linking.interceptor;
 
-import com.linking.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -10,7 +9,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 import java.util.Map;
 
 public class CustomHandShakeInterceptor extends HttpSessionHandshakeInterceptor {

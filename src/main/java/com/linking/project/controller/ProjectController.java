@@ -1,6 +1,6 @@
 package com.linking.project.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;

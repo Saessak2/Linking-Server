@@ -1,11 +1,10 @@
 package com.linking.block.controller;
 
-import com.linking.annotation.dto.AnnotationRes;
 import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/blocks")

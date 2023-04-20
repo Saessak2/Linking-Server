@@ -1,26 +1,23 @@
 package com.linking.ws.event;
 
-import com.linking.pageCheck.dto.PageCheckRes;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
-public class PageCheckTimeEvent {
+public class PageEvent<T> {
 
     private int resType;
     private Long userId;
     private Long pageId;
-    private List<PageCheckRes> pageCheckResList;
+    private T data;
 
     @Builder
-    public PageCheckTimeEvent(int resType, Long userId, Long pageId, List<PageCheckRes> pageCheckResList) {
+    public PageEvent(int resType, Long userId, Long pageId, T data) {
         this.resType = resType;
         this.userId = userId;
         this.pageId = pageId;
-        this.pageCheckResList = pageCheckResList;
+        this.data = data;
     }
 }

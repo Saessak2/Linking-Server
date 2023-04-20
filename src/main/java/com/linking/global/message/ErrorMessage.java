@@ -1,4 +1,4 @@
-package com.linking.global;
+package com.linking.global.message;
 
 public class ErrorMessage {
 

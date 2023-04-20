@@ -1,6 +1,6 @@
 package com.linking.group.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.group.dto.GroupNameReq;

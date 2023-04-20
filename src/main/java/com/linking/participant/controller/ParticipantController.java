@@ -1,12 +1,11 @@
 package com.linking.participant.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.service.ParticipantService;
 import com.linking.project.dto.ProjectContainsPartsRes;
-import com.linking.project.dto.ProjectRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;

@@ -1,4 +1,4 @@
-package com.linking.exception;
+package com.linking.global.exception;
 
 public class TooManyElementsException extends RuntimeException{
 

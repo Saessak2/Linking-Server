@@ -1,6 +1,6 @@
 package com.linking.group.service;
 
-import com.linking.global.ErrorMessage;
+import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
@@ -16,7 +16,7 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
-import com.linking.ws.code.WsResType;
+import com.linking.global.common.WsResType;
 import com.linking.ws.event.DocumentEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class GroupService {
         List<GroupRes> groupResList = new ArrayList<>();
         // page에서 pageCheckList를 가져올수 있지만 모든 팀원의 데이터를 들고 오기 떄문에 참여자로 pageCheckList를 들고옴
         Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
         List<PageCheck> pageCheckList = pageCheckRepository.findAllAByParticipantId(participant.getParticipantId());
         Map<Long, Integer> annoNotiCnts = new HashMap<>(); // key -> pageId
         pageCheckList.forEach(pageCheck -> {

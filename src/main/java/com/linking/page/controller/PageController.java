@@ -1,26 +1,19 @@
 package com.linking.page.controller;
 
-import com.linking.block.service.BlockService;
-import com.linking.global.ResponseHandler;
-import com.linking.group.dto.GroupRes;
+import com.linking.global.common.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.page.service.PageService;
-import com.linking.util.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
-import java.util.*;
 
 @RestController
 @RequestMapping("/pages")

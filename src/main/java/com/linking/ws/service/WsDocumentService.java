@@ -2,7 +2,7 @@ package com.linking.ws.service;
 
 
 import com.linking.group.service.GroupService;
-import com.linking.ws.code.WsResType;
+import com.linking.global.common.WsResType;
 import com.linking.ws.message.WsMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

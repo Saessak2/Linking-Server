@@ -1,4 +1,4 @@
-package com.linking.ws.code;
+package com.linking.global.common;
 
 public class WsResType {
 
@@ -14,6 +14,7 @@ public class WsResType {
     public static final int ANNO_NOT_CNT = 8;
     public static final int CREATE_ANNO = 9;
     public static final int UPDATE_ANNO = 10;
+
     public static final int DELETE_ANNO = 11;
     public static final int PAGE_CHECK = 12;
     public static final int CREATE_BLOCK = 13;

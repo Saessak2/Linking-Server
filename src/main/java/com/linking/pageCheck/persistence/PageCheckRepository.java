@@ -17,4 +17,7 @@ public interface PageCheckRepository extends JpaRepository<PageCheck, Long> {
 
     @Query("SELECT p FROM PageCheck p WHERE p.page.id = :pageId AND p.participant.participantId = :partId")
     Optional<PageCheck> findByPageAndPartId(@Param("pageId") Long pageId, @Param("partId") Long partId);
+
+    @Query("SELECT p FROM PageCheck p WHERE p.page.id = :pageId")
+    List<PageCheck> findAllByPageId(@Param("pageId") Long pageId);
 }

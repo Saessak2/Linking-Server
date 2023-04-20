@@ -10,6 +10,7 @@ import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.domain.User;
+import com.linking.ws.event.PageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +38,9 @@ public class PageCheckService {
         pageCheckList.forEach(pageCheck -> {
             User user = pageCheck.getParticipant().getUser();
 
-            if (user.getUserId() == userId) {  // 조회한 사용자(userId)의 페이지 확인 시간 업뎃
-                pageCheck.updateLastChecked();
+            if (user.getUserId() == userId) {  // 조회한 사용자 (userId)의
+                pageCheck.updateLastChecked(); // 페이지 확인 시간 업뎃
+                pageCheck.resetAnnoNotiCnt();  // 주석 알림 개수 0으로 리셋
                 pageCheckRepository.save(pageCheck);
             }
             pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));
@@ -64,7 +66,7 @@ public class PageCheckService {
         }
     }
 
-    // 페이지 나갈 때 페이지 마지막 열람 시간 업뎃
+    // 페이지 나갈 때 마지막 열람 시간 업뎃
     public PageCheckRes updatePageLastChecked(Long pageId, Long projectId, Long userId) {
         // 팀원 조회
         Optional<Participant> participantOptional = participantRepository.findByUserAndProjectId(userId, projectId);
@@ -78,7 +80,7 @@ public class PageCheckService {
                 pageCheckRepository.save(pageCheck);
                 // 페이지 체크 응답으로  변환
                 PageCheckRes pageCheckRes = pageCheckMapper.toDto(pageCheck, participant.getUserName(), participant.getUser().getUserId());
-                pageCheckRes.setIsEntering(false);
+                pageCheckRes.setIsEntering(true);
                 return pageCheckRes;
             }
             return null;

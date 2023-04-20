@@ -9,7 +9,7 @@ import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
-import com.linking.global.ErrorMessage;
+import com.linking.global.message.ErrorMessage;
 import com.linking.page.domain.Page;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;

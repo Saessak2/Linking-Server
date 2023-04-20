@@ -52,4 +52,12 @@ public class PageCheck {
     public void updateLastChecked() {
         this.lastChecked = LocalDateTime.now();
     }
+
+    public void resetAnnoNotiCnt() {
+        this.annotNotiCnt = 0;
+    }
+
+    public void updateAnnotNotiCnt() {
+        this.annotNotiCnt++;
+    }
 }

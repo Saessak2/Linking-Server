@@ -1,4 +1,4 @@
-package com.linking.global;
+package com.linking.global.common;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

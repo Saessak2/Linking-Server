@@ -1,6 +1,6 @@
 package com.linking.user.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;

@@ -1,7 +1,7 @@
-package com.linking.ws.handler;
+package com.linking.document.controller;
 
 import com.linking.ws.event.DocumentEvent;
-import com.linking.util.JsonMapper;
+import com.linking.global.util.JsonMapper;
 import com.linking.ws.message.WsMessage;
 import com.linking.ws.service.WsDocumentService;
 import lombok.RequiredArgsConstructor;
