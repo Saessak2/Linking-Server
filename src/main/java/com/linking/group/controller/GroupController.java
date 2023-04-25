@@ -1,7 +1,7 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.group.CustomEmitter;
+import com.linking.global.CustomEmitter;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,14 +38,21 @@ public class GroupController {
     @GetMapping(value = "/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> getGroups(
             @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId,
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId) throws IOException {
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId)
+    {
 
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
         documentSseHandler.connect(projectId, customEmitter);
+
         List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
-        customEmitter.getSseEmitter().send(SseEmitter.event()
-                .name("connect")
-                .data(allGroups));
+
+        try {
+            customEmitter.getSseEmitter().send(SseEmitter.event()
+                    .name("connect")
+                    .data(allGroups));
+        } catch (IOException e) {
+            log.error("cannot send event");
+        }
 
         return ResponseEntity.ok(customEmitter.getSseEmitter());
     }

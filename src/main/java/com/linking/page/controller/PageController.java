@@ -1,5 +1,6 @@
 package com.linking.page.controller;
 
+import com.linking.global.CustomEmitter;
 import com.linking.global.common.ResponseHandler;
 import com.linking.group.controller.DocumentSseHandler;
 import com.linking.page.dto.PageCreateReq;
@@ -19,9 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -32,8 +35,10 @@ import java.util.Map;
 public class PageController extends TextWebSocketHandler {
 
     private final DocumentSseHandler documentSseHandler;
+    private final PageSseHandler pageSseHandler;
     private final PageService pageService;
 
+    private static final Long TIMEOUT = 600 * 1000L;
 
     @PostMapping("/{id}")
     @Operation(summary = "페이지 상세 조회")
@@ -42,12 +47,25 @@ public class PageController extends TextWebSocketHandler {
             @ApiResponse(responseCode = "400", description = "Bad Request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Object> getPage(
+    public ResponseEntity<SseEmitter> getPage(
             @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @Parameter(in = ParameterIn.PATH) @PathVariable("id") Long pageId) {
 
+        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
+        pageSseHandler.connect(pageId, customEmitter);
+
         PageDetailedRes res = pageService.getPage(pageId, userId);
-        return ResponseHandler.generateOkResponse(res);
+
+        try {
+            customEmitter.getSseEmitter().send(SseEmitter.event()
+                    .name("connect")
+                    .data(res)
+            );
+        } catch (IOException e) {
+            log.error("cannot send event");
+            // 연결 끊어?
+        }
+        return ResponseEntity.ok(customEmitter.getSseEmitter());
     }
 
     @PostMapping

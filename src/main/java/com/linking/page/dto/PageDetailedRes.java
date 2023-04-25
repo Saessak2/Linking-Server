@@ -18,6 +18,7 @@ public class PageDetailedRes {
     @Schema(description = "page id")
     private Long pageId;
 
+    // TODO 그룹 아이디 필요한가?
     @Schema(description = "group id")
     private Long groupId;
 

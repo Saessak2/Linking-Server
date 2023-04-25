@@ -42,7 +42,6 @@ public class PageService {
         List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
         List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId);
 
-
         return pageMapper.toDto(page, blockResList, pageCheckResList);
     }
 

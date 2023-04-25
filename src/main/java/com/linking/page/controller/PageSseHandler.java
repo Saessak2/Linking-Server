@@ -1,4 +1,4 @@
-package com.linking.group.controller;
+package com.linking.page.controller;
 
 import com.linking.global.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,48 +14,47 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class DocumentSseHandler {
+public class PageSseHandler {
 
     /**
-     * key : (Long) projectId
+     * key : pageId
      */
-    private final Map<Long, Set<CustomEmitter>> documentSubscriber = new ConcurrentHashMap<>();
+    private final Map<Long, Set<CustomEmitter>> pageSubscriber = new ConcurrentHashMap<>();
 
     public void connect(Long key, CustomEmitter customEmitter) {
-        log.info("@@ [DOC][CONNECT] @@ key = {}", key);
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        log.info("@@ [PAGE][CONNECT] @@ key = {}", key);
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
 
         if (sseEmitters == null) {
             sseEmitters = Collections.synchronizedSet(new HashSet<>());
             sseEmitters.add(customEmitter);
-            this.documentSubscriber.put(key, sseEmitters);
+            this.pageSubscriber.put(key, sseEmitters);
 
         } else {
             sseEmitters.add(customEmitter);
         }
-        log.info("@@ [DOC][EMITTERS] @@ emitters.size = {}", documentSubscriber.size());
-        log.info("@@ [DOC][EMIT_BY_PROJECT] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+        log.info("@@ [PAGE][EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
+        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ key = {} @@ emitters.size", key, sseEmitters.size());
 
         SseEmitter emitter = customEmitter.getSseEmitter();
         emitter.onTimeout(() -> {
             log.info("onTimeout callback");
             emitter.complete();
         });
-
-        emitter.onCompletion(()-> {
+        emitter.onCompletion(() -> {
             log.info("onCompletion callback");
             remove(key, customEmitter);
         });
     }
 
     public void remove(Long key, CustomEmitter emitter) {
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
         sseEmitters.remove(emitter);
-        log.info("@@ [DOC][EMIT_BY_PROJECT] @@ projectId = {} @@ emitters.size = {}", key, sseEmitters.size());
+        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ pageId = {} @@ emitters.size = {}", key, sseEmitters.size());
     }
 
     public void send(Long key, Long publishUserId, String event, Object message) {
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {
             if (publishUserId != emitter.getUserId()) {
