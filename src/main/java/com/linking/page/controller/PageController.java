@@ -1,7 +1,7 @@
 package com.linking.page.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.group.dto.GroupRes;
+import com.linking.group.controller.DocumentSseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
@@ -15,19 +15,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pages")
 @RequiredArgsConstructor
 @Tag(name = "Page")
-
+@Slf4j
 public class PageController extends TextWebSocketHandler {
+
+    private final DocumentSseHandler documentSseHandler;
     private final PageService pageService;
 
 
@@ -39,7 +43,7 @@ public class PageController extends TextWebSocketHandler {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> getPage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
+            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @Parameter(in = ParameterIn.PATH) @PathVariable("id") Long pageId) {
 
         PageDetailedRes res = pageService.getPage(pageId, userId);
@@ -54,11 +58,13 @@ public class PageController extends TextWebSocketHandler {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> postPage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
-            @RequestBody @Valid PageCreateReq pageCreateReq) {
+            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
+            @RequestBody @Valid PageCreateReq pageCreateReq
+    ){
 
-        PageRes res = pageService.createPage(pageCreateReq, userId);
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
+        Map<String, Object> result = pageService.createPage(pageCreateReq);
+        documentSseHandler.send((Long) result.get("projectId"), userId, "postPage", result.get("data"));
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, result.get("data"));
     }
 
     @DeleteMapping("/{id}")
@@ -69,10 +75,11 @@ public class PageController extends TextWebSocketHandler {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> deletePage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
+            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @Parameter(description = "pageId") @PathVariable("id") Long pageId) {
 
-        pageService.deletePage(pageId, userId);
+        Map<String, Object> result = pageService.deletePage(pageId);
+        documentSseHandler.send((Long) result.get("projectId"), userId, "deletePage", result.get("data"));
         return ResponseHandler.generateNoContentResponse();
     }
 }

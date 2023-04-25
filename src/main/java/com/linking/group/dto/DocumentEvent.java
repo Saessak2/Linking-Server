@@ -6,18 +6,18 @@ import java.util.List;
 public class DocumentEvent {
     private Long projectId;
 
-    private List<GroupRes> groupResList;
+    private List<GroupDetailedRes> groupDetailedResList;
 
-    public DocumentEvent(Long projectId, List<GroupRes> groupResList) {
+    public DocumentEvent(Long projectId, List<GroupDetailedRes> groupDetailedResList) {
         this.projectId = projectId;
-        this.groupResList = groupResList;
+        this.groupDetailedResList = groupDetailedResList;
     }
 
     public Long getProjectId() {
         return projectId;
     }
 
-    public List<GroupRes> getGroupResList() {
-        return groupResList;
+    public List<GroupDetailedRes> getGroupResList() {
+        return groupDetailedResList;
     }
 }

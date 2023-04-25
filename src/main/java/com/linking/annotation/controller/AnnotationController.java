@@ -5,6 +5,7 @@ import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.service.AnnotationService;
 import com.linking.global.common.ResponseHandler;
+import com.linking.group.controller.DocumentSseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/annotations")
@@ -26,15 +28,8 @@ import javax.validation.Valid;
 @Tag(name = "Annotation")
 public class AnnotationController {
 
+    private final DocumentSseHandler documentSseHandler;
     private final AnnotationService annotationService;
-
-//    @GetMapping("/{id}")
-//    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
-//    public ResponseEntity<Object> getAnnotations(@PathVariable("id") Long blockId) {
-//
-//        return ResponseHandler.generateOkResponse(annotationService.findAnnotations(blockId));
-//    }
-
 
     @PostMapping
     @Operation(summary = "주석 생성")
@@ -47,8 +42,11 @@ public class AnnotationController {
             @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @RequestBody @Valid AnnotationCreateReq req) {
 
-        AnnotationRes res = annotationService.createAnnotation(req, userId);
-        return ResponseHandler.generateCreatedResponse(res);
+        Map<String, Object> result = annotationService.createAnnotation(req, userId);
+        // (sse) 주석응답을 보내주는것 X. 주석이 생성된 페이지의 id를 보내줌.
+        documentSseHandler.send((Long)result.get("projectId"), userId, "postAnnotation", result.get("message"));
+
+        return ResponseHandler.generateCreatedResponse(result.get("data"));
     }
 
     @PutMapping
@@ -73,10 +71,14 @@ public class AnnotationController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> deleteAnnotation(
+            @Parameter(description = "project id", in = ParameterIn.HEADER) @RequestHeader(value = "projectId") Long projectId,
             @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @Parameter(description = "주석 id", in = ParameterIn.PATH) @PathVariable("id") Long id) {
 
-        annotationService.deleteAnnotation(id, userId);
+        Map<String, Object> result = annotationService.deleteAnnotation(id, projectId, userId);
+        // (sse) 주석 삭제된 페이지의 id 전송
+        documentSseHandler.send((Long) result.get("projectId"), userId, "deleteAnnotation", result.get("message"));
+
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
     }
 }

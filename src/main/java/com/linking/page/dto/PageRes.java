@@ -26,5 +26,5 @@ public class  PageRes {
     private int order;
 
     @Schema(description = "주석 알림 개수")
-    private int annotNotiCnt;
+    private int annoNotCnt;
 }

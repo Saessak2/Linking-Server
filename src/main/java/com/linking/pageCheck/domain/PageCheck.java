@@ -2,9 +2,7 @@ package com.linking.pageCheck.domain;
 
 import com.linking.page.domain.Page;
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,7 +21,7 @@ public class PageCheck {
     // nullable
     private LocalDateTime lastChecked;
 
-    private int annotNotiCnt;
+    private int annoNotCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
@@ -53,11 +51,15 @@ public class PageCheck {
         this.lastChecked = LocalDateTime.now();
     }
 
-    public void resetAnnoNotiCnt() {
-        this.annotNotiCnt = 0;
+    public void resetAnnoNotCount() {
+        this.annoNotCount = 0;
     }
 
-    public void updateAnnotNotiCnt() {
-        this.annotNotiCnt++;
+    public void increaseAnnotNotCount() {
+        this.annoNotCount++;
+    }
+
+    public void reduceAnnoNotCount() {
+        this.annoNotCount--;
     }
 }

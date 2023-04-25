@@ -12,16 +12,10 @@ import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
-import com.linking.participant.domain.Participant;
-import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
-import com.linking.global.common.WsResType;
-import com.linking.ws.event.DocumentEvent;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,47 +23,45 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GroupService {
-    Logger logger = LoggerFactory.getLogger(GroupService.class);
-    private final ApplicationEventPublisher publisher;
-
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
-    private final ParticipantRepository participantRepository;
     private final PageCheckRepository pageCheckRepository;
 
-    DocumentEvent.DocumentEventBuilder docEvent = DocumentEvent.builder();
-
     // 그룹 리스트 조회
-    public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
-
-        List<GroupRes> groupResList = new ArrayList<>();
-        // page에서 pageCheckList를 가져올수 있지만 모든 팀원의 데이터를 들고 오기 떄문에 참여자로 pageCheckList를 들고옴
-        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
-        List<PageCheck> pageCheckList = pageCheckRepository.findAllAByParticipantId(participant.getParticipantId());
-        Map<Long, Integer> annoNotiCnts = new HashMap<>(); // key -> pageId
-        pageCheckList.forEach(pageCheck -> {
-            annoNotiCnts.put(pageCheck.getPage().getId(), pageCheck.getAnnotNotiCnt());
-        });
+    public List<GroupDetailedRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        for (Group group : groupList) {  // order 순
-            List<PageRes> pageResList = new ArrayList<>();
+        if (groupList.isEmpty())
+            return new ArrayList<>();
 
-            List<Page> pageList = group.getPageList();   // order순
+        // annoNotCnt를 위해 pageCheck 조회
+//        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
+//                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
+        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipant(userId, projectId);
+        // TODO user, project CHECK
+
+        Map<Long, Integer> annoNotCnts = new HashMap<>(); // key -> pageId
+        pageCheckList.forEach(pc -> {
+            annoNotCnts.put(pc.getPage().getId(), pc.getAnnoNotCount());
+        });
+
+        List<GroupDetailedRes> groupDetailedResList = new ArrayList<>();
+        for (Group group : groupList) {  // order 순서
+            List<PageRes> pageResList = new ArrayList<>();
+            List<Page> pageList = group.getPageList();   // order 순서
             if (!pageList.isEmpty())
                 pageList.forEach(p -> {
-                    pageResList.add(pageMapper.toDto(p, annoNotiCnts.get(p.getId())));
+                    pageResList.add(pageMapper.toDto(p, annoNotCnts.get(p.getId())));
                 });
-            groupResList.add(groupMapper.toDto(group, pageResList));
+            groupDetailedResList.add(groupMapper.toDto(group, pageResList));
         }
 
-
-        return groupResList;
+        return groupDetailedResList;
     }
 
     public GroupRes createGroup(GroupCreateReq req) {
@@ -78,21 +70,20 @@ public class GroupService {
 
         Group group = groupMapper.toEntity(req);
         group.setProject(project);
-        GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
-
-        return groupRes;
+        return groupMapper.toDto(groupRepository.save(group));
     }
 
-    public boolean updateGroupName(GroupNameReq req) {
+    public GroupRes updateGroupName(GroupNameReq req) {
 
         Group findGroup = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
         if (!findGroup.getName().equals(req.getName())) {
             findGroup.updateName(req.getName());
-            Group group = groupRepository.save(findGroup);
+            GroupRes groupRes = groupMapper.toDto(groupRepository.save(findGroup));
+            return groupRes;
         }
-        return true;
+        return null;
     }
 
     // 순서 변경 (그룹 + 페이지)
@@ -131,14 +122,12 @@ public class GroupService {
             }
         }
         return true;
-
-//         이벤트 발행
-//        groupPublisher.publishUpdateOrder(userId, projectId);
     }
 
 
 
-    public boolean deleteGroup(Long groupId, Long userId) throws NoSuchElementException{
+    public Map<String, Object> deleteGroup(Long groupId) throws NoSuchElementException{
+
         Group group =  groupRepository.findById(groupId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
         Long projectId = group.getProject().getProjectId();
@@ -154,14 +143,10 @@ public class GroupService {
             }
             order++;
         }
-        // 이벤트 발행
-        publisher.publishEvent(
-                docEvent
-                        .resType(WsResType.DELETE_GROUP)
-                        .projectId(projectId)
-                        .userId(userId)
-                        .data(group.getId()).build()
-        );
-        return true;
+
+        Map<String, Object> returnVal = new HashMap<>();
+        returnVal.put("projectId", group.getProject().getProjectId());
+        returnVal.put("data", new GroupIdRes(groupId));
+        return returnVal;
     }
 }

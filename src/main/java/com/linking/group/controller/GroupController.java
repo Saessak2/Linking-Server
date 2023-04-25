@@ -1,10 +1,8 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.group.dto.GroupCreateReq;
-import com.linking.group.dto.GroupOrderReq;
-import com.linking.group.dto.GroupRes;
-import com.linking.group.dto.GroupNameReq;
+import com.linking.group.CustomEmitter;
+import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,51 +31,41 @@ import java.util.*;
 @Slf4j
 public class GroupController {
 
-    private final SseEmitters sseEmitters;
+    private final DocumentSseHandler documentSseHandler;
     private final GroupService groupService;
-    /**
-     * 연결 중인 세션 저장
-     * key : (Long) project id
-     * value : Set<WebSocketSession>
-     */
-
+    private static final Long TIMEOUT = 600 * 1000L;
 
     @GetMapping(value = "/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> getDocuments(
+    public ResponseEntity<SseEmitter> getGroups(
             @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId,
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId
-    ) {
-        log.info("@@ [DOC][CONNECT] @@ projectId = {}", projectId);
-        SseEmitter emitter = new SseEmitter(30 * 1000L);  // timeout -> 30s. 만료시간이 되면 브라우저에서 자동으로 서버에 재연결 요청을 보냄. default -> 30s
-        sseEmitters.add(projectId, emitter);
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId) throws IOException {
 
-        // 그룹 리스트 조회
-        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userId);
+        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
+        documentSseHandler.connect(projectId, customEmitter);
+        List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
+        customEmitter.getSseEmitter().send(SseEmitter.event()
+                .name("connect")
+                .data(allGroups));
 
-        try {
-            emitter.send(SseEmitter.event()
-                    .name("connect")
-                    .data(allGroups));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok(emitter);
+        return ResponseEntity.ok(customEmitter.getSseEmitter());
     }
 
     @PostMapping
     @Operation(summary = "그룹 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = GroupRes.class))),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = GroupDetailedRes.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> postGroup(
-            @RequestBody @Valid GroupCreateReq req) {
+            @RequestBody @Valid GroupCreateReq req,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId
+    ) {
 
-        GroupRes groupRes = groupService.createGroup(req);
-        sseEmitters.send(groupRes.getProjectId(), "postGroup", groupRes);
+        GroupRes res = groupService.createGroup(req);
+        documentSseHandler.send(res.getProjectId(), userId, "postGroup", res);
 
-        return ResponseHandler.generateCreatedResponse(groupRes);
+        return ResponseHandler.generateCreatedResponse(res);
     }
 
     @PutMapping
@@ -88,9 +76,13 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> putGroupName(
-            @RequestBody @Valid GroupNameReq req) {
+            @RequestBody @Valid GroupNameReq req,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId
+    ) {
 
-        boolean res = groupService.updateGroupName(req);
+        GroupRes res = groupService.updateGroupName(req);
+        documentSseHandler.send(res.getProjectId(), userId, "putGroupName", res);
+
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 
@@ -102,11 +94,14 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<Object> deleteGroup(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
-            @Parameter(description = "group id", in = ParameterIn.PATH) @PathVariable("id") Long groupId) {
+            @Parameter(description = "group id", in = ParameterIn.PATH) @PathVariable("id") Long groupId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId
+            ) {
 
-        boolean res = groupService.deleteGroup(groupId, userId);
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, res);
+        Map<String, Object> result = groupService.deleteGroup(groupId);
+        documentSseHandler.send((Long) result.get("projectId"), userId, "deleteGroup", result.get("data"));
+
+        return ResponseHandler.generateNoContentResponse();
     }
 
     @PutMapping("/order")

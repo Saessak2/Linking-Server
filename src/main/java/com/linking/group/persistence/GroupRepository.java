@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
@@ -17,7 +18,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
 //    @Transactional
 //    @Query(value = "update Group g set g.name = :name where g.id = :groupId")
 //    void updateName(@Param("groupId") Long groupId, @Param("name") String name);
-//
 
     @Query("select g from Group g where g.project.projectId = :projectId order by g.groupOrder asc")
     List<Group> findAllByProjectId(@Param("projectId") Long projectId);

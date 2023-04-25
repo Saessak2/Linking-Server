@@ -29,7 +29,8 @@ public class AnnotationCreateReq {
     @Schema(description = "block id")
     private Long blockId;
 
-    @NotNull
-    @Schema(description = "user id")
-    private Long userId;
+//    @NotNull
+//    @Schema(description = "user id")
+//    private Long userId;
+
 }

@@ -9,7 +9,6 @@ import com.linking.pageCheck.dto.PageCheckRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
@@ -17,17 +16,6 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface PageMapper {
-
-//    default PageRes toEmptyDto() {
-//        PageRes pageRes = PageRes.builder()
-//                .pageId(-1L)
-//                .groupId(-1L)
-//                .title("")
-//                .annotNotCnt(-1)
-//                .build();
-//
-//        return pageRes;
-//    }
 
     default PageRes toDto(Page source, int annoNotiCnt) {
         if (source == null) {
@@ -39,24 +27,7 @@ public interface PageMapper {
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
                 .order(source.getPageOrder())
-                .annotNotiCnt(annoNotiCnt);
-        //TODO annotation noti 채우기
-
-        return builder.build();
-    }
-
-    default PageRes toDto(Page source) {
-        if (source == null) {
-            return null;
-        }
-        PageRes.PageResBuilder builder = PageRes.builder();
-        builder
-                .pageId(source.getId())
-                .title(source.getTitle())
-                .groupId(source.getGroup().getId())
-                .order(source.getPageOrder())
-                .annotNotiCnt(10);
-        //TODO annotation noti 채우기
+                .annoNotCnt(annoNotiCnt);
 
         return builder.build();
     }

@@ -1,4 +1,4 @@
-package com.linking.group.controller;
+package com.linking.global.common;
 
 import com.linking.ws.event.DocumentEvent;
 import com.linking.global.util.JsonMapper;

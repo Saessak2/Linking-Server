@@ -10,7 +10,6 @@ import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.domain.User;
-import com.linking.ws.event.PageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +39,7 @@ public class PageCheckService {
 
             if (user.getUserId() == userId) {  // 조회한 사용자 (userId)의
                 pageCheck.updateLastChecked(); // 페이지 확인 시간 업뎃
-                pageCheck.resetAnnoNotiCnt();  // 주석 알림 개수 0으로 리셋
+                pageCheck.resetAnnoNotCount();  // 주석 알림 개수 0으로 리셋
                 pageCheckRepository.save(pageCheck);
             }
             pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));

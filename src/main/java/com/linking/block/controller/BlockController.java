@@ -37,7 +37,7 @@ public class BlockController {
             @ApiResponse(responseCode = "404", description = "Not found"),
     })
     public ResponseEntity<Object> postBlock(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
+            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
             @RequestBody @Valid BlockCreateReq req) {
 
         BlockRes blockRes = blockService.createBlock(req);
