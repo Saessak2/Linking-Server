@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/pages")
 @RequiredArgsConstructor
-@Tag(name = "Page")
 @Slf4j
 public class PageController extends TextWebSocketHandler {
 
@@ -41,15 +39,8 @@ public class PageController extends TextWebSocketHandler {
     private static final Long TIMEOUT = 600 * 1000L;
 
     @PostMapping("/{id}")
-    @Operation(summary = "페이지 상세 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful", content = @Content(schema = @Schema(implementation = PageDetailedRes.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<SseEmitter> getPage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @Parameter(in = ParameterIn.PATH) @PathVariable("id") Long pageId) {
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
 
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
         pageSseHandler.connect(pageId, customEmitter);
@@ -69,15 +60,8 @@ public class PageController extends TextWebSocketHandler {
     }
 
     @PostMapping
-    @Operation(summary = "페이지 생성")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = PageRes.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<Object> postPage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid PageCreateReq pageCreateReq
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid PageCreateReq pageCreateReq
     ){
 
         Map<String, Object> result = pageService.createPage(pageCreateReq);
@@ -86,15 +70,8 @@ public class PageController extends TextWebSocketHandler {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "페이지 상세 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<Object> deletePage(
-            @Parameter(in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @Parameter(description = "pageId") @PathVariable("id") Long pageId) {
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
 
         Map<String, Object> result = pageService.deletePage(pageId);
         documentSseHandler.send((Long) result.get("projectId"), userId, "deletePage", result.get("data"));

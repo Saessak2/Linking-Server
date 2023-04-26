@@ -19,8 +19,6 @@ import java.util.NoSuchElementException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
-@Tag(name = "User")
-
 public class UserController {
 
     private final UserService userService;

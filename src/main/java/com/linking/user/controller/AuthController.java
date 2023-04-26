@@ -18,8 +18,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-@Tag(name = "Auth")
-
 public class AuthController {
 
     private final UserService userService;

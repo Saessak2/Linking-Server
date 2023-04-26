@@ -20,8 +20,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/projects")
-@Tag(name = "Project")
-
 public class ProjectController {
 
     private final ProjectService projectService;

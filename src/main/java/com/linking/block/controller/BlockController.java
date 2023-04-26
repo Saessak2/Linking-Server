@@ -24,20 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/blocks")
 @RequiredArgsConstructor
-@Tag(name = "Block")
 public class BlockController {
 
     private final BlockService blockService;
 
     @PostMapping
-    @Operation(summary = "블록 생성")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = BlockRes.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-    })
     public ResponseEntity<Object> postBlock(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
+            @RequestHeader(value = "userId") Long userId,
             @RequestBody @Valid BlockCreateReq req) {
 
         BlockRes blockRes = blockService.createBlock(req);
@@ -45,12 +38,6 @@ public class BlockController {
     }
 
     @PutMapping("/order")
-    @Operation(summary = "블록 순서 변경", description = "정상 처리 된 경우 Body에 true를 반환함")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful"),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-    })
     public ResponseEntity<Object> putBlockOrder(@RequestBody @Valid List<BlockOrderReq> req) {
 
         blockService.updateBlockOrder(req);
@@ -60,7 +47,7 @@ public class BlockController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBlock(
-            @Parameter(description = "블록 id", in = ParameterIn.PATH) @PathVariable("id") Long blockId) {
+            @PathVariable("id") Long blockId) {
 
         blockService.deleteBlock(blockId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);

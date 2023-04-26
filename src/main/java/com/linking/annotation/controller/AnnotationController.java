@@ -25,22 +25,14 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/annotations")
 @RequiredArgsConstructor
-@Tag(name = "Annotation")
 public class AnnotationController {
 
     private final DocumentSseHandler documentSseHandler;
     private final AnnotationService annotationService;
 
     @PostMapping
-    @Operation(summary = "주석 생성")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = AnnotationRes.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<Object> postAnnotation(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid AnnotationCreateReq req) {
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid AnnotationCreateReq req) {
 
         Map<String, Object> result = annotationService.createAnnotation(req, userId);
         // (sse) 주석응답을 보내주는것 X. 주석이 생성된 페이지의 id를 보내줌.
@@ -50,30 +42,18 @@ public class AnnotationController {
     }
 
     @PutMapping
-    @Operation(summary = "주석 내용 수정")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 완료", content = @Content(schema = @Schema(implementation = AnnotationRes.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
     public ResponseEntity<Object> putAnnotation(
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid AnnotationUpdateReq req) {
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid AnnotationUpdateReq req) {
 
         AnnotationRes annotationRes = annotationService.updateAnnotation(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, annotationRes);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "주석 삭제")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "삭제 완료. body 없음"),
-            @ApiResponse(responseCode = "400", description = "Bad Request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<Object> deleteAnnotation(
-            @Parameter(description = "project id", in = ParameterIn.HEADER) @RequestHeader(value = "projectId") Long projectId,
-            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userId") Long userId,
-            @Parameter(description = "주석 id", in = ParameterIn.PATH) @PathVariable("id") Long id) {
+            @RequestHeader(value = "projectId") Long projectId,
+            @RequestHeader(value = "userId") Long userId,
+            @PathVariable("id") Long id) {
 
         Map<String, Object> result = annotationService.deleteAnnotation(id, projectId, userId);
         // (sse) 주석 삭제된 페이지의 id 전송
