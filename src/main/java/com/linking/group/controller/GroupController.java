@@ -1,7 +1,6 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.CustomEmitter;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +19,17 @@ import java.util.*;
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class GroupController {
     private final DocumentSseHandler documentSseHandler;
 
     private final GroupService groupService;
 
-    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = "/list", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> getGroups(
             @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId)
     {
-
+        log.info("연결이 왔어요~~~~");
         SseEmitter sseEmitter = documentSseHandler.connect(projectId, userId);
 
         List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
@@ -41,7 +41,6 @@ public class GroupController {
         } catch (IOException e) {
             log.error("cannot send event");
         }
-
         return ResponseEntity.ok(sseEmitter);
     }
 

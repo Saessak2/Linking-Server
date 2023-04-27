@@ -1,8 +1,6 @@
 package com.linking.page.controller;
 
-import com.linking.global.common.CustomEmitter;
 import com.linking.global.common.ResponseHandler;
-import com.linking.group.controller.DocumentSseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
@@ -17,7 +15,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/pages")

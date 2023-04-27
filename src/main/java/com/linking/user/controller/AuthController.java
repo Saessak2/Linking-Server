@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;

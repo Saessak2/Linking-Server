@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DocumentSseHandler {
 
-    private static final Long TIMEOUT = 600 * 1000L;
+    private static final Long TIMEOUT = 100 * 1000L;
     /**
      * key : (Long) projectId
      */
@@ -68,7 +68,7 @@ public class DocumentSseHandler {
                             .data(message));
 
                 } catch (IOException e) {
-                    log.error("emitter send exception");
+                    log.error("Connection reset by peer");
                 }
             }
         });
