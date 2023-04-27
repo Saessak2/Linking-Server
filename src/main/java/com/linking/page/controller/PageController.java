@@ -1,19 +1,12 @@
 package com.linking.page.controller;
 
-import com.linking.global.CustomEmitter;
+import com.linking.global.common.CustomEmitter;
 import com.linking.global.common.ResponseHandler;
 import com.linking.group.controller.DocumentSseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.page.service.PageService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +25,6 @@ import java.util.Map;
 @Slf4j
 public class PageController extends TextWebSocketHandler {
 
-    private final DocumentSseHandler documentSseHandler;
     private final PageSseHandler pageSseHandler;
     private final PageService pageService;
 
@@ -42,13 +34,12 @@ public class PageController extends TextWebSocketHandler {
     public ResponseEntity<SseEmitter> getPage(
             @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
 
-        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        pageSseHandler.connect(pageId, customEmitter);
+        SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
 
-        PageDetailedRes res = pageService.getPage(pageId, userId);
+        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.getUserIdsByPage(pageId));
 
         try {
-            customEmitter.getSseEmitter().send(SseEmitter.event()
+            sseEmitter.send(SseEmitter.event()
                     .name("connect")
                     .data(res)
             );
@@ -56,7 +47,7 @@ public class PageController extends TextWebSocketHandler {
             log.error("cannot send event");
             // 연결 끊어?
         }
-        return ResponseEntity.ok(customEmitter.getSseEmitter());
+        return ResponseEntity.ok(sseEmitter);
     }
 
     @PostMapping
@@ -64,18 +55,21 @@ public class PageController extends TextWebSocketHandler {
             @RequestHeader(value = "userId") Long userId, @RequestBody @Valid PageCreateReq pageCreateReq
     ){
 
-        Map<String, Object> result = pageService.createPage(pageCreateReq);
-        documentSseHandler.send((Long) result.get("projectId"), userId, "postPage", result.get("data"));
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, result.get("data"));
+        PageRes res = pageService.createPage(pageCreateReq, userId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletePage(
             @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
 
-        Map<String, Object> result = pageService.deletePage(pageId);
-        documentSseHandler.send((Long) result.get("projectId"), userId, "deletePage", result.get("data"));
+        pageService.deletePage(pageId, userId);
         return ResponseHandler.generateNoContentResponse();
+    }
+
+    @PostMapping("/onclose/{id}")
+    public void leavePage(@RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
+//        pageService.update
     }
 }
 

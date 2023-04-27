@@ -21,7 +21,6 @@ public interface GroupMapper {
 
         GroupRes builder = GroupRes.builder()
                 .groupId(source.getId())
-                .projectId(source.getProject().getProjectId())
                 .name(source.getName())
                 .build();
         return builder;

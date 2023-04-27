@@ -1,6 +1,5 @@
 package com.linking.annotation.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,15 +12,12 @@ import javax.validation.constraints.Size;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "주석 내용 수정 요청 DTO")
 public class AnnotationUpdateReq {
 
     @NotNull
-    @Schema(description = "annotation id")
     private Long annotationId;
 
     @NotNull
     @Size(min = 1, max = 255)
-    @Schema(description = "주석 내용", minLength = 1, maxLength = 255)
     private String content;
 }

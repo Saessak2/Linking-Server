@@ -10,19 +10,14 @@ import com.linking.block.domain.Block;
 import com.linking.block.service.BlockService;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentSseHandler;
+import com.linking.group.controller.DocumentEventHandler;
 import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.service.ParticipantService;
-import com.linking.global.common.WsResType;
-import com.linking.ws.event.PageEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,14 +27,14 @@ import java.util.*;
 @Slf4j
 public class AnnotationService {
 
-    private final DocumentSseHandler documentSseHandler;
+    private final DocumentEventHandler documentEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
     private final BlockService blockService;
     private final ParticipantService participantService;
     private final PageCheckRepository pageCheckRepository;
 
-    public Map<String, Object> createAnnotation(AnnotationCreateReq req, Long userId) {
+    public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
         Block block = blockService.getBlock(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
@@ -61,12 +56,9 @@ public class AnnotationService {
             }
         });
         // 다른 팀원에게 주석 개수 증가 이벤트 전송
-        Map<String, Object> returnVal = new HashMap<>();
-        returnVal.put("projectId", req.getProjectId());
-        returnVal.put("data", annotationRes);
-        returnVal.put("message", new PageIdRes(block.getPage().getId()));
+        documentEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
 
-        return returnVal;
+        return annotationRes;
     }
 
     public AnnotationRes updateAnnotation(AnnotationUpdateReq annotationReq, Long userId) {
@@ -86,7 +78,7 @@ public class AnnotationService {
         return annotationRes;
     }
 
-    public Map<String, Object> deleteAnnotation(Long annotationId, Long projectId, Long userId) {
+    public void deleteAnnotation(Long annotationId, Long projectId, Long userId) {
 
         Annotation annotation = annotationRepository.findById(annotationId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_ANNOTATION));
@@ -112,11 +104,6 @@ public class AnnotationService {
             }
         });
 
-        // 다른 팀원에게 주석 개수 감소 이벤트 전송
-        Map<String, Object> returnVal = new HashMap<>();
-        returnVal.put("projectId", projectId);
-        returnVal.put("message", new PageIdRes(pageId));
-
-        return returnVal;
+        documentEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
     }
 }

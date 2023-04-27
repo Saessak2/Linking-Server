@@ -1,33 +1,31 @@
 package com.linking.page.dto;
 
-import com.linking.block.dto.BlockRes;
 import com.linking.pageCheck.dto.PageCheckRes;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import net.bytebuddy.implementation.bind.annotation.Super;
 
 import java.util.List;
 
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Schema(description = "페이지 상세 조회 응답 DTO")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class PageDetailedRes {
 
-    @Schema(description = "page id")
     private Long pageId;
 
     // TODO 그룹 아이디 필요한가?
-    @Schema(description = "group id")
     private Long groupId;
 
-    @Schema(description = "페이지 제목")
     private String title;
 
-    @Schema(description = "블럭 응답 리스트")
-    private List<BlockRes> blockResList;
-
-    @Schema(description = "페이지 확인 리스트")
     private List<PageCheckRes> pageCheckResList;
+
+    public PageDetailedRes(Long pageId, Long groupId, String title, List<PageCheckRes> pageCheckResList) {
+        this.pageId = pageId;
+        this.groupId = groupId;
+        this.title = title;
+        this.pageCheckResList = pageCheckResList;
+    }
 }

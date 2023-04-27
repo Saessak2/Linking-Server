@@ -2,9 +2,7 @@ package com.linking.page.persistence;
 
 import com.linking.block.dto.BlockRes;
 import com.linking.page.domain.Page;
-import com.linking.page.dto.PageCreateReq;
-import com.linking.page.dto.PageDetailedRes;
-import com.linking.page.dto.PageRes;
+import com.linking.page.dto.*;
 import com.linking.pageCheck.dto.PageCheckRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -26,25 +24,39 @@ public interface PageMapper {
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
+                .template(source.getTemplate())
                 .order(source.getPageOrder())
                 .annoNotCnt(annoNotiCnt);
 
         return builder.build();
     }
 
-    default PageDetailedRes toDto(
+    default BlockPageDetailRes toDto(
                                     Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
-        PageDetailedRes.PageDetailedResBuilder builder = PageDetailedRes.builder();
-        builder
+        BlockPageDetailRes builder = BlockPageDetailRes.builder()
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
+                .pageCheckResList(pageCheckResList)
                 .blockResList(blockResList)
-                .pageCheckResList(pageCheckResList);
-        //TODO annotation noti 채우기. 페이지조회 하면 annotationNotiCnt가 0으로 설정!
+                .build();
 
-        return builder.build();
+        return builder;
+    }
+
+    default BlankPageDetailRes toDto(
+            Page source, List<PageCheckRes> pageCheckResList)
+    {
+        BlankPageDetailRes builder = BlankPageDetailRes.builder()
+                .pageId(source.getId())
+                .title(source.getTitle())
+                .groupId(source.getGroup().getId())
+                .pageCheckResList(pageCheckResList)
+                .build();
+
+        return builder;
+
     }
 
     default Page toEntity(PageCreateReq source) {
@@ -54,7 +66,8 @@ public interface PageMapper {
         Page.PageBuilder builder = Page.builder();
         builder
                 .title(source.getTitle())
-                .pageOrder(source.getOrder());
+                .pageOrder(source.getOrder())
+                .template(source.getTemplate());
 
         return builder.build();
     }

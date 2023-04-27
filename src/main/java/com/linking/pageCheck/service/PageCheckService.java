@@ -13,10 +13,7 @@ import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +25,7 @@ public class PageCheckService {
 
     private final PageCheckMapper pageCheckMapper;
 
-    public List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Long userId) {
+    public List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Long userId, Set<Long> enteringUserIds) {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
 
         if (pageCheckList.isEmpty())
@@ -42,7 +39,13 @@ public class PageCheckService {
                 pageCheck.resetAnnoNotCount();  // 주석 알림 개수 0으로 리셋
                 pageCheckRepository.save(pageCheck);
             }
-            pageCheckResList.add(pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId()));
+            PageCheckRes pageCheckRes = pageCheckMapper.toDto(pageCheck, user.getFullName(), user.getUserId());
+            if (enteringUserIds.contains(user.getUserId()))
+                pageCheckRes.setIsEntering(true);
+            else
+                pageCheckRes.setIsEntering(false);
+
+            pageCheckResList.add(pageCheckRes);
         });
 
         // pageCheck -> user fullName 순으로 정렬
@@ -53,17 +56,6 @@ public class PageCheckService {
         return sortedPageCheckList;
     }
 
-
-    // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성
-    public void createPageCheckForAddParticipant(Participant participant) {
-        List<Group> groups = groupRepository.findAllByProjectId(participant.getProject().getProjectId());
-        for (Group group : groups) {
-            for (Page page : group.getPageList()) {
-                PageCheck pageCheck = new PageCheck(participant, page);
-                pageCheckRepository.save(pageCheck);
-            }
-        }
-    }
 
     // 페이지 나갈 때 마지막 열람 시간 업뎃
     public PageCheckRes updatePageLastChecked(Long pageId, Long projectId, Long userId) {
@@ -85,5 +77,16 @@ public class PageCheckService {
             return null;
         }
         return null;
+    }
+
+    // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성
+    public void createPageCheckForAddParticipant(Participant participant) {
+        List<Group> groups = groupRepository.findAllByProjectId(participant.getProject().getProjectId());
+        for (Group group : groups) {
+            for (Page page : group.getPageList()) {
+                PageCheck pageCheck = new PageCheck(participant, page);
+                pageCheckRepository.save(pageCheck);
+            }
+        }
     }
 }

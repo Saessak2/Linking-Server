@@ -4,9 +4,11 @@ import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
 import com.linking.global.message.ErrorMessage;
+import com.linking.group.controller.DocumentEventHandler;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
+import com.linking.page.domain.Template;
 import com.linking.page.dto.*;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
@@ -24,6 +26,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PageService {
+    private final DocumentEventHandler documentEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final BlockService blockService;
@@ -34,19 +37,26 @@ public class PageService {
     private final BlockRepository blockRepository;
 
 
-    public PageDetailedRes getPage(Long pageId, Long userId) {
+    public PageDetailedRes getPage(Long pageId, Long userId, Set<Long> enteringUserIds) {
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
-        List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId);
+        List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId, enteringUserIds);
+        PageDetailedRes pageDetailedRes = null;
 
-        return pageMapper.toDto(page, blockResList, pageCheckResList);
+        if (page.getTemplate() == Template.BLANK) {
+            pageDetailedRes = pageMapper.toDto(page, pageCheckResList);
+        } else if(page.getTemplate() == Template.BLOCK) {
+            List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
+            pageDetailedRes = pageMapper.toDto(page, blockResList, pageCheckResList);
+        }
+
+        return pageDetailedRes;
     }
 
     // TODO code refactoring
-    public Map<String, Object> createPage(PageCreateReq req) throws NoSuchElementException{
+    public PageRes createPage(PageCreateReq req, Long userId) throws NoSuchElementException{
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
@@ -63,17 +73,19 @@ public class PageService {
         }
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page), 0);
 
-        Map<String, Object> returnVal = new HashMap<>();
-        returnVal.put("projectId", group.getProject().getProjectId());
-        returnVal.put("data", pageRes);
-        return returnVal;
+        documentEventHandler.postPage(group.getProject().getProjectId(), userId, pageRes);
+
+        return pageRes;
     }
 
-    public Map<String, Object> deletePage(Long pageId) throws NoSuchElementException{
+    public void deletePage(Long pageId, Long userId) throws NoSuchElementException{
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+        Long projectId = page.getGroup().getProject().getProjectId();
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
+
+        documentEventHandler.deletePage(projectId, userId, new PageIdRes(pageId));
 
         // 페이지 순서를 0부터 재정렬
         try {
@@ -90,10 +102,5 @@ public class PageService {
         } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }
-
-        Map<String, Object> returnVal = new HashMap<>();
-        returnVal.put("projectId", page.getGroup().getProject().getProjectId());
-        returnVal.put("data", new PageIdRes(page.getId()));
-        return returnVal;
     }
 }

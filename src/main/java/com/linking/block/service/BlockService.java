@@ -11,8 +11,10 @@ import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.page.domain.Page;
+import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,9 +54,15 @@ public class BlockService {
         return blockResList;
     }
 
+    @SneakyThrows
     public BlockRes createBlock(BlockCreateReq req) {
         Page page = pageRepository.findById(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+
+        if (page.getTemplate() == Template.BLANK) {
+            logger.error("블럭을 생성할 수 없는 페이지");
+            throw new IllegalAccessException("Blank template에는 블럭을 생성할 수 없습니다.");
+        }
 
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
@@ -103,3 +111,4 @@ public class BlockService {
         return blockRepository.findById(blockId);
     }
 }
+

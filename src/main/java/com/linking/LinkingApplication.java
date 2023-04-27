@@ -15,19 +15,4 @@ public class LinkingApplication {
 		SpringApplication.run(LinkingApplication.class, args);
 	}
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry
-						.addMapping("/**")
-						.allowedOrigins("http://localhost:8080", "http://localhost:3000")
-						.allowedMethods("*")
-						.allowedHeaders("*")
-						.allowCredentials(true)
-						.maxAge(3600);
-			}
-		};
-	}
 }

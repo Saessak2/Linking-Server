@@ -1,6 +1,6 @@
 package com.linking.group.controller;
 
-import com.linking.global.CustomEmitter;
+import com.linking.global.common.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -16,12 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DocumentSseHandler {
 
+    private static final Long TIMEOUT = 600 * 1000L;
     /**
      * key : (Long) projectId
      */
     private final Map<Long, Set<CustomEmitter>> documentSubscriber = new ConcurrentHashMap<>();
 
-    public void connect(Long key, CustomEmitter customEmitter) {
+    public SseEmitter connect(Long key, Long userId) {
+        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
         log.info("@@ [DOC][CONNECT] @@ key = {}", key);
         Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
 
@@ -46,6 +48,7 @@ public class DocumentSseHandler {
             log.info("onCompletion callback");
             remove(key, customEmitter);
         });
+        return emitter;
     }
 
     public void remove(Long key, CustomEmitter emitter) {

@@ -5,7 +5,6 @@ import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserDetailedRes;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;

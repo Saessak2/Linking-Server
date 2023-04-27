@@ -28,6 +28,9 @@ public class Page {
 
     private String title;
 
+    @Enumerated(value = EnumType.STRING)
+    private Template template;
+
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     @OrderBy("blockOrder asc")
     private List<Block> blockList;
@@ -37,12 +40,13 @@ public class Page {
 
 
     @Builder
-    public Page(Group group, int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList) {
+    public Page(Group group, int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
         this.group = group;
         this.pageOrder = pageOrder;
         this.title = title;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
+        this.template = template;
     }
 
     public void setGroup(Group group) {
@@ -57,6 +61,7 @@ public class Page {
         this.title = this.title == null ? "untitled" : this.title;
         this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
         this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
+        this.template = this.template == null ? Template.BLANK : this.template;
     }
 
     public void updateOrder(int order) {

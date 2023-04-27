@@ -1,27 +1,29 @@
 package com.linking.page.controller;
 
-import com.linking.global.CustomEmitter;
+import com.linking.global.common.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class PageSseHandler {
+
+    private static final Long TIMEOUT = 600 * 1000L;
 
     /**
      * key : pageId
      */
     private final Map<Long, Set<CustomEmitter>> pageSubscriber = new ConcurrentHashMap<>();
 
-    public void connect(Long key, CustomEmitter customEmitter) {
+    public SseEmitter connect(Long key, Long userId) {
+        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
+
         log.info("@@ [PAGE][CONNECT] @@ key = {}", key);
         Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
 
@@ -34,7 +36,7 @@ public class PageSseHandler {
             sseEmitters.add(customEmitter);
         }
         log.info("@@ [PAGE][EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
-        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ key = {} @@ emitters.size", key, sseEmitters.size());
+        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
 
         SseEmitter emitter = customEmitter.getSseEmitter();
         emitter.onTimeout(() -> {
@@ -45,6 +47,11 @@ public class PageSseHandler {
             log.info("onCompletion callback");
             remove(key, customEmitter);
         });
+        return emitter;
+    }
+
+    public Set<Long> getUserIdsByPage(Long pageId) {
+        return pageSubscriber.get(pageId).stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
     }
 
     public void remove(Long key, CustomEmitter emitter) {

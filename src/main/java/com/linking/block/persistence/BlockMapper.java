@@ -24,7 +24,6 @@ public interface BlockMapper {
                 .blockId(source.getId())
                 .title(source.getTitle())
                 .pageId(source.getPage().getId())
-                .content(source.getContent())
                 .order(source.getBlockOrder())
                 .annotationResList(annotationResList);
 

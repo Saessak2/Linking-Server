@@ -34,4 +34,9 @@ public class ControllerAdvice {
     public ResponseEntity<Object> noAuthorityException(NoAuthorityException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
+
+    @ExceptionHandler(IllegalAccessException.class)
+    public ResponseEntity<Object> illegalAccessException(IllegalAccessException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
 }
