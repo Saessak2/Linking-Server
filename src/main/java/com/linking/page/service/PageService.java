@@ -14,14 +14,17 @@ import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
+import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,19 +35,20 @@ public class PageService {
     private final BlockService blockService;
     private final GroupRepository groupRepository;
     private final PageCheckRepository pageCheckRepository;
+    private final PageCheckMapper pageCheckMapper;
     private final ParticipantRepository participantRepository;
-    private final PageCheckService pageCheckService;
     private final BlockRepository blockRepository;
 
-    public PageDetailedRes getPage(Long pageId, Long userId, Set<Long> enteringUserIds) {
+    public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId, enteringUserIds);
+        List<PageCheckRes> pageCheckResList = this.toPageCheckResList(page.getPageCheckList(), enteringUserIds);
 
         if (page.getTemplate() == Template.BLANK)  // blank 타입의 page
             return pageMapper.toDto(page, pageCheckResList);
+
         else if(page.getTemplate() == Template.BLOCK) { // block 타입의 page
             List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
@@ -52,7 +56,24 @@ public class PageService {
         return null; // TODO template이 blank, block이 아닌 다른 경우는 없긴 할거 같은데 예외처리 해야겠지,,?
     }
 
-    // TODO code refactoring
+    private List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Set<Long> enteringUserIds) {
+        List<PageCheckRes> pageCheckResList = new ArrayList<>();
+
+        pageCheckList.forEach(pageCheck -> {
+            PageCheckRes pageCheckRes = pageCheckMapper.toDto(pageCheck);
+            if (enteringUserIds.contains(pageCheck.getParticipant().getUser().getUserId()))
+                pageCheckRes.setIsEntering(true);
+            else
+                pageCheckRes.setIsEntering(false);
+            pageCheckResList.add(pageCheckRes);
+        });
+
+        // userName 순으로 정렬
+        return pageCheckResList.stream()
+                .sorted(Comparator.comparing(PageCheckRes::getUserName))
+                .collect(Collectors.toList());
+    }
+
     public PageRes createPage(PageCreateReq req, Long userId) {
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
