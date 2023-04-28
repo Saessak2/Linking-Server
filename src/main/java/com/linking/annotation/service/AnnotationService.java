@@ -35,7 +35,6 @@ public class AnnotationService {
     private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
-    private final ParticipantService participantService;
     private final PageCheckRepository pageCheckRepository;
     private final BlockRepository blockRepository;
     private final ParticipantRepository participantRepository;

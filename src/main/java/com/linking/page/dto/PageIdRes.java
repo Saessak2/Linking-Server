@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class PageIdRes {
 
     private Long pageId;
+
+    public PageIdRes(Long pageId) {
+        this.pageId = pageId;
+    }
 }

@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class GroupIdRes {
 
     private Long groupId;
+
+    public GroupIdRes(Long groupId) {
+        this.groupId = groupId;
+    }
 }
