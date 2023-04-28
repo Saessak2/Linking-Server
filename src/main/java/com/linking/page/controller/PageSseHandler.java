@@ -51,7 +51,10 @@ public class PageSseHandler {
     }
 
     public Set<Long> getUserIdsByPage(Long pageId) {
-        return pageSubscriber.get(pageId).stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
+        Set<CustomEmitter> emitters = pageSubscriber.get(pageId);
+        if (emitters == null)
+            return new HashSet<>();
+        return emitters.stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
     }
 
     public void remove(Long key, CustomEmitter emitter) {

@@ -25,7 +25,6 @@ public interface PageMapper {
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
                 .template(source.getTemplate())
-                .order(source.getPageOrder())
                 .annoNotCnt(annoNotiCnt);
 
         return builder.build();

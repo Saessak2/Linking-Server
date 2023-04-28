@@ -25,24 +25,28 @@ public class PageController extends TextWebSocketHandler {
     private final PageSseHandler pageSseHandler;
     private final PageService pageService;
 
-    private static final Long TIMEOUT = 600 * 1000L;
+    private static final Long TIMEOUT = 600 * 1000L; // 1분
 
-    @PostMapping("/{id}")
-    public ResponseEntity<SseEmitter> getPage(
+    @GetMapping("/{id}")
+    public ResponseEntity<PageDetailedRes> getPage(
+        @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
+        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.getUserIdsByPage(pageId));
+        return ResponseHandler.generateOkResponse(res);
+    }
+
+    @GetMapping("/subscribe/{id}")
+    public ResponseEntity<SseEmitter> subscribePage(
             @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
 
         SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
-
-        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.getUserIdsByPage(pageId));
-
         try {
             sseEmitter.send(SseEmitter.event()
                     .name("connect")
-                    .data(res)
+                    .data("connected!")
             );
         } catch (IOException e) {
             log.error("cannot send event");
-            // 연결 끊어?
         }
         return ResponseEntity.ok(sseEmitter);
     }

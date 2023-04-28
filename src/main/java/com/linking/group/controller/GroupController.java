@@ -19,25 +19,29 @@ import java.util.*;
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class GroupController {
     private final DocumentSseHandler documentSseHandler;
 
     private final GroupService groupService;
 
-    @GetMapping(path = "/list", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> getGroups(
-            @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId)
-    {
-        log.info("연결이 왔어요~~~~");
+    @GetMapping("/list")
+    public ResponseEntity<List<GroupDetailedRes>> getGroups(
+            @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
+    ){
+        List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
+        return ResponseHandler.generateOkResponse(allGroups);
+    }
+
+    @GetMapping(path = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> subscribeGroup(
+            @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
+    ){
+
+        log.info("[GROUP][CONNECT]userId = {}, projectId = {}", userId, projectId);
         SseEmitter sseEmitter = documentSseHandler.connect(projectId, userId);
 
-        List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
-
         try {
-            sseEmitter.send(SseEmitter.event()
-                    .name("connect")
-                    .data(allGroups));
+            sseEmitter.send(SseEmitter.event().name("connect").data("successful connect"));
         } catch (IOException e) {
             log.error("cannot send event");
         }
@@ -46,11 +50,9 @@ public class GroupController {
 
     @PostMapping
     public ResponseEntity<Object> postGroup(
-            @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid GroupCreateReq req) {
-
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid GroupCreateReq req
+    ){
         GroupRes res = groupService.createGroup(req, userId);
-
         return ResponseHandler.generateCreatedResponse(res);
     }
 
@@ -79,15 +81,4 @@ public class GroupController {
         boolean res = groupService.updateDocumentsOrder(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
-
-//    @PostMapping("/{id}")
-//    @Operation(summary = "그룹 리스트 조회")
-//
-//    public ResponseEntity<Object> getDocuments(
-//            @Parameter(description = "user id", in = ParameterIn.HEADER) @RequestHeader(value = "userid") Long userId,
-//            @Parameter(description = "project id", in = ParameterIn.PATH) @PathVariable("id") Long projectId) {
-//
-//        List<GroupRes> documentRes = groupService.findAllGroups(projectId, userId);
-//        return ResponseHandler.generateOkResponse(documentRes);
-//    }
 }

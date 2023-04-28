@@ -16,6 +16,5 @@ public class  PageRes {
     private Long groupId;
     private String title;
     private Template template;
-    private int order;
     private int annoNotCnt;
 }

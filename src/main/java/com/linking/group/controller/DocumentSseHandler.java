@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DocumentSseHandler {
 
-    private static final Long TIMEOUT = 100 * 1000L;
+    private static final Long TIMEOUT = 600 * 1000L; // 10분
     /**
      * key : (Long) projectId
      */
@@ -73,4 +73,6 @@ public class DocumentSseHandler {
             }
         });
     }
+
+    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.
 }

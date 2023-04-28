@@ -14,12 +14,8 @@ import java.util.List;
 public class PageDetailedRes {
 
     private Long pageId;
-
-    // TODO 그룹 아이디 필요한가?
     private Long groupId;
-
     private String title;
-
     private List<PageCheckRes> pageCheckResList;
 
     public PageDetailedRes(Long pageId, Long groupId, String title, List<PageCheckRes> pageCheckResList) {

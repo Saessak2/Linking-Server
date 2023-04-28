@@ -3,6 +3,7 @@ package com.linking.page.service;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
+import com.linking.global.exception.BadRequestException;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.controller.DocumentEventHandler;
 import com.linking.group.domain.Group;
@@ -43,16 +44,14 @@ public class PageService {
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
         List<PageCheckRes> pageCheckResList = pageCheckService.toPageCheckResList(page.getPageCheckList(), userId, enteringUserIds);
-        PageDetailedRes pageDetailedRes = null;
 
-        if (page.getTemplate() == Template.BLANK) {
-            pageDetailedRes = pageMapper.toDto(page, pageCheckResList);
-        } else if(page.getTemplate() == Template.BLOCK) {
+        if (page.getTemplate() == Template.BLANK)  // blank 타입의 page
+            return pageMapper.toDto(page, pageCheckResList);
+        else if(page.getTemplate() == Template.BLOCK) { // block 타입의 page
             List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
-            pageDetailedRes = pageMapper.toDto(page, blockResList, pageCheckResList);
+            return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
-
-        return pageDetailedRes;
+        return null;
     }
 
     // TODO code refactoring
