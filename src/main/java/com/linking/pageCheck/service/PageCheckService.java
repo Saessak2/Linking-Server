@@ -77,7 +77,7 @@ public class PageCheckService {
     }
 
     // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성
-    public void createPageCheckForAddParticipant(Participant participant) {
+    public void createPageCheck(Participant participant) {
         List<Group> groups = groupRepository.findAllByProjectId(participant.getProject().getProjectId());
         for (Group group : groups) {
             for (Page page : group.getPageList()) {
