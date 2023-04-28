@@ -6,12 +6,7 @@ import com.linking.annotation.dto.AnnotationRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @Mapper(
         componentModel = "spring",
@@ -32,7 +27,7 @@ public interface AnnotationMapper {
         return builder.build();
     }
 
-    default AnnotationRes toEmptyDto() {
+    default AnnotationRes toDummyDto() {
         AnnotationRes annotationRes = AnnotationRes.builder()
                 .annotationId(-1L)
                 .blockId(-1L)

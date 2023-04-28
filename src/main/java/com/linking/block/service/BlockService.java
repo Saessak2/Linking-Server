@@ -45,7 +45,7 @@ public class BlockService {
             List<AnnotationRes> annotationResList = new ArrayList<>();
             List<Annotation> annotations = block.getAnnotationList();
             if (annotations.isEmpty()) {
-                annotationResList.add(annotationMapper.toEmptyDto()); // TODO dummyDto로 이름 변경
+                annotationResList.add(annotationMapper.toDummyDto()); // TODO dummyDto로 이름 변경
             } else {
                 for (Annotation annotation : block.getAnnotationList()) {
                     annotationResList.add(annotationMapper.toDto(annotation));
