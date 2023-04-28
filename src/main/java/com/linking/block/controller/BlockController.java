@@ -22,10 +22,10 @@ public class BlockController {
 
     @PostMapping
     public ResponseEntity<Object> postBlock(
-            @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid BlockCreateReq req) {
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid BlockCreateReq req
+    ) {
 
-        BlockRes blockRes = blockService.createBlock(req);
+        BlockRes blockRes = blockService.createBlock(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes);
     }
 
@@ -39,9 +39,11 @@ public class BlockController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBlock(
-            @PathVariable("id") Long blockId) {
+            @RequestHeader(value = "userId") Long userId,
+            @PathVariable("id") Long blockId
+    ) {
 
-        blockService.deleteBlock(blockId);
+        blockService.deleteBlock(blockId, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
     }
 }

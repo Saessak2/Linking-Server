@@ -60,8 +60,6 @@ public class PageCheckService {
         return sortedPageCheckList;
     }
 
-
-    // 페이지 나갈 때 마지막 열람 시간 업뎃
     public void updatePageLastChecked(Long pageId, Long projectId, Long userId) {
 
         // 팀원 조회

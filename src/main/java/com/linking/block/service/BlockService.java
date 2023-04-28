@@ -5,11 +5,13 @@ import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockCreateReq;
+import com.linking.block.dto.BlockIdRes;
 import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
+import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BlockService {
-
+    private final PageEventHandler pageEventHandler;
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
@@ -55,7 +57,7 @@ public class BlockService {
     }
 
     @SneakyThrows
-    public BlockRes createBlock(BlockCreateReq req) {
+    public BlockRes createBlock(BlockCreateReq req, Long userId) {
         Page page = pageRepository.findById(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
@@ -66,8 +68,13 @@ public class BlockService {
 
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
+        List<AnnotationRes> dummy = new ArrayList<>();
+        dummy.add(new AnnotationRes(-1L, -1L, "", "00-00-00 AM 00:00", -1L, ""));
+        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block), dummy);
 
-        return blockMapper.toDto(blockRepository.save(block), new ArrayList<>());
+        pageEventHandler.postBlock(page.getId(), userId, blockRes);
+
+        return blockRes;
     }
 
     public void updateBlockOrder(List<BlockOrderReq> req) {
@@ -89,9 +96,9 @@ public class BlockService {
         logger.info("update block count => {}", count);
     }
 
-    public void deleteBlock(Long blockId) {
+    public void deleteBlock(Long blockId, Long userId) {
         Block block = blockRepository.findById(blockId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
         Long pageId = block.getPage().getId();
         blockRepository.delete(block);
@@ -105,6 +112,7 @@ public class BlockService {
             }
             order++;
         }
+        pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
     }
 
     public Optional<Block> getBlock(Long blockId) {
