@@ -37,7 +37,6 @@ public class PageService {
     private final PageCheckService pageCheckService;
     private final BlockRepository blockRepository;
 
-
     public PageDetailedRes getPage(Long pageId, Long userId, Set<Long> enteringUserIds) {
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)

@@ -29,7 +29,6 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
-
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
 

@@ -33,7 +33,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getUser(@PathVariable("id") Long userId){
         try {
             return userService.getUserById(userId)
