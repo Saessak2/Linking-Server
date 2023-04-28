@@ -6,6 +6,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Entity
 @Table(name = "pagecheck")
@@ -61,5 +63,10 @@ public class PageCheck {
 
     public void reduceAnnoNotCount() {
         this.annoNotCount--;
+    }
+
+    public String getLastChecked() {
+        if (lastChecked == null) return null;
+        return lastChecked.format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en")));
     }
 }

@@ -4,12 +4,12 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
-#    username: root
-#    password: 0881
-    url: jdbc:mysql://172.10.0.2:3306/linking?serverTimezone=Asia/Seoul
-    username: binmuxiz
-    password: 4213
+    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
+    username: root
+    password: 0881
+#    url: jdbc:mysql://172.17.0.2:3306/linking?serverTimezone=Asia/Seoul
+#    username: binmuxiz
+#    password: 4213
 
   jpa:
     database: mysql

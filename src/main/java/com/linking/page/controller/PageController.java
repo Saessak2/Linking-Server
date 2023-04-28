@@ -5,6 +5,7 @@ import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.page.service.PageService;
+import com.linking.pageCheck.service.PageCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,21 +25,20 @@ public class PageController extends TextWebSocketHandler {
 
     private final PageSseHandler pageSseHandler;
     private final PageService pageService;
-
-    private static final Long TIMEOUT = 600 * 1000L; // 1분
+    private final PageCheckService pageCheckService;
 
     @GetMapping("/{id}")
     public ResponseEntity<PageDetailedRes> getPage(
         @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
     ) {
-        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.getUserIdsByPage(pageId));
+        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.enteringUserIds(pageId));
         return ResponseHandler.generateOkResponse(res);
     }
 
     @GetMapping("/subscribe/{id}")
     public ResponseEntity<SseEmitter> subscribePage(
-            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
-
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
         SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
         try {
             sseEmitter.send(SseEmitter.event()
@@ -54,23 +54,26 @@ public class PageController extends TextWebSocketHandler {
     @PostMapping
     public ResponseEntity<Object> postPage(
             @RequestHeader(value = "userId") Long userId, @RequestBody @Valid PageCreateReq pageCreateReq
-    ){
-
+    ) {
         PageRes res = pageService.createPage(pageCreateReq, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletePage(
-            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
-
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
         pageService.deletePage(pageId, userId);
+        pageSseHandler.removeEmittersByPage(pageId);
         return ResponseHandler.generateNoContentResponse();
     }
 
-    @PostMapping("/onclose/{id}")
-    public void leavePage(@RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId) {
-//        pageService.update
+    @GetMapping("/unsubscribe/{id}")
+    public void unsubscribePage(
+            @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
+    ) {
+        pageSseHandler.onClose(userId, pageId);
+        pageCheckService.updatePageLastChecked(pageId, projectId, userId);
     }
 }
 

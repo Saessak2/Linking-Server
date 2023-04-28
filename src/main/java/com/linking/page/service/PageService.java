@@ -51,11 +51,11 @@ public class PageService {
             List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
-        return null;
+        return null; // TODO template이 blank, block이 아닌 다른 경우는 없긴 할거 같은데 예외처리 해야겠지,,?
     }
 
     // TODO code refactoring
-    public PageRes createPage(PageCreateReq req, Long userId) throws NoSuchElementException{
+    public PageRes createPage(PageCreateReq req, Long userId) {
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 

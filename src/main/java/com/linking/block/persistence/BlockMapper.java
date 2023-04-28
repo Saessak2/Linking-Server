@@ -24,7 +24,6 @@ public interface BlockMapper {
                 .blockId(source.getId())
                 .title(source.getTitle())
                 .pageId(source.getPage().getId())
-                .order(source.getBlockOrder())
                 .annotationResList(annotationResList);
 
         return builder.build();
@@ -41,6 +40,4 @@ public interface BlockMapper {
 
         return builder.build();
     }
-
-
 }

@@ -40,13 +40,12 @@ public class Page {
 
 
     @Builder
-    public Page(Group group, int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
-        this.group = group;
+    public Page(int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
         this.pageOrder = pageOrder;
         this.title = title;
+        this.template = template;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
-        this.template = template;
     }
 
     public void setGroup(Group group) {
@@ -61,11 +60,9 @@ public class Page {
         this.title = this.title == null ? "untitled" : this.title;
         this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
         this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
-        this.template = this.template == null ? Template.BLANK : this.template;
     }
 
     public void updateOrder(int order) {
         this.pageOrder = order;
     }
-
 }

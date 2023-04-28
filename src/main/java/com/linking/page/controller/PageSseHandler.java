@@ -23,44 +23,60 @@ public class PageSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-
         log.info("@@ [PAGE][CONNECT] @@ key = {}", key);
-        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
-
-        if (sseEmitters == null) {
-            sseEmitters = Collections.synchronizedSet(new HashSet<>());
-            sseEmitters.add(customEmitter);
-            this.pageSubscriber.put(key, sseEmitters);
-
-        } else {
-            sseEmitters.add(customEmitter);
-        }
-        log.info("@@ [PAGE][EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
-        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+        Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
 
         SseEmitter emitter = customEmitter.getSseEmitter();
+
         emitter.onTimeout(() -> {
             log.info("onTimeout callback");
             emitter.complete();
         });
         emitter.onCompletion(() -> {
             log.info("onCompletion callback");
-            remove(key, customEmitter);
+            customEmitters.remove(customEmitter);
+            log.info("@@ [PAGE][REMOVE_ONE] @@ pageId = {} @@ emitters.size = {}", key, customEmitters.size());
         });
         return emitter;
     }
 
-    public Set<Long> getUserIdsByPage(Long pageId) {
+    public Set<CustomEmitter> addEmitter(Long key, CustomEmitter customEmitter) {
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
+
+        if (sseEmitters == null) {
+            sseEmitters = Collections.synchronizedSet(new HashSet<>());
+            sseEmitters.add(customEmitter);
+            this.pageSubscriber.put(key, sseEmitters);
+        } else {
+            sseEmitters.add(customEmitter);
+        }
+        log.info("@@ [PAGE][ALL_EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
+        log.info("@@ [PAGE][ADD] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+
+        return sseEmitters;
+    }
+
+    public void onClose(Long userId, Long pageId) {
+        Set<CustomEmitter> customEmitters = this.pageSubscriber.get(pageId);
+        if (customEmitters == null) return;
+        for (CustomEmitter ce : customEmitters) {
+            if (ce.getUserId() == userId) {
+                ce.getSseEmitter().complete();
+                break;
+            }
+        }
+    }
+
+    public Set<Long> enteringUserIds(Long pageId) {
         Set<CustomEmitter> emitters = pageSubscriber.get(pageId);
         if (emitters == null)
             return new HashSet<>();
         return emitters.stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
     }
 
-    public void remove(Long key, CustomEmitter emitter) {
-        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
-        sseEmitters.remove(emitter);
-        log.info("@@ [PAGE][EMIT_BY_PAGE] @@ pageId = {} @@ emitters.size = {}", key, sseEmitters.size());
+    public void removeEmittersByPage(Long key) { // 해당 페이지 emitters 삭제
+        pageSubscriber.remove(key);
+        log.info("@@ [PAGE][REMOVE_ALL] page = {} is removed", key);
     }
 
     public void send(Long key, Long publishUserId, String event, Object message) {

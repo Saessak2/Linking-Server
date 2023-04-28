@@ -1,10 +1,13 @@
 package com.linking.pageCheck.service;
 
+import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
+import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.dto.PageCheckRes;
+import com.linking.pageCheck.dto.PageCheckUpdateRes;
 import com.linking.pageCheck.persistence.PageCheckMapper;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
@@ -24,6 +27,7 @@ public class PageCheckService {
     private final ParticipantRepository participantRepository;
 
     private final PageCheckMapper pageCheckMapper;
+    private final PageEventHandler pageEventHandler;
 
     public List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Long userId, Set<Long> enteringUserIds) {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();
@@ -58,25 +62,18 @@ public class PageCheckService {
 
 
     // 페이지 나갈 때 마지막 열람 시간 업뎃
-    public PageCheckRes updatePageLastChecked(Long pageId, Long projectId, Long userId) {
+    public void updatePageLastChecked(Long pageId, Long projectId, Long userId) {
+
         // 팀원 조회
-        Optional<Participant> participantOptional = participantRepository.findByUserAndProjectId(userId, projectId);
-        if (participantOptional.isPresent()) {
-            Participant participant = participantOptional.get();
-            // 페이지 체크 조회
-            Optional<PageCheck> pageCheckOptional = pageCheckRepository.findByPageAndPartId(pageId, participant.getParticipantId());
-            if (pageCheckOptional.isPresent()) {
-                PageCheck pageCheck = pageCheckOptional.get();
-                pageCheck.updateLastChecked(); // 마지막 열람 시간 업뎃
-                pageCheckRepository.save(pageCheck);
-                // 페이지 체크 응답으로  변환
-                PageCheckRes pageCheckRes = pageCheckMapper.toDto(pageCheck, participant.getUserName(), participant.getUser().getUserId());
-                pageCheckRes.setIsEntering(true);
-                return pageCheckRes;
-            }
-            return null;
-        }
-        return null;
+        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
+        // 페이지 체크 조회
+        PageCheck pageCheck = pageCheckRepository.findByPageAndPartId(pageId, participant.getParticipantId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE_CHECK));
+        pageCheck.updateLastChecked(); // 마지막 열람 시간 업뎃
+
+        PageCheckUpdateRes pageCheckUpdateRes = pageCheckMapper.toDto(pageCheckRepository.save(pageCheck), participant.getUser().getUserId());
+        pageEventHandler.leave(pageId, userId, pageCheckUpdateRes); // leave 이벤트 발행
     }
 
     // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성

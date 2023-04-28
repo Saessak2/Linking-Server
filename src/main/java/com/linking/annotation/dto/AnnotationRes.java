@@ -14,12 +14,9 @@ import java.util.Date;
 public class AnnotationRes {
 
     private Long annotationId;
-
     private Long blockId;
-
     private String content;
-
     private String lastModified;
-
+    private Long userId;
     private String userName;
 }

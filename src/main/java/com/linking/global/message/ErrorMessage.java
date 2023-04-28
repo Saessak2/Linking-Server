@@ -14,5 +14,6 @@ public class ErrorMessage {
     public static final String NO_PAGE = "no such page";
     public static final String NO_BLOCK = "no such block";
     public static final String NO_ANNOTATION = "no such annotation";
+    public static final String NO_PAGE_CHECK = "no such page check";
 
 }

@@ -12,8 +12,7 @@ import java.util.List;
 public class BlockRes {
 
     private Long blockId;
-    private String title;
-    private int order;
     private Long pageId;
+    private String title;
     private List<AnnotationRes> annotationResList;
 }
