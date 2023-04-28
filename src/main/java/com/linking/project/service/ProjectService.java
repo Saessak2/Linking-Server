@@ -9,6 +9,7 @@ import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.project.persistence.ProjectMapper;
 import com.linking.project.domain.Project;
 
+import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,15 +34,22 @@ public class ProjectService {
 
     public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq)
             throws DataIntegrityViolationException {
-        Project project = projectRepository.save(projectMapper.toEntity(projectCreateReq));
+
+        List<User> userList = userRepository.findAllById(projectCreateReq.getPartList());
+        Project project = projectRepository.save(
+                projectMapper.toEntity(projectCreateReq, userList));
+
         Participant.ParticipantBuilder participantBuilder = Participant.builder();
         List<Participant> participantList = new ArrayList<>();
-        for(Long id : projectCreateReq.getPartList()) {
+
+        for (User user : userList) {
             participantList.add(
                     participantRepository.save(
                             participantBuilder
-                                    .user(userRepository.findById(id).get())
-                                    .project(project).build()));
+                                    .user(user)
+                                    .project(project)
+                                    .fullName(user.getLastName() + user.getFirstName())
+                                    .build()));
         }
         return Optional.ofNullable(projectMapper.toDto(project, participantList));
     }
@@ -49,6 +57,10 @@ public class ProjectService {
     public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId)
             throws NoSuchElementException {
         Optional<Project> possibleProject = projectRepository.findById(projectId);
+//        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
+//        return Optional.ofNullable(possibleProject
+//                .map(p -> projectMapper.toDto(p, participantList))
+//                .orElseThrow(NoSuchElementException::new));
         List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
         return Optional.ofNullable(possibleProject
                 .map(p -> projectMapper.toDto(p, participantList))

@@ -26,18 +26,21 @@ public class Project {
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "project_name")
+    @Column(name = "project_name", nullable = false, length = 28)
     private String projectName;
 
-    @Column(name = "begin_date")
+    @Column(name = "begin_date", nullable = false)
     private LocalDate beginDate;
 
-    @Column(name = "due_date")
+    @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "project")
+    private List<Participant> participants;
 
     public Project(Long projectId) {
         this.projectId = projectId;

@@ -5,7 +5,6 @@ import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -21,11 +20,14 @@ public class Participant {
     private Long participantId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+
+    @Column(name = "full_name", nullable = false, length = 40)
+    private String fullName;
 
 }
