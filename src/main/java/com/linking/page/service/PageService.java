@@ -74,7 +74,7 @@ public class PageService {
             pageCheckResList.add(pageCheckRes);
         });
 
-        // userName 순으로 정렬
+//         userName 순으로 정렬
         return pageCheckResList.stream()
                 .sorted(Comparator.comparing(PageCheckRes::getUserName))
                 .collect(Collectors.toList());

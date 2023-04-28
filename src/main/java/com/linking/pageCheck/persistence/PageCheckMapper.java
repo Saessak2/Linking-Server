@@ -26,7 +26,7 @@ public interface PageCheckMapper {
                     .isChecked(true)
                     .lastChecked(source.getLastChecked());
         builder
-                .userName(source.getParticipant().getUserName())
+                .userName(source.getParticipant().getUser().getFullName())
                 .userId(source.getParticipant().getUser().getUserId());
         return builder.build();
     }
