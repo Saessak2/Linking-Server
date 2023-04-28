@@ -11,6 +11,7 @@ import com.linking.block.service.BlockService;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.controller.GroupEventHandler;
+import com.linking.page.controller.PageEventHandler;
 import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
@@ -28,6 +29,7 @@ import java.util.*;
 public class AnnotationService {
 
     private final GroupEventHandler groupEventHandler;
+    private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
     private final BlockService blockService;
@@ -55,8 +57,10 @@ public class AnnotationService {
                 pageCheckRepository.save(pc);
             }
         });
-        // 다른 팀원에게 주석 개수 증가 이벤트 전송
+        // 주석 개수 증가 이벤트
         groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
+        // 주석 생성 이벤트
+        pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
         return annotationRes;
     }

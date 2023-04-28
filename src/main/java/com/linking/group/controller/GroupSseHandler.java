@@ -75,5 +75,5 @@ public class GroupSseHandler {
         });
     }
 
-    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.
+    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.E
 }

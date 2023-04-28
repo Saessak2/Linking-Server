@@ -56,6 +56,23 @@ public class PageSseHandler {
         return sseEmitters;
     }
 
+    public void send(Long key, Long publishUserId, String event, Object message) {
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
+        if (sseEmitters == null) return;
+        sseEmitters.forEach(emitter -> {
+            if (publishUserId != emitter.getUserId()) {
+                try {
+                    emitter.getSseEmitter().send(SseEmitter.event()
+                            .name(event)
+                            .data(message));
+
+                } catch (IOException e) {
+                    log.error("emitter send exception");
+                }
+            }
+        });
+    }
+
     public void onClose(Long userId, Long pageId) {
         Set<CustomEmitter> customEmitters = this.pageSubscriber.get(pageId);
         if (customEmitters == null) return;
@@ -77,22 +94,5 @@ public class PageSseHandler {
     public void removeEmittersByPage(Long key) { // 해당 페이지 emitters 삭제
         pageSubscriber.remove(key);
         log.info("@@ [PAGE][REMOVE_ALL] page = {} is removed", key);
-    }
-
-    public void send(Long key, Long publishUserId, String event, Object message) {
-        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
-        if (sseEmitters == null) return;
-        sseEmitters.forEach(emitter -> {
-            if (publishUserId != emitter.getUserId()) {
-                try {
-                    emitter.getSseEmitter().send(SseEmitter.event()
-                            .name(event)
-                            .data(message));
-
-                } catch (IOException e) {
-                    log.error("emitter send exception");
-                }
-            }
-        });
     }
 }
