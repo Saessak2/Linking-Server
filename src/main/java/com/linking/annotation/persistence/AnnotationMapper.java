@@ -6,12 +6,7 @@ import com.linking.annotation.dto.AnnotationRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @Mapper(
         componentModel = "spring",
@@ -25,18 +20,19 @@ public interface AnnotationMapper {
                 .annotationId(source.getId())
                 .blockId(source.getBlock().getId())
                 .content(source.getContent())
-                .lastModified(source.getLastModified().format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en"))))
+                .lastModified(source.getLastModified())
+                .userId(source.getParticipant().getUser().getUserId())
                 .userName(source.getWriter());
 
         return builder.build();
     }
 
-    default AnnotationRes toEmptyDto() {
+    default AnnotationRes toDummyDto() {
         AnnotationRes annotationRes = AnnotationRes.builder()
                 .annotationId(-1L)
                 .blockId(-1L)
                 .content("")
-                .lastModified("22-01-01 AM 01:01")
+                .lastModified("00-00-00 AM 00:00")
                 .userName("")
                 .build();
 

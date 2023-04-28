@@ -38,7 +38,7 @@ public class ParticipantController {
         }
     }
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getParticipant(
             @PathVariable("id") Long participantId){
         try {
@@ -50,7 +50,7 @@ public class ParticipantController {
         }
     }
 
-    @PostMapping("/list/{id}")
+    @GetMapping("/list/{id}")
     public ResponseEntity<Object> getParticipantList(
             @PathVariable("id") Long projectId){
         try{

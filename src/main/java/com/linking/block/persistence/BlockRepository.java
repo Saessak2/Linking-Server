@@ -18,5 +18,4 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     @EntityGraph(attributePaths = {"annotationList"}, type = EntityGraph.EntityGraphType.LOAD)
     @Query("SELECT b FROM Block b WHERE b.page.id = :pageId order by b.blockOrder asc")
     List<Block> findAllByPageIdFetchAnnotations(@Param("pageId") Long pageId);
-
 }

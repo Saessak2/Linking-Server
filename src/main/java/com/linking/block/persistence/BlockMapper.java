@@ -17,22 +17,43 @@ import java.util.List;
 public interface BlockMapper {
 
     default BlockRes toDto(Block source, List<AnnotationRes> annotationResList) {
-        if (source == null) return null;
 
         BlockRes.BlockResBuilder builder = BlockRes.builder();
         builder
                 .blockId(source.getId())
-                .title(source.getTitle())
                 .pageId(source.getPage().getId())
+                .title(source.getTitle())
                 .annotationResList(annotationResList);
 
         return builder.build();
     }
 
+    default List<BlockRes> toDummyDto() {
+        List<BlockRes> blockResList = new ArrayList<>();
+        List<AnnotationRes> annotationResList = new ArrayList<>();
+
+        AnnotationRes annotationRes = AnnotationRes.builder()
+                .annotationId(-1L)
+                .blockId(-1L)
+                .content("")
+                .lastModified("00-00-00 AM 00:00")
+                .userName("")
+                .build();
+        annotationResList.add(annotationRes);
+
+        BlockRes blockRes = BlockRes.builder()
+                .blockId(-1L)
+                .pageId(-1L)
+                .title("")
+                .annotationResList(annotationResList)
+                .build();
+        blockResList.add(blockRes);
+
+        return blockResList;
+    }
+
     default Block toEntity(BlockCreateReq source) {
-        if (source == null) {
-            return null;
-        }
+
         Block.BlockBuilder builder = Block.builder();
         builder
                 .title(source.getTitle())

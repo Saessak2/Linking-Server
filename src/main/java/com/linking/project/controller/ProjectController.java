@@ -36,7 +36,7 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getProject(
             @PathVariable("id") Long projectId){
         try {
@@ -48,7 +48,7 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/list/{id}")
+    @GetMapping("/list/{id}")
     public ResponseEntity<Object> getProjectList(
             @PathVariable("id") Long userId){
         try {

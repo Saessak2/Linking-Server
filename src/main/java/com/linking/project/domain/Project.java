@@ -41,7 +41,6 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Participant> participantList;
 
-
     public Project(Long projectId) {
         this.projectId = projectId;
     }

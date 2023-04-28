@@ -2,19 +2,23 @@ package com.linking.annotation.service;
 
 import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationCreateReq;
+import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.annotation.persistence.AnnotationRepository;
 import com.linking.block.domain.Block;
+import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentEventHandler;
+import com.linking.group.controller.GroupEventHandler;
+import com.linking.page.controller.PageEventHandler;
 import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +31,19 @@ import java.util.*;
 @Slf4j
 public class AnnotationService {
 
-    private final DocumentEventHandler documentEventHandler;
+    private final GroupEventHandler groupEventHandler;
+    private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
-    private final BlockService blockService;
-    private final ParticipantService participantService;
     private final PageCheckRepository pageCheckRepository;
+    private final BlockRepository blockRepository;
+    private final ParticipantRepository participantRepository;
 
     public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
-        Block block = blockService.getBlock(req.getBlockId())
+        Block block = blockRepository.findById(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
-        Participant participant = participantService.getParticipant(userId, req.getProjectId())
+        Participant participant = participantRepository.findByUserAndProjectId(userId, req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
         Annotation annotation = annotationMapper.toEntity(req);
@@ -55,8 +60,10 @@ public class AnnotationService {
                 pageCheckRepository.save(pc);
             }
         });
-        // 다른 팀원에게 주석 개수 증가 이벤트 전송
-        documentEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
+        // 주석 개수 증가 이벤트
+        groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
+        // 주석 생성 이벤트
+        pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
         return annotationRes;
     }
@@ -75,6 +82,9 @@ public class AnnotationService {
         annotation.updateContent(annotationReq.getContent());
         AnnotationRes annotationRes = annotationMapper.toDto(annotationRepository.save(annotation));
 
+        // 주석 내용 수정 이벤트
+        pageEventHandler.updateAnnotation(annotation.getBlock().getPage().getId(), userId, annotationRes);
+
         return annotationRes;
     }
 
@@ -90,9 +100,10 @@ public class AnnotationService {
         }
 
         Long pageId = annotation.getBlock().getPage().getId();
+        Long blockId = annotation.getBlock().getId();
         annotationRepository.delete(annotation);
 
-        Participant participant = participantService.getParticipant(userId, projectId)
+        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
         // 해당 페이지, 참여자(주석생성한 팀원 제외)로 pageCheck 조회하여 annoNotCount 감소시킴
@@ -104,6 +115,9 @@ public class AnnotationService {
             }
         });
 
-        documentEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
+        // 주석 개수 감소 이벤트
+        groupEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
+        // 주석 삭제 이벤트
+        pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }
 }

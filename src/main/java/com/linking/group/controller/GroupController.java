@@ -20,7 +20,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupController {
-    private final DocumentSseHandler documentSseHandler;
+    private final GroupSseHandler groupSseHandler;
 
     private final GroupService groupService;
 
@@ -38,7 +38,7 @@ public class GroupController {
     ){
 
         log.info("[GROUP][CONNECT]userId = {}, projectId = {}", userId, projectId);
-        SseEmitter sseEmitter = documentSseHandler.connect(projectId, userId);
+        SseEmitter sseEmitter = groupSseHandler.connect(projectId, userId);
 
         try {
             sseEmitter.send(SseEmitter.event().name("connect").data("successful connect"));

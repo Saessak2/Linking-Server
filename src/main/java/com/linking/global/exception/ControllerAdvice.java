@@ -52,6 +52,4 @@ public class ControllerAdvice {
     public ResponseEntity invalidFormatException(InvalidFormatException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
-
-
 }

@@ -9,35 +9,35 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DocumentEventHandler {
+public class GroupEventHandler {
 
-    private final DocumentSseHandler documentSseHandler;
+    private final GroupSseHandler groupSseHandler;
 
     public void postGroup(Long projectId, Long userId, GroupRes res) {
-        documentSseHandler.send(projectId, userId, "postGroup", res);
+        groupSseHandler.send(projectId, userId, "postGroup", res);
     }
 
     public void putGroupName(Long projectId, Long userId, GroupRes res) {
-        documentSseHandler.send(projectId, userId, "putGroupName", res);
+        groupSseHandler.send(projectId, userId, "putGroupName", res);
     }
 
     public void deleteGroup(Long projectId, Long userId, GroupIdRes res) {
-        documentSseHandler.send(projectId, userId, "deleteGroup", res);
+        groupSseHandler.send(projectId, userId, "deleteGroup", res);
     }
 
     public void postPage(Long projectId, Long userId, PageRes res) {
-        documentSseHandler.send(projectId, userId, "postPage", res);
+        groupSseHandler.send(projectId, userId, "postPage", res);
     }
 
     public void deletePage(Long projectId, Long userId, PageIdRes res) {
-        documentSseHandler.send(projectId, userId, "deletePage", res);
+        groupSseHandler.send(projectId, userId, "deletePage", res);
     }
 
     public void postAnnotation(Long projectId, Long userId, PageIdRes res) {
-        documentSseHandler.send(projectId, userId, "postAnnotation", res);
+        groupSseHandler.send(projectId, userId, "postAnnotation", res);
     }
 
     public void deleteAnnotation(Long projectId, Long userId, PageIdRes res) {
-        documentSseHandler.send(projectId, userId, "deleteAnnotation", res);
+        groupSseHandler.send(projectId, userId, "deleteAnnotation", res);
     }
 }
