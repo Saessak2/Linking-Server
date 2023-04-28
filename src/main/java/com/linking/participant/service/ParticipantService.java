@@ -112,11 +112,4 @@ public class ParticipantService {
         }
         return false;
     }
-
-    /**
-     * 작성자 : 이은빈
-     */
-    public Optional<Participant> getParticipant(Long userId, Long projectId) {
-        return participantRepository.findByUserAndProjectId(userId, projectId);
-    }
 }

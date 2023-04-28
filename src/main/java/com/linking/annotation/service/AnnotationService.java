@@ -18,6 +18,7 @@ import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +38,13 @@ public class AnnotationService {
     private final ParticipantService participantService;
     private final PageCheckRepository pageCheckRepository;
     private final BlockRepository blockRepository;
+    private final ParticipantRepository participantRepository;
 
     public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
         Block block = blockRepository.findById(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
-        Participant participant = participantService.getParticipant(userId, req.getProjectId())
+        Participant participant = participantRepository.findByUserAndProjectId(userId, req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
         Annotation annotation = annotationMapper.toEntity(req);
@@ -102,7 +104,7 @@ public class AnnotationService {
         Long blockId = annotation.getBlock().getId();
         annotationRepository.delete(annotation);
 
-        Participant participant = participantService.getParticipant(userId, projectId)
+        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
 
         // 해당 페이지, 참여자(주석생성한 팀원 제외)로 pageCheck 조회하여 annoNotCount 감소시킴
