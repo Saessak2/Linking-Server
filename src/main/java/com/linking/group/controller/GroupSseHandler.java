@@ -24,21 +24,11 @@ public class GroupSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("@@ [DOC][CONNECT] @@ key = {}", key);
-        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
+        log.info("@@ [GROUP][CONNECT] @@ key = {}", key);
 
-        if (sseEmitters == null) {
-            sseEmitters = Collections.synchronizedSet(new HashSet<>());
-            sseEmitters.add(customEmitter);
-            this.groupSubscriber.put(key, sseEmitters);
-
-        } else {
-            sseEmitters.add(customEmitter);
-        }
-        log.info("@@ [DOC][EMITTERS] @@ emitters.size = {}", groupSubscriber.size());
-        log.info("@@ [DOC][EMIT_BY_PROJECT] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
-
+        Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
         SseEmitter emitter = customEmitter.getSseEmitter();
+
         emitter.onTimeout(() -> {
             log.info("onTimeout callback");
             emitter.complete();
@@ -46,15 +36,26 @@ public class GroupSseHandler {
 
         emitter.onCompletion(()-> {
             log.info("onCompletion callback");
-            remove(key, customEmitter);
+            customEmitters.remove(customEmitter);
+            log.info("@@ [GROUP][REMOVE_ONE] @@ projectId = {} @@ emitters.size = {}", key, customEmitters.size());
         });
         return emitter;
     }
 
-    public void remove(Long key, CustomEmitter emitter) {
+    public Set<CustomEmitter> addEmitter(Long key, CustomEmitter customEmitter) {
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
-        sseEmitters.remove(emitter);
-        log.info("@@ [DOC][EMIT_BY_PROJECT] @@ projectId = {} @@ emitters.size = {}", key, sseEmitters.size());
+
+        if (sseEmitters == null) {
+            sseEmitters = Collections.synchronizedSet(new HashSet<>());
+            sseEmitters.add(customEmitter);
+            this.groupSubscriber.put(key, sseEmitters);
+        } else {
+            sseEmitters.add(customEmitter);
+        }
+        log.info("@@ [GROUP][ALL_EMITTERS] @@ emitters.size = {}", groupSubscriber.size());
+        log.info("@@ [GROUP][ADD] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+
+        return sseEmitters;
     }
 
     public void send(Long key, Long publishUserId, String event, Object message) {
