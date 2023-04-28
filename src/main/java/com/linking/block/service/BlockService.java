@@ -38,23 +38,7 @@ public class BlockService {
 
     Logger logger = LoggerFactory.getLogger(BlockService.class);
 
-    public List<BlockRes> toBlockResList(List<Block> blockList) {
-        List<BlockRes> blockResList = new ArrayList<>();
 
-        for (Block block : blockList) {
-            List<AnnotationRes> annotationResList = new ArrayList<>();
-            List<Annotation> annotations = block.getAnnotationList();
-            if (annotations.isEmpty()) {
-                annotationResList.add(annotationMapper.toDummyDto());
-            } else {
-                for (Annotation annotation : block.getAnnotationList()) {
-                    annotationResList.add(annotationMapper.toDto(annotation));
-                }
-            }
-            blockResList.add(blockMapper.toDto(block, annotationResList));
-        }
-        return blockResList;
-    }
 
     @SneakyThrows
     public BlockRes createBlock(BlockCreateReq req, Long userId) {

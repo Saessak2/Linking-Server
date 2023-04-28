@@ -1,6 +1,11 @@
 package com.linking.page.service;
 
+import com.linking.annotation.domain.Annotation;
+import com.linking.annotation.dto.AnnotationRes;
+import com.linking.annotation.persistence.AnnotationMapper;
+import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockRes;
+import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
 import com.linking.global.message.ErrorMessage;
@@ -32,12 +37,13 @@ public class PageService {
     private final GroupEventHandler groupEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
-    private final BlockService blockService;
     private final GroupRepository groupRepository;
     private final PageCheckRepository pageCheckRepository;
     private final PageCheckMapper pageCheckMapper;
     private final ParticipantRepository participantRepository;
     private final BlockRepository blockRepository;
+    private final BlockMapper blockMapper;
+    private final AnnotationMapper annotationMapper;
 
     public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
         // toMany는 하나만 Fetch join 가능
@@ -50,7 +56,7 @@ public class PageService {
             return pageMapper.toDto(page, pageCheckResList);
 
         else if(page.getTemplate() == Template.BLOCK) { // block 타입의 page
-            List<BlockRes> blockResList = blockService.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
+            List<BlockRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
         return null; // TODO template이 blank, block이 아닌 다른 경우는 없긴 할거 같은데 예외처리 해야겠지,,?
@@ -72,6 +78,27 @@ public class PageService {
         return pageCheckResList.stream()
                 .sorted(Comparator.comparing(PageCheckRes::getUserName))
                 .collect(Collectors.toList());
+    }
+
+    private List<BlockRes> toBlockResList(List<Block> blockList) {
+
+        if (blockList.isEmpty())
+            return blockMapper.toDummyDto();
+
+        List<BlockRes> blockResList = new ArrayList<>();
+
+        for (Block block : blockList) {
+            List<AnnotationRes> annotationResList = new ArrayList<>();
+            List<Annotation> annotations = block.getAnnotationList();
+            if (annotations.isEmpty())
+                annotationResList.add(annotationMapper.toDummyDto());
+            else {
+                for (Annotation annotation : block.getAnnotationList())
+                    annotationResList.add(annotationMapper.toDto(annotation));
+            }
+            blockResList.add(blockMapper.toDto(block, annotationResList));
+        }
+        return blockResList;
     }
 
     public PageRes createPage(PageCreateReq req, Long userId) {
