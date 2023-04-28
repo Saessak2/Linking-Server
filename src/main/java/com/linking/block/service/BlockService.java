@@ -45,7 +45,7 @@ public class BlockService {
             List<AnnotationRes> annotationResList = new ArrayList<>();
             List<Annotation> annotations = block.getAnnotationList();
             if (annotations.isEmpty()) {
-                annotationResList.add(annotationMapper.toDummyDto()); // TODO dummyDto로 이름 변경
+                annotationResList.add(annotationMapper.toDummyDto());
             } else {
                 for (Annotation annotation : block.getAnnotationList()) {
                     annotationResList.add(annotationMapper.toDto(annotation));
@@ -68,8 +68,9 @@ public class BlockService {
 
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
+
         List<AnnotationRes> dummy = new ArrayList<>();
-        dummy.add(new AnnotationRes(-1L, -1L, "", "00-00-00 AM 00:00", -1L, ""));
+        dummy.add(annotationMapper.toDummyDto());
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block), dummy);
 
         pageEventHandler.postBlock(page.getId(), userId, blockRes);
@@ -113,10 +114,6 @@ public class BlockService {
             order++;
         }
         pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
-    }
-
-    public Optional<Block> getBlock(Long blockId) {
-        return blockRepository.findById(blockId);
     }
 }
 

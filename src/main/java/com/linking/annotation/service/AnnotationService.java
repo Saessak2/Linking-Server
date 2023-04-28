@@ -8,6 +8,7 @@ import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.annotation.persistence.AnnotationRepository;
 import com.linking.block.domain.Block;
+import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
@@ -33,12 +34,12 @@ public class AnnotationService {
     private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
-    private final BlockService blockService;
     private final ParticipantService participantService;
     private final PageCheckRepository pageCheckRepository;
+    private final BlockRepository blockRepository;
 
     public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
-        Block block = blockService.getBlock(req.getBlockId())
+        Block block = blockRepository.findById(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
         Participant participant = participantService.getParticipant(userId, req.getProjectId())
