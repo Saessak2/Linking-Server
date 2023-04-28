@@ -38,7 +38,7 @@ public class PageEventHandler {
         pageSseHandler.send(pageId, publisherId, "deleteAnnotation", res);
     }
 
-    public void updateAnnotation(Long pageId, Long publisherId, AnnotationUpdateRes res) {
+    public void updateAnnotation(Long pageId, Long publisherId, AnnotationRes res) {
         pageSseHandler.send(pageId, publisherId, "updateAnnotation", res);
     }
 }

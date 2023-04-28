@@ -1,5 +1,9 @@
 package com.linking.annotation.dto;
 
+
+import lombok.Getter;
+
+@Getter
 public class AnnotationIdRes {
 
     private Long annotationId;

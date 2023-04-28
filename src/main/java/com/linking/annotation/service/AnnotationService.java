@@ -2,6 +2,7 @@ package com.linking.annotation.service;
 
 import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationCreateReq;
+import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.persistence.AnnotationMapper;
@@ -79,6 +80,9 @@ public class AnnotationService {
         annotation.updateContent(annotationReq.getContent());
         AnnotationRes annotationRes = annotationMapper.toDto(annotationRepository.save(annotation));
 
+        // 주석 내용 수정 이벤트
+        pageEventHandler.updateAnnotation(annotation.getBlock().getPage().getId(), userId, annotationRes);
+
         return annotationRes;
     }
 
@@ -94,6 +98,7 @@ public class AnnotationService {
         }
 
         Long pageId = annotation.getBlock().getPage().getId();
+        Long blockId = annotation.getBlock().getId();
         annotationRepository.delete(annotation);
 
         Participant participant = participantService.getParticipant(userId, projectId)
@@ -108,6 +113,9 @@ public class AnnotationService {
             }
         });
 
+        // 주석 개수 감소 이벤트
         groupEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
+        // 주석 삭제 이벤트
+        pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }
 }
