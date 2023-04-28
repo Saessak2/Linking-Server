@@ -14,28 +14,28 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class DocumentSseHandler {
+public class GroupSseHandler {
 
     private static final Long TIMEOUT = 600 * 1000L; // 10분
     /**
      * key : (Long) projectId
      */
-    private final Map<Long, Set<CustomEmitter>> documentSubscriber = new ConcurrentHashMap<>();
+    private final Map<Long, Set<CustomEmitter>> groupSubscriber = new ConcurrentHashMap<>();
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
         log.info("@@ [DOC][CONNECT] @@ key = {}", key);
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
 
         if (sseEmitters == null) {
             sseEmitters = Collections.synchronizedSet(new HashSet<>());
             sseEmitters.add(customEmitter);
-            this.documentSubscriber.put(key, sseEmitters);
+            this.groupSubscriber.put(key, sseEmitters);
 
         } else {
             sseEmitters.add(customEmitter);
         }
-        log.info("@@ [DOC][EMITTERS] @@ emitters.size = {}", documentSubscriber.size());
+        log.info("@@ [DOC][EMITTERS] @@ emitters.size = {}", groupSubscriber.size());
         log.info("@@ [DOC][EMIT_BY_PROJECT] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
 
         SseEmitter emitter = customEmitter.getSseEmitter();
@@ -52,13 +52,13 @@ public class DocumentSseHandler {
     }
 
     public void remove(Long key, CustomEmitter emitter) {
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
         sseEmitters.remove(emitter);
         log.info("@@ [DOC][EMIT_BY_PROJECT] @@ projectId = {} @@ emitters.size = {}", key, sseEmitters.size());
     }
 
     public void send(Long key, Long publishUserId, String event, Object message) {
-        Set<CustomEmitter> sseEmitters = this.documentSubscriber.get(key);
+        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {
             if (publishUserId != emitter.getUserId()) {

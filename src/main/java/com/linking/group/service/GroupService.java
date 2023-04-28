@@ -1,7 +1,7 @@
 package com.linking.group.service;
 
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentEventHandler;
+import com.linking.group.controller.GroupEventHandler;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupService {
-    private final DocumentEventHandler documentEventHandler;
+    private final GroupEventHandler groupEventHandler;
 
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
@@ -79,7 +79,7 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
 
-        documentEventHandler.postGroup(project.getProjectId(), userId, groupRes);
+        groupEventHandler.postGroup(project.getProjectId(), userId, groupRes);
 
         return groupRes;
     }
@@ -92,7 +92,7 @@ public class GroupService {
         if (!findGroup.getName().equals(req.getName())) {
             findGroup.updateName(req.getName());
             GroupRes groupRes = groupMapper.toDto(groupRepository.save(findGroup));
-            documentEventHandler.putGroupName(findGroup.getProject().getProjectId(), userId, groupRes);
+            groupEventHandler.putGroupName(findGroup.getProject().getProjectId(), userId, groupRes);
         }
         return true;
     }
@@ -144,7 +144,7 @@ public class GroupService {
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
 
-        documentEventHandler.deleteGroup(projectId, userId, new GroupIdRes(groupId));
+        groupEventHandler.deleteGroup(projectId, userId, new GroupIdRes(groupId));
 
         // 그룹 순서를 0부터 재정렬
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);

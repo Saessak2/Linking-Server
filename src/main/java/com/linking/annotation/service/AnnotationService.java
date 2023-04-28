@@ -10,7 +10,7 @@ import com.linking.block.domain.Block;
 import com.linking.block.service.BlockService;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentEventHandler;
+import com.linking.group.controller.GroupEventHandler;
 import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
@@ -27,7 +27,7 @@ import java.util.*;
 @Slf4j
 public class AnnotationService {
 
-    private final DocumentEventHandler documentEventHandler;
+    private final GroupEventHandler groupEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
     private final BlockService blockService;
@@ -56,7 +56,7 @@ public class AnnotationService {
             }
         });
         // 다른 팀원에게 주석 개수 증가 이벤트 전송
-        documentEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
+        groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
 
         return annotationRes;
     }
@@ -104,6 +104,6 @@ public class AnnotationService {
             }
         });
 
-        documentEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
+        groupEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
     }
 }

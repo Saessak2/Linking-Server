@@ -3,9 +3,8 @@ package com.linking.page.service;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.block.service.BlockService;
-import com.linking.global.exception.BadRequestException;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentEventHandler;
+import com.linking.group.controller.GroupEventHandler;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
@@ -27,7 +26,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PageService {
-    private final DocumentEventHandler documentEventHandler;
+    private final GroupEventHandler groupEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final BlockService blockService;
@@ -71,7 +70,7 @@ public class PageService {
         }
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page), 0);
 
-        documentEventHandler.postPage(group.getProject().getProjectId(), userId, pageRes);
+        groupEventHandler.postPage(group.getProject().getProjectId(), userId, pageRes);
 
         return pageRes;
     }
@@ -83,7 +82,7 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        documentEventHandler.deletePage(projectId, userId, new PageIdRes(pageId));
+        groupEventHandler.deletePage(projectId, userId, new PageIdRes(pageId));
 
         // 페이지 순서를 0부터 재정렬
         try {
