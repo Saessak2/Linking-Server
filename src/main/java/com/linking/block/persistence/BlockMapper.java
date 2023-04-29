@@ -46,7 +46,7 @@ public interface BlockMapper {
                 .blockId(-1L)
                 .pageId(-1L)
                 .title("")
-                .annotationResList(annotationResList)
+//                .annotationResList(annotationResList)
                 .build();
         blockResList.add(blockRes);
 
