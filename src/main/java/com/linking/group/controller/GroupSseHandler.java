@@ -22,7 +22,7 @@ public class GroupSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("@@ [GROUP][CONNECT] @@ key = {}", key);
+        log.info("[GROUP][CONNECT] userId = {}, projectId = {}, emitter = {}", userId, key, customEmitter.getSseEmitter());
 
         Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
         SseEmitter emitter = customEmitter.getSseEmitter();

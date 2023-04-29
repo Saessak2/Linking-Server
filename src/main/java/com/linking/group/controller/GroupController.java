@@ -36,12 +36,9 @@ public class GroupController {
     public ResponseEntity<SseEmitter> subscribeGroup(
             @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
     ){
-
-        log.info("[GROUP][CONNECT]userId = {}, projectId = {}", userId, projectId);
         SseEmitter sseEmitter = groupSseHandler.connect(projectId, userId);
-
         try {
-            sseEmitter.send(SseEmitter.event().name("connect").data("successful connect"));
+            sseEmitter.send(SseEmitter.event().name("connect").data("connected!"));
         } catch (IOException e) {
             log.error("cannot send event");
         }
