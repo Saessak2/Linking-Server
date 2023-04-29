@@ -4,6 +4,7 @@ import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.block.domain.Block;
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
@@ -56,7 +57,7 @@ public class PageService {
             return pageMapper.toDto(page, pageCheckResList);
 
         else if(page.getTemplate() == Template.BLOCK) { // block 타입의 page
-            List<BlockRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
+            List<BlockDetailRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
         return null; // TODO template이 blank, block이 아닌 다른 경우는 없긴 할거 같은데 예외처리 해야겠지,,?
@@ -80,12 +81,12 @@ public class PageService {
                 .collect(Collectors.toList());
     }
 
-    private List<BlockRes> toBlockResList(List<Block> blockList) {
+    private List<BlockDetailRes> toBlockResList(List<Block> blockList) {
 
         if (blockList.isEmpty())
             return blockMapper.toDummyDto();
 
-        List<BlockRes> blockResList = new ArrayList<>();
+        List<BlockDetailRes> blockResList = new ArrayList<>();
 
         for (Block block : blockList) {
             List<AnnotationRes> annotationResList = new ArrayList<>();
@@ -96,7 +97,7 @@ public class PageService {
                 for (Annotation annotation : block.getAnnotationList())
                     annotationResList.add(annotationMapper.toDto(annotation));
             }
-            blockResList.add(blockMapper.toDto(block));
+            blockResList.add(blockMapper.toDto(block, annotationResList));
         }
         return blockResList;
     }

@@ -1,5 +1,6 @@
 package com.linking.page.dto;
 
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.dto.BlockRes;
 import com.linking.pageCheck.dto.PageCheckRes;
 import lombok.Builder;
@@ -14,9 +15,9 @@ import java.util.List;
 @SuperBuilder
 public class BlockPageDetailRes extends PageDetailedRes{
 
-    private List<BlockRes> blockResList;
+    private List<BlockDetailRes> blockResList;
 
-    public BlockPageDetailRes(Long pageId, Long groupId, String title, List<PageCheckRes> pageCheckResList, List<BlockRes> blockResList) {
+    public BlockPageDetailRes(Long pageId, Long groupId, String title, List<PageCheckRes> pageCheckResList, List<BlockDetailRes> blockResList) {
         super(pageId, groupId, title, pageCheckResList);
         this.blockResList = blockResList;
     }

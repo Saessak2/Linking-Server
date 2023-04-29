@@ -1,5 +1,6 @@
 package com.linking.page.persistence;
 
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.dto.BlockRes;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.*;
@@ -31,7 +32,7 @@ public interface PageMapper {
     }
 
     default BlockPageDetailRes toDto(
-                                    Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
+            Page source, List<BlockDetailRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
         BlockPageDetailRes builder = BlockPageDetailRes.builder()
                 .pageId(source.getId())
