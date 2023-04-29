@@ -61,7 +61,7 @@ public class AnnotationService {
 
         // 주석 개수 증가 이벤트
 //        groupEventHandler.po
-        groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
+        groupEventHandler.postAnnoNot(block.getPage().getGroup().getProject().getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
@@ -126,7 +126,7 @@ public class AnnotationService {
         // 페이지 들어가 있는 유저 아이디 목록
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(pageId);
         // 주석 개수 감소 이벤트
-        groupEventHandler.deleteAnnotation(projectId, enteringUserIds, new PageIdRes(pageId, groupId));
+        groupEventHandler.deleteAnnoNot(projectId, enteringUserIds, new PageIdRes(pageId, groupId));
         // 주석 삭제 이벤트
         pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }

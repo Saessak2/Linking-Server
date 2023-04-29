@@ -35,7 +35,6 @@ public class GroupService {
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final PageCheckRepository pageCheckRepository;
-    private final ParticipantRepository participantRepository;
 
 
     // 그룹 리스트 조회

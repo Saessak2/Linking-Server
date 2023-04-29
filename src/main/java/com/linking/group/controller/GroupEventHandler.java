@@ -35,12 +35,12 @@ public class GroupEventHandler {
         groupSseHandler.send(projectId, userId, "deletePage", res);
     }
 
-    public void postAnnotation(Long projectId, Set<Long> userIds, PageIdRes res) {
-        groupSseHandler.send(projectId, userIds, "postAnnotation", res);
+    public void postAnnoNot(Long projectId, Set<Long> userIds, PageIdRes res) {
+        groupSseHandler.send(projectId, userIds, "postAnnoNot", res);
 //        groupSseHandler.send(projectId, userId, "postAnnotation", res);
     }
 
-    public void deleteAnnotation(Long projectId, Set<Long> userIds, PageIdRes res) {
-        groupSseHandler.send(projectId, userIds, "deleteAnnotation", res);
+    public void deleteAnnoNot(Long projectId, Set<Long> userIds, PageIdRes res) {
+        groupSseHandler.send(projectId, userIds, "deleteAnnoNot", res);
     }
 }

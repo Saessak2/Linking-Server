@@ -75,6 +75,9 @@ public class GroupSseHandler {
     }
 
     public void send(Long key, Set<Long> pageSubscriberIds, String event, Object message) {
+        pageSubscriberIds.forEach(ps -> {
+            log.info("userId = {} ", ps.longValue());
+        });
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {
@@ -83,6 +86,7 @@ public class GroupSseHandler {
                     emitter.getSseEmitter().send(SseEmitter.event()
                             .name(event)
                             .data(message));
+                    log.info("send {} event", event);
 
                 } catch (IOException e) {
                     log.error("Connection reset by peer");
