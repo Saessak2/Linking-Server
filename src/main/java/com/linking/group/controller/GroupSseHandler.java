@@ -65,6 +65,7 @@ public class GroupSseHandler {
                     emitter.getSseEmitter().send(SseEmitter.event()
                             .name(event)
                             .data(message));
+                    log.info("send {} event", event);
 
                 } catch (IOException e) {
                     log.error("Connection reset by peer");

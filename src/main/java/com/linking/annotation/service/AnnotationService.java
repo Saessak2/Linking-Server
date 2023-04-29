@@ -81,7 +81,7 @@ public class AnnotationService {
 
         AnnotationUpdateRes annotationUpdateRes = AnnotationUpdateRes.builder()
                 .annotationId(annotationRes.getAnnotationId())
-                .blockId(annotationRes.getBlockId())
+         s       .blockId(annotationRes.getBlockId())
                 .content(annotationRes.getContent())
                 .lastModified(annotationRes.getLastModified())
                 .build();
