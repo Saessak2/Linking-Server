@@ -44,7 +44,7 @@ public interface GroupMapper {
         }
         Group.GroupBuilder builder = Group.builder();
         builder
-                .name(source.getTitle())
+                .name(source.getName())
                 .groupOrder(source.getOrder())
                 .pageList(new ArrayList<>());
 

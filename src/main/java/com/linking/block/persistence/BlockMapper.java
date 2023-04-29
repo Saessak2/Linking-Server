@@ -17,6 +17,19 @@ import java.util.List;
 )
 public interface BlockMapper {
 
+
+    default BlockRes toDto(Block source) {
+
+        BlockRes.BlockResBuilder builder = BlockRes.builder();
+        builder
+                .blockId(source.getId())
+                .pageId(source.getPage().getId())
+                .title(source.getTitle())
+                .content(source.getContent());
+
+        return builder.build();
+    }
+
     default BlockDetailRes toDto(Block source, List<AnnotationRes> annotationResList) {
 
         BlockDetailRes.BlockDetailResBuilder builder = BlockDetailRes.builder();
@@ -29,20 +42,6 @@ public interface BlockMapper {
 
         return builder.build();
     }
-
-    default BlockRes toDto(Block source) {
-
-        BlockRes.BlockResBuilder builder = BlockRes.builder();
-        builder
-                .blockId(source.getId())
-                .pageId(source.getPage().getId())
-                .title(source.getTitle())
-                .content(source.getContent());
-//                .annotationResList(annotationResList);
-
-        return builder.build();
-    }
-
 
     default List<BlockDetailRes> toDummyDto() {
         List<BlockDetailRes> blockResList = new ArrayList<>();

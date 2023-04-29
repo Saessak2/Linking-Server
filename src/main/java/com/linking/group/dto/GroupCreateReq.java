@@ -2,6 +2,8 @@ package com.linking.group.dto;
 
 
 import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.BindingPriority;
+
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -13,7 +15,8 @@ public class GroupCreateReq {
     @NotNull
     private Long projectId;
 
-    private String title;
+    @NotNull
+    private String name;
 
     @NotNull
     private int order;

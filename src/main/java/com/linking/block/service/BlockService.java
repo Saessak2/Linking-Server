@@ -31,7 +31,6 @@ public class BlockService {
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
-    private final AnnotationMapper annotationMapper;
 
     Logger logger = LoggerFactory.getLogger(BlockService.class);
 
@@ -43,15 +42,13 @@ public class BlockService {
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
         if (page.getTemplate() == Template.BLANK) {
-            logger.error("블럭을 생성할 수 없는 페이지");
-            throw new IllegalAccessException("Blank template에는 블럭을 생성할 수 없습니다.");
+            logger.error("cannot add block in Blank template");
+            throw new IllegalAccessException("cannot add block in Blank template");
         }
 
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
 
-//        List<AnnotationRes> dummy = new ArrayList<>();
-//        dummy.add(annotationMapper.toDummyDto());
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
         // 이벤트 전송
