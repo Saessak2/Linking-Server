@@ -16,15 +16,15 @@ import java.util.List;
 )
 public interface BlockMapper {
 
-    default BlockRes toDto(Block source, List<AnnotationRes> annotationResList) {
+    default BlockRes toDto(Block source) {
 
         BlockRes.BlockResBuilder builder = BlockRes.builder();
         builder
                 .blockId(source.getId())
                 .pageId(source.getPage().getId())
                 .title(source.getTitle())
-                .content(source.getContent())
-                .annotationResList(annotationResList);
+                .content(source.getContent());
+//                .annotationResList(annotationResList);
 
         return builder.build();
     }

@@ -15,5 +15,5 @@ public class BlockRes {
     private Long pageId;
     private String title;
     private String content;
-    private List<AnnotationRes> annotationResList;
+//    private List<AnnotationRes> annotationResList;
 }

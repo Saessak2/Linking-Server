@@ -50,9 +50,9 @@ public class BlockService {
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
 
-        List<AnnotationRes> dummy = new ArrayList<>();
-        dummy.add(annotationMapper.toDummyDto());
-        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block), dummy);
+//        List<AnnotationRes> dummy = new ArrayList<>();
+//        dummy.add(annotationMapper.toDummyDto());
+        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
         // 이벤트 전송
         pageEventHandler.postBlock(page.getId(), userId, new BlockEventRes(blockRes.getBlockId(), blockRes.getPageId(), blockRes.getTitle()));
