@@ -2,18 +2,17 @@ package com.linking.pageCheck.domain;
 
 import com.linking.page.domain.Page;
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Entity
 @Table(name = "pagecheck")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor
 public class PageCheck {
 
     @Id
@@ -24,14 +23,20 @@ public class PageCheck {
     // nullable
     private LocalDateTime lastChecked;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private int annoNotCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
     private Participant participant;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id")
     private Page page;
 
+    public PageCheck(Participant participant, Page page) {
+        setParticipant(participant);
+        setPage(page);
+    }
 
     public void setParticipant(Participant participant) {
         this.participant = participant;
@@ -42,5 +47,26 @@ public class PageCheck {
         if (!page.getPageCheckList().contains(this)) {
             page.getPageCheckList().add(this);
         }
+    }
+
+    public void updateLastChecked() {
+        this.lastChecked = LocalDateTime.now();
+    }
+
+    public void resetAnnoNotCount() {
+        this.annoNotCount = 0;
+    }
+
+    public void increaseAnnotNotCount() {
+        this.annoNotCount++;
+    }
+
+    public void reduceAnnoNotCount() {
+        this.annoNotCount--;
+    }
+
+    public String getLastChecked() {
+        if (lastChecked == null) return null;
+        return lastChecked.format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en")));
     }
 }

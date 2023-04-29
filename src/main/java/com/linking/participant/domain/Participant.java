@@ -5,6 +5,8 @@ import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.PushbackReader;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -19,15 +21,25 @@ public class Participant {
     @Column(name = "participant_id")
     private Long participantId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
     private Project project;
 
-    @Column(name = "full_name", nullable = false, length = 40)
-    private String fullName;
+    private String userName;
 
+    public void setUser(User user) {
+        this.user = user;
+        this.userName = user.getFullName();
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+        if (!project.getParticipantList().contains(this)) {
+            project.getParticipantList().add(this);
+        }
+    }
 }

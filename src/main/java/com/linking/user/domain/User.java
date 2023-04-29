@@ -3,11 +3,9 @@ package com.linking.user.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Builder
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -31,5 +29,9 @@ public class User {
 
     public User(Long ownerId) {
         this.userId = ownerId;
+    }
+
+    public String getFullName() {
+        return lastName + firstName;
     }
 }

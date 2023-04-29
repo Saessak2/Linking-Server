@@ -1,32 +1,38 @@
 package com.linking.page.domain;
 
 import com.linking.block.domain.Block;
-import com.linking.document.domain.Document;
+import com.linking.group.domain.Group;
 import com.linking.pageCheck.domain.PageCheck;
-import com.linking.project.domain.Project;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "page")
-@DiscriminatorValue("P")
-@PrimaryKeyJoinColumn(name = "page_id")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Page extends Document {
+public class Page {
 
-    @Column(length = 50)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "page_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    private int pageOrder;
+
     private String title;
 
-    private LocalDateTime createdDatetime;
-
-    private LocalDateTime updatedDatetime;
+    @Enumerated(value = EnumType.STRING)
+    private Template template;
 
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
+    @OrderBy("blockOrder asc")
     private List<Block> blockList;
 
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
@@ -34,39 +40,29 @@ public class Page extends Document {
 
 
     @Builder
-    protected Page(int docIndex, Project project, Document parent, String title, LocalDateTime createdDatetime, LocalDateTime updatedDatetime, List<Block> blockList, List<PageCheck> pageCheckList) {
-        super(docIndex, project, parent);
+    public Page(int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
+        this.pageOrder = pageOrder;
         this.title = title;
-        this.createdDatetime = createdDatetime;
-        this.updatedDatetime = updatedDatetime;
+        this.template = template;
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
     }
 
+    public void setGroup(Group group) {
+        this.group = group;
+        if (!group.getPageList().contains(this)) {
+            group.getPageList().add(this);
+        }
+    }
+
     @PrePersist
-    public void prePersist() {
+    public void prePersist(){
         this.title = this.title == null ? "untitled" : this.title;
+        this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
+        this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
     }
 
-
-    public void addBlock(Block block) {
-        this.blockList.add(block);
-        if (block.getPage() != this) {
-            block.setPage(this);
-        }
-        this.updatedDatetime = LocalDateTime.now();
+    public void updateOrder(int order) {
+        this.pageOrder = order;
     }
-
-    public void addPageCheck(PageCheck pageCheck) {
-        this.pageCheckList.add(pageCheck);
-        if (pageCheck.getPage() != this) {
-            pageCheck.setPage(this);
-        }
-    }
-
-    public void update(String title) {
-        this.title = title;
-        this.updatedDatetime = LocalDateTime.now();
-    }
-
 }

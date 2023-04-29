@@ -1,13 +1,14 @@
 package com.linking.block.persistence;
 
-
-import com.linking.annotation.persistence.AnnotationMapper;
+import com.linking.annotation.dto.AnnotationRes;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockRes;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -15,23 +16,16 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface BlockMapper {
 
-    default BlockRes toDto(Block source) {
-        if (source == null) {
-            return null;
-        }
+    default BlockRes toDto(Block source, List<AnnotationRes> annotationResList) {
+        if (source == null) return null;
+
         BlockRes.BlockResBuilder builder = BlockRes.builder();
         builder
                 .blockId(source.getId())
-                .blockIndex(source.getBlockIndex())
                 .title(source.getTitle())
                 .pageId(source.getPage().getId())
-                .content(source.getContent());
-//        if (!source.getAnnotationList().isEmpty()) {
-//            builder.annotationResList(
-//                    source.getAnnotationList()
-//                            .stream(v -> AnnotationMapper.toDto)
-//            );
-//        }
+                .annotationResList(annotationResList);
+
         return builder.build();
     }
 
@@ -41,7 +35,8 @@ public interface BlockMapper {
         }
         Block.BlockBuilder builder = Block.builder();
         builder
-                .blockIndex(source.getBlockIndex());
+                .title(source.getTitle())
+                .blockOrder(source.getOrder());
 
         return builder.build();
     }

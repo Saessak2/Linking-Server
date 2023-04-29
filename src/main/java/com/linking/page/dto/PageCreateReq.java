@@ -1,24 +1,20 @@
 package com.linking.page.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.linking.page.domain.Template;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
-@Builder
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
+@Setter(AccessLevel.NONE)
 public class PageCreateReq {
 
     @NotNull
-    private Long projectId; // 프로젝트 id
-    @NotNull
-    private Long parentDocId;
+    private Long groupId;
     @NotNull
     private String title;
     @NotNull
-    private int docIndex;
+    private int order;
+    @NotNull
+    private Template template;
 }

@@ -1,6 +1,6 @@
 package com.linking.project.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
@@ -19,14 +19,12 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/projects")
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+@CrossOrigin(origins = "*")
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postProject(
             @RequestBody @Valid ProjectCreateReq projectCreateReq){
         try {
@@ -38,8 +36,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/{id}")
     public ResponseEntity<Object> getProject(
             @PathVariable("id") Long projectId){
         try {
@@ -51,8 +48,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/list/{id}")
     public ResponseEntity<Object> getProjectList(
             @PathVariable("id") Long userId){
         try {
@@ -67,7 +63,6 @@ public class ProjectController {
 
     // TODO: participant create/delete process (After project update, cascade)
     @PutMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.PUT})
     public ResponseEntity<Object> putProject(
             @RequestBody @Valid ProjectUpdateReq projectUpdateReq){
         try {
@@ -80,7 +75,6 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteProject(
             @PathVariable("id") Long projectId){
         try{

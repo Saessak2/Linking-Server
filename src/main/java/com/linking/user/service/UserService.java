@@ -3,6 +3,8 @@ package com.linking.user.service;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
+import com.linking.project.dto.ProjectContainsPartsRes;
+import com.linking.project.service.ProjectService;
 import com.linking.user.domain.User;
 import com.linking.user.dto.*;
 import com.linking.user.persistence.UserRepository;
@@ -25,6 +27,7 @@ public class UserService {
     private final UserMapper userMapper;
 
     private final ParticipantRepository participantRepository;
+    private final ProjectService projectService;
 
     public Optional<UserDetailedRes> addUser(UserSignUpReq userSignUpReq)
             throws DataIntegrityViolationException {
@@ -38,6 +41,7 @@ public class UserService {
         return userRepository.findUserByEmail(emailReq.getEmail()).isPresent();
     }
 
+    //TODO 여기가문제라는건가??
     public List<UserDetailedRes> getUsersByPartOfEmail(UserEmailReq userEmailReq)
         throws NoSuchElementException{
         List<User> userList = userRepository.findUsersByPartOfEmail(userEmailReq.getPartOfEmail());
@@ -74,6 +78,8 @@ public class UserService {
     public void deleteUser(Long userId)
             throws EmptyResultDataAccessException, DataIntegrityViolationException {
         userRepository.deleteById(userId);
+
+        // TODO 프젝을 소유하는 소유자에 해당하는 사용자인 경우 소유자 이전해야힘.
     }
 
 }

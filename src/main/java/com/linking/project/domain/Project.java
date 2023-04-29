@@ -1,11 +1,9 @@
 package com.linking.project.domain;
 
-import com.linking.document.domain.Document;
 import com.linking.participant.domain.Participant;
 import com.linking.user.domain.User;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Marker;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -17,8 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DynamicUpdate
+//@DynamicUpdate
 @Table(name = "project")
+@ToString
 public class Project {
 
     @Id
@@ -26,24 +25,24 @@ public class Project {
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "project_name", nullable = false, length = 28)
+    @Column(name = "project_name")
     private String projectName;
 
-    @Column(name = "begin_date", nullable = false)
+    @Column(name = "begin_date")
     private LocalDate beginDate;
 
-    @Column(name = "due_date", nullable = false)
+    @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "project")
-    private List<Participant> participants;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Participant> participantList;
+
 
     public Project(Long projectId) {
         this.projectId = projectId;
     }
-
 }

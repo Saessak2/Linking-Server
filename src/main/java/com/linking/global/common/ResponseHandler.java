@@ -1,4 +1,4 @@
-package com.linking.global;
+package com.linking.global.common;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, status);
     }
 
-    public static ResponseEntity<Object> generateOkResponse(Object resObj){
+    public static ResponseEntity generateOkResponse(Object resObj){
         Map<String, Object> map = new HashMap<>();
         map.put("message", MSG_200);
         map.put("status", HttpStatus.OK.value());

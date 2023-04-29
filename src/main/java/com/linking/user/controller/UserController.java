@@ -1,6 +1,6 @@
 package com.linking.user.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;
@@ -18,13 +18,11 @@ import java.util.NoSuchElementException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping("/email")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> getUserListWithEmail(@RequestBody UserEmailReq userEmailReq){
         try {
             List<UserDetailedRes> userList = userService.getUsersByPartOfEmail(userEmailReq);
@@ -35,8 +33,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/{id}")
     public ResponseEntity<Object> getUser(@PathVariable("id") Long userId){
         try {
             return userService.getUserById(userId)
@@ -48,7 +45,6 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.DELETE})
     public ResponseEntity<Object> deleteUser(@PathVariable("id") Long userId){
         try {
             userService.deleteUser(userId);
@@ -59,5 +55,4 @@ public class UserController {
             return ResponseHandler.generateBadRequestResponse();
         }
     }
-
 }

@@ -9,11 +9,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findByProject(@Param("project") Project project);
+
     List<Participant> findByUser(@Param("user") User user);
 
     @Query(value = "SELECT p.project FROM Participant p WHERE p.user.userId = :userId")
@@ -22,4 +24,12 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
     List<Participant> findByUserAndProject(@Param("userId") Long userId, @Param("projectId") Long projectId);
 
+    /**
+     * 작성자 이은빈
+     */
+    @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
+    Optional<Participant> findByUserAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
+
+    @Query("SELECT p FROM Participant p WHERE p.project.projectId = :projectId")
+    List<Participant> findAllByProjectId(@Param("projectId") Long projectId);
 }

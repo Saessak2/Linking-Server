@@ -1,37 +1,52 @@
 package com.linking.group.domain;
 
-import com.linking.document.domain.Document;
 import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
 @Table(name = "\"group\"")
-@DiscriminatorValue("G")
-@PrimaryKeyJoinColumn(name = "group_id")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Group extends Document {
+public class Group  {
 
-    @Column(length = 10)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
+    private Long id;
+
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    private int groupOrder;
+
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
+    @OrderBy("pageOrder asc")
+    private List<Page> pageList;
+
 
     @Builder
-    protected Group(int docIndex, Project project, List<Document> childList,  String name) {
-        super(docIndex, project, childList);
+    public Group(String name, Project project, int groupOrder, List<Page> pageList) {
         this.name = name;
+        this.project = project;
+        this.groupOrder = groupOrder;
+        this.pageList = pageList;
     }
 
-    @Builder
-    public Group(Long id) {
-        super(id);
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void addPage(Page page) {
+        this.pageList.add(page);
+        if (page.getGroup() != this) {
+            page.setGroup(this);
+        }
     }
 
     @PrePersist
@@ -43,6 +58,8 @@ public class Group extends Document {
         this.name = name;
     }
 
-
+    public void updateOrder(int groupOrder) {
+        this.groupOrder = groupOrder;
+    }
 }
 

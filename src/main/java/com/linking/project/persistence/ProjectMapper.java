@@ -97,7 +97,8 @@ public class ProjectMapper {
                 .projectName(projectCreateReq.getProjectName())
                 .beginDate(projectCreateReq.getBeginDate())
                 .dueDate(projectCreateReq.getDueDate())
-                .owner(new User(projectCreateReq.getPartList().get(0)));
+                .owner(new User(projectCreateReq.getPartList().get(0)))
+                .participantList(new ArrayList<>());
 
         return projBuilder.build();
     }
@@ -126,7 +127,8 @@ public class ProjectMapper {
                 .projectName(projectUpdateReq.getProjectName())
                 .beginDate(projectUpdateReq.getBeginDate())
                 .dueDate(projectUpdateReq.getDueDate())
-                .owner(new User(projectUpdateReq.getPartList().get(0)));
+                .owner(new User(projectUpdateReq.getPartList().get(0)))
+                .participantList(new ArrayList<>());
 
         return projBuilder.build();
     }

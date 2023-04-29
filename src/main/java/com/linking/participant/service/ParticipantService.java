@@ -1,5 +1,6 @@
 package com.linking.participant.service;
 
+import com.linking.pageCheck.service.PageCheckService;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantIdReq;
@@ -7,10 +8,11 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
-import com.linking.project.dto.ProjectRes;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.persistence.ProjectMapper;
-import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -25,10 +27,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ParticipantService {
 
+    private final PageCheckService pageCheckService;
     private final ParticipantRepository participantRepository;
     private final ParticipantMapper participantMapper;
 
     private final ProjectMapper projectMapper;
+
+    Logger logger = LoggerFactory.getLogger(ParticipantService.class);
+
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
@@ -37,9 +43,10 @@ public class ParticipantService {
         if (!partData.isEmpty())
             throw new DuplicateKeyException("Already in project");
 
-        return Optional.of(participantMapper.toDto(
-                participantRepository.save(
-                        participantMapper.toEntity(participantIdReq))));
+        Participant participant = participantRepository.save(participantMapper.toEntity(participantIdReq));
+        pageCheckService.createPageCheck(participant);
+
+        return Optional.of(participantMapper.toDto(participant));
     }
 
     public Optional<ParticipantRes> getParticipant(Long participantId)
@@ -57,7 +64,7 @@ public class ParticipantService {
         return participantMapper.toDto(participantList);
     }
 
-    public List<ProjectRes> getPartsByUserId(Long userId)
+    public List<ProjectContainsPartsRes> getPartsByUserId(Long userId)
             throws NoSuchElementException {
         List<Project> projectList = participantRepository.findProjectsByUser(userId);
         if (projectList.isEmpty())
@@ -68,8 +75,12 @@ public class ParticipantService {
 //                    participant.getParticipantId(),
 //                    participant.getProject().getProjectName()));
 //        }
-        return projectMapper.toResDto(projectList);
-//        return projectList;
+        List<ProjectContainsPartsRes> result = new ArrayList<>();
+        for (Project project : projectList) {
+            result.add(projectMapper.toDto(project, project.getParticipantList()));
+        }
+
+        return result;
     }
 
     public void deleteParticipant(ParticipantDeleteReq participantDeleteReq)
@@ -77,8 +88,10 @@ public class ParticipantService {
         List<Participant> participantList = setParticipantList(participantDeleteReq.getPartIdList());
         if(participantList.isEmpty())
             throw new NoSuchElementException();
-        if(containsOwner(participantList))
+        if(containsOwner(participantList)) {
+            logger.info("\ncontains Owner ===================+> cannot delete participants");
             throw new SQLIntegrityConstraintViolationException();
+        }
         participantRepository.deleteAll(participantList);
     }
 
@@ -100,4 +113,10 @@ public class ParticipantService {
         return false;
     }
 
+    /**
+     * 작성자 : 이은빈
+     */
+    public Optional<Participant> getParticipant(Long userId, Long projectId) {
+        return participantRepository.findByUserAndProjectId(userId, projectId);
+    }
 }

@@ -1,13 +1,23 @@
 package com.linking.block.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
 
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class BlockCreateReq {
 
-    private int blockIndex;
+    @NotNull
+    private int order;
+
+    @NotNull
     private Long pageId;
+
+    private String title;
 }

@@ -25,19 +25,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// gson
+	implementation 'com.google.code.gson:gson:2.10.1'
+	// MySql
 	runtimeOnly 'com.mysql:mysql-connector-j'
-
+	// Lombok
 	implementation 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-
+	// MapStruct
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	implementation 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
 }
 
 tasks.named('test') {

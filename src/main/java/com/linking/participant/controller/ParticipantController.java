@@ -1,11 +1,11 @@
 package com.linking.participant.controller;
 
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.service.ParticipantService;
-import com.linking.project.dto.ProjectRes;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -20,14 +20,11 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/participants")
-@CrossOrigin(origins = "*", allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
 public class ParticipantController {
 
     private final ParticipantService participantService;
 
     @PostMapping("/new")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> postParticipant(
             @RequestBody @Valid ParticipantIdReq participantIdReq){
         try {
@@ -41,8 +38,7 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/{id}")
     public ResponseEntity<Object> getParticipant(
             @PathVariable("id") Long participantId){
         try {
@@ -54,8 +50,7 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
+    @PostMapping("/list/{id}")
     public ResponseEntity<Object> getParticipantList(
             @PathVariable("id") Long projectId){
         try{
@@ -70,11 +65,10 @@ public class ParticipantController {
 
     // TODO:
     @GetMapping("/my-list/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET})
     public ResponseEntity<Object> getParticipantMyList(
             @PathVariable("id") Long userId){
         try{
-            List<ProjectRes> participantList = participantService.getPartsByUserId(userId);
+            List<ProjectContainsPartsRes> participantList = participantService.getPartsByUserId(userId);
             if(participantList.isEmpty())
                 return ResponseHandler.generateInternalServerErrorResponse();
             return ResponseHandler.generateOkResponse(participantList);
@@ -84,7 +78,6 @@ public class ParticipantController {
     }
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST})
     public ResponseEntity<Object> deleteParticipants(
             @RequestBody ParticipantDeleteReq participantDeleteReq){
         try{
@@ -96,5 +89,4 @@ public class ParticipantController {
             return ResponseHandler.generateBadRequestResponse();
         }
     }
-
 }

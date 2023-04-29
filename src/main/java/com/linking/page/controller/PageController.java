@@ -1,54 +1,79 @@
 package com.linking.page.controller;
 
-import com.linking.global.ErrorMessage;
-import com.linking.global.ResponseHandler;
+import com.linking.global.common.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
+import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
-import com.linking.page.dto.PageUpdateReq;
 import com.linking.page.service.PageService;
+import com.linking.pageCheck.service.PageCheckService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.NoSuchElementException;
+import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/pages")
 @RequiredArgsConstructor
-public class PageController {
+@Slf4j
+public class PageController extends TextWebSocketHandler {
 
+    private final PageSseHandler pageSseHandler;
     private final PageService pageService;
+    private final PageCheckService pageCheckService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PageDetailedRes> getPage(
+        @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
+        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.enteringUserIds(pageId));
+        return ResponseHandler.generateOkResponse(res);
+    }
+
+    @GetMapping("/subscribe/{id}")
+    public ResponseEntity<SseEmitter> subscribePage(
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
+        SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
+        try {
+            sseEmitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("connected!")
+            );
+        } catch (IOException e) {
+            log.error("cannot send event");
+        }
+        return ResponseEntity.ok(sseEmitter);
+    }
 
     @PostMapping
-    public ResponseEntity<Object> postPage(@RequestBody PageCreateReq pageCreateReq) {
-
-        try {
-            PageRes pageRes = pageService.createPage(pageCreateReq);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, pageRes);
-        } catch (Exception e) {
-            return ResponseHandler.generateResponse(ErrorMessage.ERROR, HttpStatus.BAD_REQUEST, null);
-        }
+    public ResponseEntity<Object> postPage(
+            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid PageCreateReq pageCreateReq
+    ) {
+        PageRes res = pageService.createPage(pageCreateReq, userId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
     }
 
-    @PutMapping
-    public ResponseEntity<Object> putPage(@RequestBody PageUpdateReq pageUpdateReq) {
-        try {
-            PageRes pageRes = pageService.updatePage(pageUpdateReq);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, pageRes);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deletePage(
+            @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+    ) {
+        pageService.deletePage(pageId, userId);
+        pageSseHandler.removeEmittersByPage(pageId);
+        return ResponseHandler.generateNoContentResponse();
     }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deletePage(@RequestParam("id") Long id) {
-        try {
-            pageService.deletePage(id);
-            return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.NOT_FOUND, null);
-        }
+    @GetMapping("/unsubscribe/{id}")
+    public void unsubscribePage(
+            @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
+    ) {
+        pageSseHandler.onClose(userId, pageId);
+        pageCheckService.updatePageLastChecked(pageId, projectId, userId);
     }
 }
 
