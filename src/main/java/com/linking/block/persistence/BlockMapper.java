@@ -23,6 +23,7 @@ public interface BlockMapper {
                 .blockId(source.getId())
                 .pageId(source.getPage().getId())
                 .title(source.getTitle())
+                .content(source.getContent())
                 .annotationResList(annotationResList);
 
         return builder.build();
