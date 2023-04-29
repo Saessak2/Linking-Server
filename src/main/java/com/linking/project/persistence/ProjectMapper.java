@@ -53,7 +53,8 @@ public class ProjectMapper {
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .beginDate(project.getBeginDate())
-                .dueDate(project.getDueDate());
+                .dueDate(project.getDueDate())
+                .ownerId(project.getOwner().getUserId());
 
         if(!participantList.isEmpty())
                 projResBuilder.partList(

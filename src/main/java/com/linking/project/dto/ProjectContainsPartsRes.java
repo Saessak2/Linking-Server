@@ -21,5 +21,6 @@ public class ProjectContainsPartsRes {
     private LocalDate beginDate;
     private LocalDate dueDate;
     private List<UserDetailedRes> partList;
+    private Long ownerId;
     // TODO: List<User> -> List<UserDetailedDto> (capsule)
 }
