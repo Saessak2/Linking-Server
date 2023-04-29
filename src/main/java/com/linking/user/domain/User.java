@@ -4,10 +4,10 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Builder
 @Getter
+@Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "user")
 public class User {
@@ -17,14 +17,16 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false, length = 20)
     private String lastName;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false, length = 20)
     private String firstName;
 
+    @Column(unique = true, nullable = false, length = 60)
     private String email;
 
+    @Column(length = 20)
     private String password;
 
     public User(Long ownerId) {
@@ -34,4 +36,5 @@ public class User {
     public String getFullName() {
         return lastName + firstName;
     }
+
 }
