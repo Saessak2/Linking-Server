@@ -32,7 +32,7 @@ public interface AnnotationMapper {
                 .annotationId(-1L)
                 .blockId(-1L)
                 .content("")
-                .lastModified("00-00-00 AM 00:00")
+                .lastModified("00-01-01 AM 00:00")
                 .userName("")
                 .build();
 
