@@ -3,8 +3,8 @@ package com.linking.page.controller;
 import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateRes;
+import com.linking.block.dto.BlockEventRes;
 import com.linking.block.dto.BlockIdRes;
-import com.linking.block.dto.BlockRes;
 import com.linking.pageCheck.dto.PageCheckUpdateRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class PageEventHandler {
         pageSseHandler.send(pageId, publisherId, "leave", res);
     }
 
-    public void postBlock(Long pageId, Long publisherId, BlockRes res) {
+    public void postBlock(Long pageId, Long publisherId, BlockEventRes res) {
         pageSseHandler.send(pageId, publisherId, "postBlock", res);
     }
 
@@ -38,7 +38,7 @@ public class PageEventHandler {
         pageSseHandler.send(pageId, publisherId, "deleteAnnotation", res);
     }
 
-    public void updateAnnotation(Long pageId, Long publisherId, AnnotationRes res) {
+    public void updateAnnotation(Long pageId, Long publisherId, AnnotationUpdateRes res) {
         pageSseHandler.send(pageId, publisherId, "updateAnnotation", res);
     }
 }

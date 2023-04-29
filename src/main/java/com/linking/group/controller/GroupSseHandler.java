@@ -6,11 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -63,6 +61,23 @@ public class GroupSseHandler {
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {
             if (publishUserId != emitter.getUserId()) {
+                try {
+                    emitter.getSseEmitter().send(SseEmitter.event()
+                            .name(event)
+                            .data(message));
+
+                } catch (IOException e) {
+                    log.error("Connection reset by peer");
+                }
+            }
+        });
+    }
+
+    public void send(Long key, Set<Long> subscriberIds, String event, Object message) {
+        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
+        if (sseEmitters == null) return;
+        sseEmitters.forEach(emitter -> {
+            if (subscriberIds.contains(emitter.getUserId())) {
                 try {
                     emitter.getSseEmitter().send(SseEmitter.event()
                             .name(event)

@@ -1,10 +1,7 @@
 package com.linking.annotation.service;
 
 import com.linking.annotation.domain.Annotation;
-import com.linking.annotation.dto.AnnotationCreateReq;
-import com.linking.annotation.dto.AnnotationIdRes;
-import com.linking.annotation.dto.AnnotationRes;
-import com.linking.annotation.dto.AnnotationUpdateReq;
+import com.linking.annotation.dto.*;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.annotation.persistence.AnnotationRepository;
 import com.linking.block.domain.Block;
@@ -61,7 +58,7 @@ public class AnnotationService {
             }
         });
         // 주석 개수 증가 이벤트
-        groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId()));
+        groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
@@ -82,8 +79,15 @@ public class AnnotationService {
         annotation.updateContent(annotationReq.getContent());
         AnnotationRes annotationRes = annotationMapper.toDto(annotationRepository.save(annotation));
 
+        AnnotationUpdateRes annotationUpdateRes = AnnotationUpdateRes.builder()
+                .annotationId(annotationRes.getAnnotationId())
+                .blockId(annotationRes.getBlockId())
+                .content(annotationRes.getContent())
+                .lastModified(annotationRes.getLastModified())
+                .build();
+
         // 주석 내용 수정 이벤트
-        pageEventHandler.updateAnnotation(annotation.getBlock().getPage().getId(), userId, annotationRes);
+        pageEventHandler.updateAnnotation(annotation.getBlock().getPage().getId(), userId, annotationUpdateRes);
 
         return annotationRes;
     }
@@ -99,6 +103,7 @@ public class AnnotationService {
             throw new NoAuthorityException("해당 주석을 삭제할 권한이 없습니다.");
         }
 
+        Long groupId = annotation.getBlock().getPage().getGroup().getId();
         Long pageId = annotation.getBlock().getPage().getId();
         Long blockId = annotation.getBlock().getId();
         annotationRepository.delete(annotation);
@@ -116,7 +121,7 @@ public class AnnotationService {
         });
 
         // 주석 개수 감소 이벤트
-        groupEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId));
+        groupEventHandler.deleteAnnotation(projectId, userId, new PageIdRes(pageId, groupId));
         // 주석 삭제 이벤트
         pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }

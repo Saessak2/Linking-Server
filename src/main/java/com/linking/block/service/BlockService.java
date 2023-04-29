@@ -4,10 +4,7 @@ import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.block.domain.Block;
-import com.linking.block.dto.BlockCreateReq;
-import com.linking.block.dto.BlockIdRes;
-import com.linking.block.dto.BlockOrderReq;
-import com.linking.block.dto.BlockRes;
+import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
@@ -57,7 +54,8 @@ public class BlockService {
         dummy.add(annotationMapper.toDummyDto());
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block), dummy);
 
-        pageEventHandler.postBlock(page.getId(), userId, blockRes);
+        // 이벤트 전송
+        pageEventHandler.postBlock(page.getId(), userId, new BlockEventRes(blockRes.getBlockId(), blockRes.getPageId(), blockRes.getTitle()));
 
         return blockRes;
     }

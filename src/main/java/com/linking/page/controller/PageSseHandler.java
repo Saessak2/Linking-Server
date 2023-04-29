@@ -23,7 +23,7 @@ public class PageSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("@@ [PAGE][CONNECT] @@ key = {}", key);
+        log.info("@@ [PAGE][CONNECT] @@ pageId = {}, userId = {}", key, userId);
 
         Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
         SseEmitter emitter = customEmitter.getSseEmitter();
