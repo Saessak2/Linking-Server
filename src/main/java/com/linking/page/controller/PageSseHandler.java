@@ -24,7 +24,7 @@ public class PageSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("@@ [PAGE][CONNECT] @@ pageId = {}, userId = {}, emitter = {}", key, userId, customEmitter.getSseEmitter());
+        log.info("[PAGE][CONNECT] ** pageId = {}, userId = {}, emitter = {}", key, userId, customEmitter.getSseEmitter());
 
         Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
         SseEmitter emitter = customEmitter.getSseEmitter();
@@ -36,7 +36,7 @@ public class PageSseHandler {
         emitter.onCompletion(() -> {
             log.info("onCompletion callback");
             customEmitters.remove(customEmitter);
-            log.info("@@ [PAGE][REMOVE_ONE] @@ pageId = {} @@ emitters.size = {}", key, customEmitters.size());
+            log.info("** [PAGE][REMOVE_ONE] ** pageId = {} @@ emitters.size = {}", key, customEmitters.size());
         });
         return emitter;
     }
@@ -51,8 +51,8 @@ public class PageSseHandler {
         } else {
             sseEmitters.add(customEmitter);
         }
-        log.info("@@ [PAGE][ALL_EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
-        log.info("@@ [PAGE][ADD] @@ pageId = {} @@ emitters.size = {}", key, sseEmitters.size());
+        log.info("** [PAGE][ALL_EMITTERS] ** emitters.size = {}", pageSubscriber.size());
+        log.info("** [PAGE][ADD] @@ pageId = {} ** emitters.size = {}", key, sseEmitters.size());
 
         return sseEmitters;
     }
@@ -94,6 +94,6 @@ public class PageSseHandler {
 
     public void removeEmittersByPage(Long key) { // 해당 페이지 emitters 삭제
         pageSubscriber.remove(key);
-        log.info("@@ [PAGE][REMOVE_ALL] page = {} is removed", key);
+        log.info("** [PAGE][REMOVE_ALL] page = {} is removed", key);
     }
 }
