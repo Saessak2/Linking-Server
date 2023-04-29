@@ -130,7 +130,7 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        groupEventHandler.deletePage(projectId, userId, new PageIdRes(pageId));
+        groupEventHandler.deletePage(projectId, userId, new PageIdRes(pageId, groupId));
 
         // 페이지 순서를 0부터 재정렬
         try {
