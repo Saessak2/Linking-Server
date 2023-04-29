@@ -96,7 +96,7 @@ public class PageService {
                 for (Annotation annotation : block.getAnnotationList())
                     annotationResList.add(annotationMapper.toDto(annotation));
             }
-            blockResList.add(blockMapper.toDto(block, annotationResList));
+            blockResList.add(blockMapper.toDto(block));
         }
         return blockResList;
     }
