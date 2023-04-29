@@ -51,8 +51,9 @@ public interface BlockMapper {
                 .annotationId(-1L)
                 .blockId(-1L)
                 .content("")
-                .lastModified("00-00-00 AM 00:00")
+                .lastModified("00-01-01 AM 00:00")
                 .userName("")
+                .userId(-1L)
                 .build();
         annotationResList.add(annotationRes);
 
@@ -60,6 +61,7 @@ public interface BlockMapper {
                 .blockId(-1L)
                 .pageId(-1L)
                 .title("")
+                .content("")
                 .annotationResList(annotationResList)
                 .build();
         blockResList.add(blockRes);
