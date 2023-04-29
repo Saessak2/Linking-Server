@@ -11,6 +11,7 @@ import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.controller.GroupEventHandler;
 import com.linking.page.controller.PageEventHandler;
+import com.linking.page.controller.PageSseHandler;
 import com.linking.page.dto.PageIdRes;
 import com.linking.pageCheck.domain.PageCheck;
 import com.linking.pageCheck.persistence.PageCheckRepository;
@@ -27,7 +28,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class AnnotationService {
-
+    private final PageSseHandler pageSseHandler;
     private final GroupEventHandler groupEventHandler;
     private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
@@ -57,7 +58,11 @@ public class AnnotationService {
                 pageCheckRepository.save(pc);
             }
         });
+        // 페이지 들어가 있는 유저 아이디 목록
+        Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(block.getPage().getId());
+
         // 주석 개수 증가 이벤트
+//        groupEventHandler.po
         groupEventHandler.postAnnotation(block.getPage().getGroup().getProject().getProjectId(), userId, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
@@ -81,7 +86,7 @@ public class AnnotationService {
 
         AnnotationUpdateRes annotationUpdateRes = AnnotationUpdateRes.builder()
                 .annotationId(annotationRes.getAnnotationId())
-         s       .blockId(annotationRes.getBlockId())
+                .blockId(annotationRes.getBlockId())
                 .content(annotationRes.getContent())
                 .lastModified(annotationRes.getLastModified())
                 .build();

@@ -18,7 +18,6 @@ import javax.validation.Valid;
 @RequestMapping(value = "/annotations")
 @RequiredArgsConstructor
 public class AnnotationController {
-    private final PageSseHandler pageSseHandler;
 
     private final AnnotationService annotationService;
 

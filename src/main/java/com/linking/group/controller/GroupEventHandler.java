@@ -34,6 +34,7 @@ public class GroupEventHandler {
     }
 
     public void postAnnotation(Long projectId, Long userId, PageIdRes res) {
+//        groupSseHandler.send(projectId, );
         groupSseHandler.send(projectId, userId, "postAnnotation", res);
     }
 
