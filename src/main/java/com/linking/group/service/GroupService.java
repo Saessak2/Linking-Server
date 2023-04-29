@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GroupService {
     private final GroupEventHandler groupEventHandler;
-
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
@@ -43,14 +42,9 @@ public class GroupService {
     public List<GroupDetailedRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        if (groupList.isEmpty())
-            return new ArrayList<>();
+        if (groupList.isEmpty()) return new ArrayList<>();
 
-        // annoNotCnt를 위해 pageCheck 조회
-        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
-
-        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipantId(participant.getParticipantId());
+        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipant(userId, projectId);
 
         Map<Long, Integer> annoNotCnts = new HashMap<>(); // key -> pageId
         pageCheckList.forEach(pc -> {
@@ -61,10 +55,11 @@ public class GroupService {
         for (Group group : groupList) {  // order 순서
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();   // order 순서
-            if (!pageList.isEmpty())
+            if (!pageList.isEmpty()) {
                 pageList.forEach(p -> {
                     pageResList.add(pageMapper.toDto(p, annoNotCnts.get(p.getId())));
                 });
+            }
             groupDetailedResList.add(groupMapper.toDto(group, pageResList));
         }
 

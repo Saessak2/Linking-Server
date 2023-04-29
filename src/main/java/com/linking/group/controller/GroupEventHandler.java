@@ -7,6 +7,8 @@ import com.linking.page.dto.PageRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 public class GroupEventHandler {
@@ -33,12 +35,12 @@ public class GroupEventHandler {
         groupSseHandler.send(projectId, userId, "deletePage", res);
     }
 
-    public void postAnnotation(Long projectId, Long userId, PageIdRes res) {
-//        groupSseHandler.send(projectId, );
-        groupSseHandler.send(projectId, userId, "postAnnotation", res);
+    public void postAnnotation(Long projectId, Set<Long> userIds, PageIdRes res) {
+        groupSseHandler.send(projectId, userIds, "postAnnotation", res);
+//        groupSseHandler.send(projectId, userId, "postAnnotation", res);
     }
 
-    public void deleteAnnotation(Long projectId, Long userId, PageIdRes res) {
-        groupSseHandler.send(projectId, userId, "deleteAnnotation", res);
+    public void deleteAnnotation(Long projectId, Set<Long> userIds, PageIdRes res) {
+        groupSseHandler.send(projectId, userIds, "deleteAnnotation", res);
     }
 }

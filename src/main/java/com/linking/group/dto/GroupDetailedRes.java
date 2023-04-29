@@ -6,9 +6,8 @@ import lombok.*;
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class GroupDetailedRes {
 

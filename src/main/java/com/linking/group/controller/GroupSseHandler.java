@@ -74,11 +74,11 @@ public class GroupSseHandler {
         });
     }
 
-    public void send(Long key, Set<Long> subscriberIds, String event, Object message) {
+    public void send(Long key, Set<Long> pageSubscriberIds, String event, Object message) {
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {
-            if (subscriberIds.contains(emitter.getUserId())) {
+            if (!pageSubscriberIds.contains(emitter.getUserId())) {
                 try {
                     emitter.getSseEmitter().send(SseEmitter.event()
                             .name(event)
@@ -91,5 +91,5 @@ public class GroupSseHandler {
         });
     }
 
-    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.E
+    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.
 }

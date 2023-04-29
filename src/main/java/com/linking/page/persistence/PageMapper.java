@@ -16,17 +16,15 @@ import java.util.List;
 )
 public interface PageMapper {
 
-    default PageRes toDto(Page source, int annoNotiCnt) {
-        if (source == null) {
-            return null;
-        }
+    default PageRes toDto(Page source, int annoNotCnt) {
+
         PageRes.PageResBuilder builder = PageRes.builder();
         builder
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
                 .template(source.getTemplate())
-                .annoNotCnt(annoNotiCnt);
+                .annoNotCnt(annoNotCnt);
 
         return builder.build();
     }
@@ -60,9 +58,7 @@ public interface PageMapper {
     }
 
     default Page toEntity(PageCreateReq source) {
-        if (source == null) {
-            return null;
-        }
+
         Page.PageBuilder builder = Page.builder();
         builder
                 .title(source.getTitle())

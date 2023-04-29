@@ -42,13 +42,6 @@ public class Group  {
         this.project = project;
     }
 
-    public void addPage(Page page) {
-        this.pageList.add(page);
-        if (page.getGroup() != this) {
-            page.setGroup(this);
-        }
-    }
-
     @PrePersist
     public void prePersist() {
         this.name = this.name == null ? "New Group" : this.name;
