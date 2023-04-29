@@ -6,13 +6,11 @@ import com.linking.user.dto.UserSignUpReq;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserSignInReq;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,15 +19,11 @@ public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/sign-up/default")
+    @PostMapping("/sign-up")
     public ResponseEntity<Object> signUpDefault(@RequestBody @Valid UserSignUpReq userSignUpReq){
-        try {
-            return userService.addUser(userSignUpReq)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch(DataIntegrityViolationException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        return userService.addUser(userSignUpReq)
+                .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, u))
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
     @PostMapping("/verify/email")
@@ -42,13 +36,9 @@ public class AuthController {
     // TODO: login security needs to be upgraded
     @PostMapping("/sign-in")
     public ResponseEntity<Object> signIn(@RequestBody @Valid UserSignInReq userSignInReq){
-        try {
-            return userService.getUserWithEmailAndPw(userSignInReq)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch(NoSuchElementException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+        return userService.getUserWithEmailAndPw(userSignInReq)
+                .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, u))
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
 }

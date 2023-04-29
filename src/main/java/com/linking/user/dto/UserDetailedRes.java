@@ -15,4 +15,5 @@ public class UserDetailedRes {
     private String lastName;
     private String firstName;
     private String email;
+
 }

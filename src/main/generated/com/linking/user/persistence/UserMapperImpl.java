@@ -2,7 +2,6 @@ package com.linking.user.persistence;
 
 import com.linking.user.domain.User;
 import com.linking.user.dto.UserDetailedRes;
-import com.linking.user.dto.UserRes;
 import com.linking.user.dto.UserSignUpReq;
 import java.util.ArrayList;
 import java.util.List;
