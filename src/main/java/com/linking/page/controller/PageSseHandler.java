@@ -1,6 +1,7 @@
 package com.linking.page.controller;
 
 import com.linking.global.common.CustomEmitter;
+import com.linking.page.dto.BlockPageDetailRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -51,7 +52,7 @@ public class PageSseHandler {
             sseEmitters.add(customEmitter);
         }
         log.info("@@ [PAGE][ALL_EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
-        log.info("@@ [PAGE][ADD] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+        log.info("@@ [PAGE][ADD] @@ pageId = {} @@ emitters.size = {}", key, sseEmitters.size());
 
         return sseEmitters;
     }
@@ -65,7 +66,7 @@ public class PageSseHandler {
                     emitter.getSseEmitter().send(SseEmitter.event()
                             .name(event)
                             .data(message));
-
+                    log.info("send {} event", event);
                 } catch (IOException e) {
                     log.error("emitter send exception");
                 }

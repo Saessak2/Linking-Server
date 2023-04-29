@@ -46,6 +46,7 @@ public class PageController extends TextWebSocketHandler {
                     .name("connect")
                     .data("connected!")
             );
+            log.info("send connect event ** userID = {}", userId);
         } catch (IOException e) {
             log.error("cannot send event");
         }
