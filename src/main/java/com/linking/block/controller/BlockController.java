@@ -26,7 +26,7 @@ public class BlockController {
     ) {
 
         BlockRes blockRes = blockService.createBlock(req, userId);
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes.getBlockId());
     }
 
     @PutMapping("/order")

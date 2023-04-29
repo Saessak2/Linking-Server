@@ -13,8 +13,7 @@ public class GroupCreateReq {
     @NotNull
     private Long projectId;
 
-    @NotNull
-    private String name;
+    private String title;
 
     @NotNull
     private int order;
