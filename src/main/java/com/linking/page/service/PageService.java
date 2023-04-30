@@ -27,6 +27,8 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PageService {
     private final GroupEventHandler groupEventHandler;
     private final PageRepository pageRepository;
@@ -47,6 +50,8 @@ public class PageService {
     private final AnnotationMapper annotationMapper;
 
     public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
+        log.info("getPage async test" + Thread.currentThread());
+
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));

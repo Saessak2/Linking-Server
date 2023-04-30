@@ -35,8 +35,8 @@ public class BlockController {
             @RequestBody @Valid BlockOrderReq req
     ) {
 
-        blockService.updateBlockOrder(req, userId);
-        return ResponseHandler.generateOkResponse(true);
+        boolean res = blockService.updateBlockOrder(req, userId);
+        return ResponseHandler.generateOkResponse(res);
     }
 
 

@@ -28,6 +28,7 @@ public class PageCheckService {
     private final ParticipantRepository participantRepository;
 
     public void updatePageChecked(Long pageId, Long projectId, Long userId, String event) {
+        log.info("updatePageChecked test" + Thread.currentThread());
 
         // 팀원 조회
         Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)

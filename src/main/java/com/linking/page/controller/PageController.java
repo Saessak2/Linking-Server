@@ -31,6 +31,7 @@ public class PageController extends TextWebSocketHandler {
     public ResponseEntity<PageDetailedRes> getPage(
         @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
     ) {
+        log.info("getPage - async test" + Thread.currentThread());
         pageCheckService.updatePageChecked(pageId, projectId, userId, "enter");
         PageDetailedRes res = pageService.getPage(pageId, pageSseHandler.enteringUserIds(pageId));
         return ResponseHandler.generateOkResponse(res);
@@ -40,6 +41,8 @@ public class PageController extends TextWebSocketHandler {
     public ResponseEntity<SseEmitter> subscribePage(
             @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
     ) {
+        log.info("subscribe Page - async test" + Thread.currentThread());
+
         SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
         try {
             sseEmitter.send(SseEmitter.event()

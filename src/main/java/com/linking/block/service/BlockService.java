@@ -59,13 +59,22 @@ public class BlockService {
     }
 
     @Transactional
-    public void updateBlockOrder(BlockOrderReq req, Long userId) {
+    public boolean updateBlockOrder(BlockOrderReq req, Long userId) {
 
         List<Block> blockList = blockRepository.findAllByPageId(req.getPageId());
-        for (Block b : blockList)
-            b.updateOrder(req.getBlockIds().indexOf(b.getId()));
 
-        pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
+        boolean flag = false;
+        for (Block b : blockList) {
+            int newOrder = req.getBlockIds().indexOf(b.getId());
+            if (newOrder != b.getBlockOrder()) {
+                b.updateOrder(newOrder);
+                flag = true;
+            }
+        }
+        if (flag)
+            pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
+
+        return true;
     }
 
     @Transactional

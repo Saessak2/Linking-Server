@@ -58,6 +58,8 @@ public class PageSseHandler {
     }
 
     public void send(Long key, Long publishUserId, String event, Object message) {
+        log.info("async test" + Thread.currentThread());
+
         Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
         if (sseEmitters == null) return;
         sseEmitters.forEach(emitter -> {

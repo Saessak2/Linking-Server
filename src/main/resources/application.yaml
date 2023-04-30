@@ -1,15 +1,15 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
-    username: root
-    password: 0881
-#    url: jdbc:mysql://172.17.0.2:3306/linking?serverTimezone=Asia/Seoul
-#    username: binmuxiz
-#    password: 4213
+#    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
+#    username: root
+#    password: 0881
+    url: jdbc:mysql://172.17.0.2:3306/linking?serverTimezone=Asia/Seoul
+    username: binmuxiz
+    password: 4213
 
   jpa:
     database: mysql
@@ -24,7 +24,7 @@ spring:
         show_sql: false
         format_sql: true
         enable_lazy_load_no_trans: true
-#        default_batch_fetch_size: 100 #최적화 옵션
+        default_batch_fetch_size: 100 #최적화 옵션
 #        order_updates: true
 #        jdbc:
 #          batch_size: 100
