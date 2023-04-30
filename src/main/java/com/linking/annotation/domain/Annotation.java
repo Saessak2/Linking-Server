@@ -25,9 +25,7 @@ public class Annotation {
 
     private LocalDateTime createdDatetime;
     private LocalDateTime lastModified;
-
     private String content;
-
     private String writer;
 
     @ManyToOne(fetch = FetchType.LAZY)

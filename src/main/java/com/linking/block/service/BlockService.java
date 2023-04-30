@@ -36,22 +36,20 @@ public class BlockService {
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
 
-    Logger logger = LoggerFactory.getLogger(BlockService.class);
-
-
 
     @SneakyThrows
+    @Transactional
     public BlockRes createBlock(BlockCreateReq req, Long userId) {
-        Page page = pageRepository.findById(req.getPageId())
+
+        Page page = pageRepository.findByIdFetchBlocks(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
         if (page.getTemplate() == Template.BLANK) {
-            logger.error("cannot add block in Blank template");
+            log.error("cannot add block in Blank template");
             throw new IllegalAccessException("cannot add block in Blank template");
         }
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
-
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
         // 이벤트 전송
@@ -70,9 +68,6 @@ public class BlockService {
         pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
     }
 
-    // 블럭을 삭제하면 다른 블럭 순서를 재조정해야해  -업데이트
-    // delete + update 한 트랜잭션 안에서 한다는거자나
-    // 그러면 update하다가 문제가 발생했어 그러면 delete도 안되는거??
     @Transactional
     public void deleteBlock(Long blockId, Long userId) {
         Block block = blockRepository.findById(blockId)
@@ -83,13 +78,8 @@ public class BlockService {
 
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
         int order = 0;
-        for (Block b : blockList) {
-            if (b.getBlockOrder() != order) {
-                b.updateOrder(order);
-                blockRepository.save(b);
-            }
-            order++;
-        }
+        for (Block b : blockList) b.updateOrder(order++);
+
         pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
     }
 }

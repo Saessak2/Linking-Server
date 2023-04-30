@@ -10,14 +10,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "block")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class) // "@CreatedDate"를 사용하기 위한 Annotation
-public class Block extends BaseTimeEntity implements Persistable<Long>{
+public class Block {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "block_id")
@@ -36,7 +36,7 @@ public class Block extends BaseTimeEntity implements Persistable<Long>{
     @JoinColumn(name = "page_id")
     private Page page;
 
-    @OneToMany(mappedBy = "block", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "block", orphanRemoval = true)
     @OrderBy("createdDatetime asc")
     private List<Annotation> annotationList;
 
@@ -50,6 +50,7 @@ public class Block extends BaseTimeEntity implements Persistable<Long>{
     public void prePersist() {
         this.title = this.title == null ? "untitled" : this.title;
         this.content = this.content == null ? "" : this.content;
+        this.annotationList = this.annotationList == null ? new ArrayList<>() : this.annotationList;
     }
 
     public void setPage(Page page) {
@@ -63,10 +64,5 @@ public class Block extends BaseTimeEntity implements Persistable<Long>{
 
     public void updateOrder(int order) {
         this.blockOrder = order;
-    }
-
-    @Override
-    public boolean isNew() {  // createdDate == null 이면 새로운 데이터로 취급함.
-        return super.getCreatedDate() == null;
     }
 }
