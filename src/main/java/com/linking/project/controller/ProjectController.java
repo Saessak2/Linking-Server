@@ -1,90 +1,70 @@
 package com.linking.project.controller;
 
 import com.linking.global.common.ResponseHandler;
+import com.linking.participant.service.ParticipantService;
+import com.linking.project.dto.ProjectRes;
 import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectCreateReq;
-import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/projects")
-@CrossOrigin(origins = "*")
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final ParticipantService participantService;
 
     @PostMapping
-    public ResponseEntity<Object> postProject(
-            @RequestBody @Valid ProjectCreateReq projectCreateReq){
-        try {
-            return projectService.createProject(projectCreateReq)
-                    .map(ResponseHandler::generateCreatedResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch(DataIntegrityViolationException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+    public ResponseEntity<Object> postProject(@RequestBody @Valid ProjectCreateReq projectCreateReq) {
+        return projectService.createProject(projectCreateReq)
+                .map(ResponseHandler::generateCreatedResponse)
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<Object> getProject(
-            @PathVariable("id") Long projectId){
-        try {
-            return projectService.getProjectsContainingParts(projectId)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch(NoSuchElementException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getProject(@PathVariable Long id){
+        return projectService.getProjectsContainingParts(id)
+                .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
-    @PostMapping("/list/{id}")
-    public ResponseEntity<Object> getProjectList(
-            @PathVariable("id") Long userId){
-        try {
-            List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(userId);
-            if(projectList.isEmpty())
-                return ResponseHandler.generateInternalServerErrorResponse();
-            return ResponseHandler.generateOkResponse(projectList);
-        } catch(NoSuchElementException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+    @GetMapping("/list/owner/{id}")
+    public ResponseEntity<Object> getProjectListByOwner(@PathVariable Long id){
+        List<ProjectRes> projectList = projectService.getProjectsByOwnerId(id);
+        if(projectList.isEmpty())
+            return ResponseHandler.generateInternalServerErrorResponse();
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
     }
 
-    // TODO: participant create/delete process (After project update, cascade)
+    @GetMapping("/list/part/{id}")
+    public ResponseEntity<Object> getProjectListByPart(@PathVariable Long id){
+        List<ProjectRes> projectList = participantService.getPartsByUserId(id);
+        if(projectList.isEmpty())
+            return ResponseHandler.generateInternalServerErrorResponse();
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
+    }
+
     @PutMapping
-    public ResponseEntity<Object> putProject(
-            @RequestBody @Valid ProjectUpdateReq projectUpdateReq){
-        try {
-            return projectService.updateProject(projectUpdateReq)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch(NoSuchElementException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+    @Transactional
+    public ResponseEntity<Object> putProject(@RequestBody @Valid ProjectUpdateReq projectUpdateReq){
+        return projectService.updateProject(projectUpdateReq, participantService.updateParticipantList(projectUpdateReq))
+                .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProject(
-            @PathVariable("id") Long projectId){
-        try{
-            projectService.deleteProject(projectId);
-            return ResponseHandler.generateNoContentResponse();
-        } catch(EmptyResultDataAccessException e){
-            return ResponseHandler.generateNotFoundResponse();
-        } catch(SQLIntegrityConstraintViolationException e){
-            return ResponseHandler.generateBadRequestResponse();
-        }
+    public ResponseEntity<Object> deleteProject(@PathVariable Long id){
+        projectService.deleteProject(id);
+        return ResponseHandler.generateNoContentResponse();
     }
 
 }

@@ -1,10 +1,7 @@
 package com.linking.project.dto;
 
 import com.linking.user.dto.UserDetailedRes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectContainsPartsRes {
 
     private Long projectId;

@@ -16,8 +16,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     List<Participant> findByProject(@Param("project") Project project);
 
-    List<Participant> findByUser(@Param("user") User user);
-
     @Query(value = "SELECT p.project FROM Participant p WHERE p.user.userId = :userId")
     List<Project> findProjectsByUser(@Param("userId") Long userId);
 
@@ -32,4 +30,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     @Query("SELECT p FROM Participant p WHERE p.project.projectId = :projectId")
     List<Participant> findAllByProjectId(@Param("projectId") Long projectId);
+
 }

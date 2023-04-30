@@ -1,6 +1,5 @@
 package com.linking.project.persistence;
 
-import com.linking.group.domain.Group;
 import com.linking.project.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +13,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query(value = "SELECT p FROM Project p WHERE p.owner.userId = :ownerId")
     List<Project> findByOwner(@Param("ownerId") Long ownerId);
+
 }

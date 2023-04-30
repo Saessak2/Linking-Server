@@ -3,19 +3,16 @@ package com.linking.project.domain;
 import com.linking.participant.domain.Participant;
 import com.linking.user.domain.User;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-//@DynamicUpdate
 @Table(name = "project")
 @ToString
 public class Project {
@@ -25,24 +22,24 @@ public class Project {
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "project_name")
+    @Column(name = "project_name", nullable = false, length = 28)
     private String projectName;
 
-    @Column(name = "begin_date")
+    @Column(name = "begin_date", nullable = false)
     private LocalDate beginDate;
 
-    @Column(name = "due_date")
+    @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Participant> participantList;
 
-
     public Project(Long projectId) {
         this.projectId = projectId;
     }
+
 }
