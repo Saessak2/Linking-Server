@@ -9,6 +9,8 @@ import com.linking.pageCheck.dto.PageCheckUpdateRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class PageEventHandler {
@@ -24,6 +26,10 @@ public class PageEventHandler {
 
     public void postBlock(Long pageId, Long publisherId, BlockEventRes res) {
         pageSseHandler.send(pageId, publisherId, "postBlock", res);
+    }
+
+    public void putBlockOrder(Long pageId, Long publisherId, List<Long> blockIds) {
+        pageSseHandler.send(pageId, publisherId, "putBlockOrder", blockIds);
     }
 
     public void deleteBlock(Long pageId, Long publisherId, BlockIdRes res) {

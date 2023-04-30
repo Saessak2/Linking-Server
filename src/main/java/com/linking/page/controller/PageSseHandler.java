@@ -68,7 +68,7 @@ public class PageSseHandler {
                             .data(message));
                     log.info("send {} event", event);
                 } catch (IOException e) {
-                    log.error("emitter send exception");
+                    log.error("IOException > send {}", emitter.getSseEmitter());
                 }
             }
         });

@@ -30,9 +30,12 @@ public class BlockController {
     }
 
     @PutMapping("/order")
-    public ResponseEntity<Object> putBlockOrder(@RequestBody @Valid List<BlockOrderReq> req) {
+    public ResponseEntity<Object> putBlockOrder(
+            @RequestHeader(value = "userId") Long userId,
+            @RequestBody @Valid BlockOrderReq req
+    ) {
 
-        blockService.updateBlockOrder(req);
+        blockService.updateBlockOrder(req, userId);
         return ResponseHandler.generateOkResponse(true);
     }
 

@@ -14,9 +14,11 @@ import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class BlockService {
     private final PageEventHandler pageEventHandler;
     private final BlockRepository blockRepository;
@@ -56,25 +60,20 @@ public class BlockService {
         return blockRes;
     }
 
-    public void updateBlockOrder(List<BlockOrderReq> req) {
-        List<Long> blockIds = req.stream()
-                .map(BlockOrderReq::getBlockId)
-                .collect(Collectors.toList());
-        // 받은 id 순대로 order update 해야함.
-        // findAllById 사용시 id 순 대로 정렬돼서 나오는것 같음.
-        int count = 0;
-        List<Block> blockList = blockRepository.findAllById(blockIds);
-        for (Block b : blockList) {
-            int order = blockIds.indexOf(b.getId());
-            if (b.getBlockOrder() != order) {
-                b.updateOrder(order);
-                blockRepository.save(b);
-                count++;
-            }
-        }
-        logger.info("update block count => {}", count);
+    @Transactional
+    public void updateBlockOrder(BlockOrderReq req, Long userId) {
+
+        List<Block> blockList = blockRepository.findAllByPageId(req.getPageId());
+        for (Block b : blockList)
+            b.updateOrder(req.getBlockIds().indexOf(b.getId()));
+
+        pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
     }
 
+    // 블럭을 삭제하면 다른 블럭 순서를 재조정해야해  -업데이트
+    // delete + update 한 트랜잭션 안에서 한다는거자나
+    // 그러면 update하다가 문제가 발생했어 그러면 delete도 안되는거??
+    @Transactional
     public void deleteBlock(Long blockId, Long userId) {
         Block block = blockRepository.findById(blockId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
