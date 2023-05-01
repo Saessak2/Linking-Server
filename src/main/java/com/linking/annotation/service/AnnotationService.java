@@ -128,7 +128,7 @@ public class AnnotationService {
         pageCheckList.forEach(pc -> {
             if (pc.getParticipant().getParticipantId() != participant.getParticipantId()) {
                 pc.reduceAnnoNotCount();
-                pageCheckRepository.save(pc);
+//                pageCheckRepository.save(pc);
             }
         });
 

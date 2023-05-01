@@ -21,8 +21,6 @@ public interface PageRepository extends JpaRepository<Page, Long> {
 
     @Query("SELECT p FROM Page p JOIN FETCH p.pageCheckList WHERE p.id = :pageId")
     Optional<Page> findByIdFetchPageChecks(@Param("pageId") Long pageId);
-
-//    @Query(value = "SELECT p FROM Page p LEFT JOIN FETCH p.blockList WHERE p.id = :pageId")
     @EntityGraph(attributePaths = {"blockList"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query(value = "SELECT p FROM Page p WHERE p.id = :pageId")
     Optional<Page> findByIdFetchBlocks(@Param("pageId") Long pageId);
