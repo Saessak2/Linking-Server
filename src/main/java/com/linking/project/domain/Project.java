@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "project")
-@ToString
 public class Project {
 
     @Id

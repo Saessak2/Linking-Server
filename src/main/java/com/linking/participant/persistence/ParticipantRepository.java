@@ -14,6 +14,11 @@ import java.util.Optional;
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
+    @Query(value = "SELECT p FROM Participant p WHERE p.project = :project " +
+            "AND p.user.userId in :idList")
+    List<Participant> findByProjectAndUser(
+            @Param("project") Project project, @Param("idList") List<Long> assignUserIdList);
+
     List<Participant> findByProject(@Param("project") Project project);
 
     @Query(value = "SELECT p.project FROM Participant p WHERE p.user.userId = :userId")
@@ -21,6 +26,8 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
     List<Participant> findByUserAndProject(@Param("userId") Long userId, @Param("projectId") Long projectId);
+
+    List<Participant> findByUser(@Param("user") User user);
 
     /**
      * 작성자 이은빈
