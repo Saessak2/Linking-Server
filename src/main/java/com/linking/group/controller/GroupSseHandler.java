@@ -2,6 +2,7 @@ package com.linking.group.controller;
 
 import com.linking.global.common.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -56,6 +57,12 @@ public class GroupSseHandler {
         return sseEmitters;
     }
 
+    @Scheduled(cron = "0/30 * * * * *")
+    public void ping() {
+        log.info("sendPing thread : {}", Thread.currentThread());
+
+    }
+
     public void send(Long key, Long publishUserId, String event, Object message) {
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
         if (sseEmitters == null) return;
@@ -67,6 +74,7 @@ public class GroupSseHandler {
                             .data(message));
                     log.info("send {} event", event);
 
+
                 } catch (IOException e) {
                     log.error("Connection reset by peer");
                 }
@@ -74,6 +82,10 @@ public class GroupSseHandler {
         });
     }
 
+
+    /**
+     * send for event of post/deleteAnnoNot
+     */
     public void send(Long key, Set<Long> pageSubscriberIds, String event, Object message) {
 
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);

@@ -43,11 +43,13 @@ public class BlockService {
 
         Page page = pageRepository.findByIdFetchBlocks(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+        log.info("1");
 
         if (page.getTemplate() == Template.BLANK) {
             log.error("cannot add block in Blank template");
             throw new IllegalAccessException("cannot add block in Blank template");
         }
+        log.info("2");
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
