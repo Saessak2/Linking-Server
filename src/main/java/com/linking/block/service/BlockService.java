@@ -49,6 +49,7 @@ public class BlockService {
             log.error("cannot add block in Blank template");
             throw new IllegalAccessException("cannot add block in Blank template");
         }
+
         log.info("2");
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
