@@ -3,6 +3,7 @@ package com.linking.page.controller;
 import com.linking.global.common.CustomEmitter;
 import com.linking.page.dto.BlockPageDetailRes;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -15,7 +16,8 @@ import java.util.stream.Collectors;
 @Component
 public class PageSseHandler {
 
-    private static final Long TIMEOUT = 600 * 1000L;
+//    private static final Long TIMEOUT = 600 * 1000L;
+    private static final Long TIMEOUT = 6 * 1000L;
 
     /**
      * key : pageId
@@ -94,7 +96,15 @@ public class PageSseHandler {
         return emitters.stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
     }
 
+    @Async("eventCallExecutor")
     public void removeEmittersByPage(Long key) { // 해당 페이지 emitters 삭제
+        log.info("removeEmitterByPage - {}", this.getClass().getName());
+
+        // pageSubscriber에서 remove(key)해도 emitter객체는 complete이 발생하기 전까지 삭제되지 않음.
+        Set<CustomEmitter> customEmitters = pageSubscriber.get(key);
+        for (CustomEmitter customEmitter : customEmitters)
+            customEmitter.getSseEmitter().complete();
+
         pageSubscriber.remove(key);
         log.info("** [PAGE][REMOVE_ALL] page = {} is removed", key);
     }

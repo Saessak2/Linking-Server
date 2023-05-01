@@ -57,11 +57,11 @@ public class GroupSseHandler {
         return sseEmitters;
     }
 
-    @Scheduled(cron = "0/30 * * * * *")
-    public void ping() {
-        log.info("sendPing thread : {}", Thread.currentThread());
-
-    }
+//    @Scheduled(cron = "0/30 * * * * *")
+//    public void ping() {
+//        log.info("sendPing thread : {}", Thread.currentThread());
+//
+//    }
 
     public void send(Long key, Long publishUserId, String event, Object message) {
         Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);

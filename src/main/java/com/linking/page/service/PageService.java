@@ -130,6 +130,8 @@ public class PageService {
     }
 
     public void deletePage(Long pageId, Long userId) throws NoSuchElementException{
+        log.info("deletePage - {}", this.getClass().getName());
+
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
         Long projectId = page.getGroup().getProject().getProjectId();
