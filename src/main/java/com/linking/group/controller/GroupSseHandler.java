@@ -2,6 +2,7 @@ package com.linking.group.controller;
 
 import com.linking.global.common.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -105,5 +106,15 @@ public class GroupSseHandler {
         });
     }
 
-    // TODO 프로젝트 삭제 했을 떄 publisher에서 project 삭제해야함.
+    @Async("eventCallExecutor")
+    public void removeEmittersByProject(Long key) {
+        log.info("removeEmittersByProject - {}", this.getClass().getName());
+
+        Set<CustomEmitter> customEmitters = groupSubscriber.get(key);
+        for (CustomEmitter customEmitter : customEmitters)
+            customEmitter.getSseEmitter().complete();
+
+        groupSubscriber.remove(key);
+        log.info("** [GROUP][REMOVE_ALL] project = {} is removed", key);
+    }
 }

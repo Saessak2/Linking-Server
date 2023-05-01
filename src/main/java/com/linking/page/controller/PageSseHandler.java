@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class PageSseHandler {
 
-//    private static final Long TIMEOUT = 600 * 1000L;
-    private static final Long TIMEOUT = 6 * 1000L;
+    private static final Long TIMEOUT = 600 * 1000L;
 
     /**
      * key : pageId

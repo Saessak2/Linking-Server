@@ -1,6 +1,7 @@
 package com.linking.project.controller;
 
 import com.linking.global.common.ResponseHandler;
+import com.linking.group.controller.GroupSseHandler;
 import com.linking.participant.service.ParticipantService;
 import com.linking.project.dto.ProjectRes;
 import com.linking.project.service.ProjectService;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/projects")
 public class ProjectController {
-
+    private final GroupSseHandler groupSseHandler;
     private final ProjectService projectService;
     private final ParticipantService participantService;
 
@@ -63,8 +64,12 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProject(@PathVariable Long id){
+
         projectService.deleteProject(id);
+        /**
+         * 작성자 : 이은빈
+         */
+        groupSseHandler.removeEmittersByProject(id);
         return ResponseHandler.generateNoContentResponse();
     }
-
 }
