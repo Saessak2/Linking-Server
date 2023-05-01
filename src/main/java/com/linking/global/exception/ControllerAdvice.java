@@ -3,9 +3,11 @@ package com.linking.global.exception;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.linking.global.common.ResponseHandler;
 import com.linking.global.message.ErrorMessage;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,7 +26,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity missingRequestHeaderException(MissingRequestHeaderException exception) {
+    public ResponseEntity<Object> missingRequestHeaderException(MissingRequestHeaderException exception) {
         return ResponseHandler.generateResponse(exception.getHeaderName() + " is missing", HttpStatus.BAD_REQUEST, null);
     }
 
@@ -49,7 +51,23 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity invalidFormatException(InvalidFormatException exception) {
+    public ResponseEntity<Object> invalidFormatException(InvalidFormatException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> dataIntegrityViolationException(DataIntegrityViolationException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<Object> emptyResultDataAccessException(EmptyResultDataAccessException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<Object> duplicateKeyException(DuplicateKeyException exception){
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
+
 }

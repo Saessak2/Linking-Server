@@ -6,14 +6,11 @@ import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserDetailedRes;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,35 +21,26 @@ public class UserController {
 
     @PostMapping("/email")
     public ResponseEntity<Object> getUserListWithEmail(@RequestBody UserEmailReq userEmailReq){
-        try {
-            List<UserDetailedRes> userList = userService.getUsersByPartOfEmail(userEmailReq);
-            return ResponseHandler.generateOkResponse(new UserEmailRes(Boolean.TRUE, userList));
-        } catch(NoSuchElementException e){
+        List<UserDetailedRes> userList = userService.getUsersByPartOfEmail(userEmailReq);
+        if(userList.isEmpty())
             return ResponseHandler.generateResponse(
                     ResponseHandler.MSG_404, HttpStatus.NOT_FOUND, new UserEmailRes(Boolean.FALSE, null));
-        }
+        return ResponseHandler.generateResponse(
+                ResponseHandler.MSG_200, HttpStatus.OK, new UserEmailRes(Boolean.TRUE, userList));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getUser(@PathVariable("id") Long userId){
-        try {
-            return userService.getUserById(userId)
-                    .map(ResponseHandler::generateOkResponse)
-                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
-        } catch (NoSuchElementException e){
-            return ResponseHandler.generateNotFoundResponse();
-        }
+    public ResponseEntity<Object> getUser(@PathVariable Long id){
+        return userService.getUserById(id)
+                .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, u))
+                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
+    // TODO: 프로젝트를 소유하는 회원이면 소유자를 이전함( -> project service)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable("id") Long userId){
-        try {
-            userService.deleteUser(userId);
-            return ResponseHandler.generateNoContentResponse();
-        } catch(EmptyResultDataAccessException e){
-            return ResponseHandler.generateNotFoundResponse();
-        } catch(DataIntegrityViolationException e){
-            return ResponseHandler.generateBadRequestResponse();
-        }
+    public ResponseEntity<Object> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseHandler.generateNoContentResponse();
     }
+
 }

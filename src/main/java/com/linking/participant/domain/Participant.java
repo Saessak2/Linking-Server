@@ -5,13 +5,11 @@ import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.PushbackReader;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "participant")
 public class Participant {
@@ -29,17 +27,7 @@ public class Participant {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    @Column(nullable = false, length = 40)
     private String userName;
 
-    public void setUser(User user) {
-        this.user = user;
-        this.userName = user.getFullName();
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-        if (!project.getParticipantList().contains(this)) {
-            project.getParticipantList().add(this);
-        }
-    }
 }

@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByEmailAndPassword(@Param("email") String email, @Param("password") String password);
     Optional<User> findUserByEmail(@Param("email") String email);
 
-    @Query(value = "SELECT u FROM User u WHERE u.email LIKE CONCAT('%', :partOfEmail, '%')")
+    @Query(value = "SELECT u FROM User u WHERE u.email LIKE CONCAT('%', :partOfEmail,'%@%')")
     List<User> findUsersByPartOfEmail(@Param("partOfEmail") String partOfEmail);
 
 }
