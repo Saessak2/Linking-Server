@@ -19,12 +19,14 @@ import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class AnnotationService {
     private final PageSseHandler pageSseHandler;
     private final GroupEventHandler groupEventHandler;
@@ -35,6 +37,7 @@ public class AnnotationService {
     private final BlockRepository blockRepository;
     private final ParticipantRepository participantRepository;
 
+    @Transactional
     public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
         Block block = blockRepository.findById(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
@@ -60,7 +63,6 @@ public class AnnotationService {
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(block.getPage().getId());
 
         // 주석 개수 증가 이벤트
-//        groupEventHandler.po
         groupEventHandler.postAnnoNot(block.getPage().getGroup().getProject().getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
@@ -68,6 +70,7 @@ public class AnnotationService {
         return annotationRes;
     }
 
+    @Transactional
     public AnnotationRes updateAnnotation(AnnotationUpdateReq annotationReq, Long userId) {
 
         Annotation annotation = annotationRepository.findById(annotationReq.getAnnotationId())
@@ -95,6 +98,7 @@ public class AnnotationService {
         return annotationRes;
     }
 
+    @Transactional
     public void deleteAnnotation(Long annotationId, Long projectId, Long userId) {
 
         Annotation annotation = annotationRepository.findById(annotationId)
