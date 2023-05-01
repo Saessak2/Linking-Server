@@ -39,7 +39,9 @@ public class AnnotationService {
 
     @Transactional
     public AnnotationRes createAnnotation(AnnotationCreateReq req, Long userId) {
-        Block block = blockRepository.findById(req.getBlockId())
+        log.info("service - createAnnotation");
+
+        Block block = blockRepository.findByFetchAnnotations(req.getBlockId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
         Participant participant = participantRepository.findByUserAndProjectId(userId, req.getProjectId())
@@ -56,14 +58,15 @@ public class AnnotationService {
         pageCheckList.forEach(pc -> {
             if (pc.getParticipant().getParticipantId() != participant.getParticipantId()) {
                 pc.increaseAnnotNotCount();
-                pageCheckRepository.save(pc);
+//                pageCheckRepository.save(pc);
             }
         });
         // 페이지 들어가 있는 유저 아이디 목록
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(block.getPage().getId());
 
         // 주석 개수 증가 이벤트
-        groupEventHandler.postAnnoNot(block.getPage().getGroup().getProject().getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
+        // TODO 프론트에서 pageId를 좀 더 빨리 찾을 수 있도록 groupId를 요청하여 page에서 group을 조회하기 떄문에 select page sql 발생
+        groupEventHandler.postAnnoNot(req.getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
@@ -73,6 +76,7 @@ public class AnnotationService {
     @Transactional
     public AnnotationRes updateAnnotation(AnnotationUpdateReq annotationReq, Long userId) {
 
+        log.info("updateAnnotation");
         Annotation annotation = annotationRepository.findById(annotationReq.getAnnotationId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_ANNOTATION));
 
@@ -83,7 +87,7 @@ public class AnnotationService {
         }
 
         annotation.updateContent(annotationReq.getContent());
-        AnnotationRes annotationRes = annotationMapper.toDto(annotationRepository.save(annotation));
+        AnnotationRes annotationRes = annotationMapper.toDto(annotation);
 
         AnnotationUpdateRes annotationUpdateRes = AnnotationUpdateRes.builder()
                 .annotationId(annotationRes.getAnnotationId())
@@ -100,6 +104,7 @@ public class AnnotationService {
 
     @Transactional
     public void deleteAnnotation(Long annotationId, Long projectId, Long userId) {
+        log.info("deleteAnnotation");
 
         Annotation annotation = annotationRepository.findById(annotationId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_ANNOTATION));

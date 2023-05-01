@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BlockRepository extends JpaRepository<Block, Long> {
@@ -15,7 +16,12 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     @Query("select b from Block b where b.page.id = :pageId order by b.blockOrder asc")
     List<Block> findAllByPageId(@Param("pageId") Long pageId);
 
-    @EntityGraph(attributePaths = {"annotationList"}, type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(attributePaths = {"annotationList"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT b FROM Block b WHERE b.page.id = :pageId order by b.blockOrder asc")
     List<Block> findAllByPageIdFetchAnnotations(@Param("pageId") Long pageId);
+
+    @EntityGraph(attributePaths = {"annotationList"}, type = EntityGraph.EntityGraphType.FETCH)
+    @Query("SELECT b FROM Block b WHERE b.id = :blockId")
+    Optional<Block> findByFetchAnnotations(@Param("blockId") Long blockId);
+
 }
