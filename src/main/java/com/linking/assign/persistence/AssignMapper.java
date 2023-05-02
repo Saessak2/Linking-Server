@@ -6,6 +6,7 @@ import com.linking.assign.dto.AssignRatioRes;
 import com.linking.assign.dto.AssignRes;
 import org.mapstruct.Mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -37,6 +38,15 @@ public interface AssignMapper {
                 .completionRatio((double) completeReq.getCount() / totalReq.getCount() * 100).build();
     }
 
-    List<AssignRatioRes> toDto(List<AssignCountReq> totalCountList, List<AssignCountReq> completeCountList);
+    default List<AssignRatioRes> toDto(List<AssignCountReq> totalCountList, List<AssignCountReq> completeCountList){
+        if(totalCountList == null || completeCountList == null)
+            return null;
+
+        List<AssignRatioRes> assignRatioList = new ArrayList<>();
+        for(int i = 0; i < totalCountList.size(); i++)
+            assignRatioList.add(toDto(totalCountList.get(i), completeCountList.get(i)));
+
+        return assignRatioList;
+    }
 
 }

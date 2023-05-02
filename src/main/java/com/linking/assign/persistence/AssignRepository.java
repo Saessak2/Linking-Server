@@ -3,7 +3,6 @@ package com.linking.assign.persistence;
 import com.linking.assign.domain.Assign;
 import com.linking.assign.dto.AssignCountReq;
 import com.linking.participant.domain.Participant;
-import com.linking.todo.domain.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

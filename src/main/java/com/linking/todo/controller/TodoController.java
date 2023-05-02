@@ -55,8 +55,8 @@ public class TodoController {
 
     @GetMapping("/list/today/user/{id}")
     public ResponseEntity<Object> getTodayMyTodos(@PathVariable Long id){
-        todoService.getTodayMyTodos(id);
-        return (ResponseEntity<Object>) ResponseEntity.ok();
+        return ResponseHandler.generateOkResponse(
+                todoService.getTodayMyTodos(id));
     }
 
     @GetMapping("/list/today/project/{id}")

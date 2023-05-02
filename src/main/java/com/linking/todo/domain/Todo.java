@@ -41,10 +41,10 @@ public class Todo {
     @Column(nullable = false, length = 28, columnDefinition = " ")
     private String content;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)
     private List<Todo> childTodoList;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "todo", cascade = CascadeType.ALL)
     private List<Assign> assignList;
 
     public Todo(Long todoId){
