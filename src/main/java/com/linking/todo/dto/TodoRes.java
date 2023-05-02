@@ -1,5 +1,6 @@
 package com.linking.todo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.linking.assign.dto.AssignRes;
 import lombok.*;
 
@@ -19,5 +20,10 @@ public class TodoRes {
     private LocalDate dueDate;
     private String content;
     private List<AssignRes> assignList;
+
+    @JsonIgnore
+    public void setAssignList(List<AssignRes> assignList){
+        this.assignList = assignList;
+    }
 
 }

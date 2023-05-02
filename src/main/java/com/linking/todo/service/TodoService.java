@@ -2,6 +2,7 @@ package com.linking.todo.service;
 
 import com.linking.assign.domain.Assign;
 import com.linking.assign.domain.Status;
+import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,21 +30,24 @@ public class TodoService {
     private final ParticipantRepository participantRepository;
     private final AssignRepository assignRepository;
 
-    public Long createTodo(TodoCreateReq todoCreateReq){
+    public TodoRes createTodo(TodoCreateReq todoCreateReq){
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
 
         List<Participant> participantList =
                 participantRepository.findByProjectAndUser(
                         new Project(todoCreateReq.getProjectId()), todoCreateReq.getAssignList());
         Assign.AssignBuilder assignBuilder = Assign.builder();
+
+        List<Assign> assignList = new ArrayList<>();
         for(Participant participant : participantList)
-            assignRepository.save(
+            assignList.add(assignRepository.save(
                     assignBuilder
                             .todo(todo)
                             .participant(participant)
-                            .status(Status.BEFORE_START).build());
+                            .status(Status.BEFORE_START).build()));
 
-        return todo.getTodoId();
+        todo.setAssignList(assignList);
+        return todoMapper.toDto(todo);
     }
 
     public Optional<TodoRes> getTodo(Long id){
@@ -66,10 +71,11 @@ public class TodoService {
         return todoMapper.toParentDto(todoList);
     }
 
-    public Optional<Long> updateTodo(TodoUpdateReq todoUpdateReq){
+    public Optional<TodoRes> updateTodo(TodoUpdateReq todoUpdateReq){
         Optional<Todo> possibleTodo = todoRepository.findById(todoUpdateReq.getTodoId());
-        if(possibleTodo.isPresent())
-            return Optional.ofNullable(todoRepository.save(todoMapper.toEntity(todoUpdateReq)).getTodoId());
+        if(possibleTodo.isPresent()) {
+            return Optional.ofNullable(todoMapper.toDto(todoRepository.save(todoMapper.toEntity(todoUpdateReq))));
+        }
         return Optional.empty();
     }
 

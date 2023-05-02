@@ -3,6 +3,7 @@ package com.linking.assign.service;
 import com.linking.assign.domain.Assign;
 import com.linking.assign.domain.Status;
 import com.linking.assign.dto.AssignCountRes;
+import com.linking.assign.dto.AssignRes;
 import com.linking.assign.dto.AssignStatusUpdateReq;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
@@ -32,7 +33,7 @@ public class AssignService {
         return assignMapper.toRatioDto(countList);
     }
 
-    public Optional<Long> updateAssignStatus(AssignStatusUpdateReq assignStatusUpdateReq){
+    public Optional<AssignRes> updateAssignStatus(AssignStatusUpdateReq assignStatusUpdateReq){
         Optional<Assign> possibleAssign = assignRepository.findById(assignStatusUpdateReq.getAssignId());
         if(possibleAssign.isPresent()) {
             Assign.AssignBuilder assignBuilder = Assign.builder();
@@ -41,7 +42,7 @@ public class AssignService {
                     .todo(possibleAssign.get().getTodo())
                     .participant(possibleAssign.get().getParticipant())
                     .status(Status.valueOf(assignStatusUpdateReq.getStatus()));
-            return Optional.ofNullable(assignRepository.save(assignBuilder.build()).getAssignId());
+            return Optional.ofNullable(assignMapper.toDto(assignRepository.save(assignBuilder.build())));
         }
         return Optional.empty();
     }

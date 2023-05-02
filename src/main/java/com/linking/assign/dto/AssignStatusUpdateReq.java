@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AssignStatusUpdateReq {
 
+    private int emitterId;
     private Long assignId;
     private String status;
 

@@ -1,7 +1,10 @@
 package com.linking.todo.controller;
 
+import com.linking.global.common.LabeledEmitter;
 import com.linking.global.common.ResponseHandler;
 import com.linking.todo.dto.TodoCreateReq;
+import com.linking.todo.dto.TodoDeleteReq;
+import com.linking.todo.dto.TodoRes;
 import com.linking.todo.dto.TodoUpdateReq;
 import com.linking.todo.service.TodoService;
 import lombok.RequiredArgsConstructor;
@@ -20,31 +23,32 @@ public class TodoController {
     private final TodoSseHandler todoSseHandler;
     private final TodoService todoService;
 
-    @GetMapping("/connect")
-    public ResponseEntity<SseEmitter> connect(){
-        SseEmitter emitter = new SseEmitter(60 * 1000L);
-        todoSseHandler.add(emitter);
+    @GetMapping("/connect/{userId}")
+    public ResponseEntity<SseEmitter> connect(@PathVariable Long userId){
+        LabeledEmitter labeledEmitter = todoSseHandler.connect(userId);
+        SseEmitter sseEmitter = labeledEmitter.getSseEmitter();
         try{
-            emitter.send(SseEmitter.event()
+            sseEmitter
+                    .send(SseEmitter.event()
                     .name("connect")
-                    .data("connected"));
+                    .data(labeledEmitter.getEmitterId()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return ResponseEntity.ok(emitter);
+        return ResponseEntity.ok(sseEmitter);
     }
 
-    @GetMapping("/disconnect")
-    public void disconnect(){
-
+    @GetMapping("/disconnect/{emitterId}")
+    public void disconnect(@PathVariable int emitterId){
+        todoSseHandler.disconnect(emitterId);
     }
 
-    /* ----- */
 
-    @PostMapping
+    @PostMapping("/new")
     public ResponseEntity<Object> postTodo(@RequestBody @Valid TodoCreateReq todoCreateReq){
-        return ResponseHandler.generateCreatedResponse(
-                todoService.createTodo(todoCreateReq));
+        TodoRes todoRes = todoService.createTodo(todoCreateReq);
+        todoSseHandler.send(todoCreateReq.getEmitterId(), "TODO-POSTED", todoRes);
+        return ResponseHandler.generateCreatedResponse(todoRes.getTodoId());
     }
 
     @GetMapping("/{id}")
@@ -73,13 +77,15 @@ public class TodoController {
 
     @PutMapping
     public ResponseEntity<Object> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
-        return ResponseHandler.generateOkResponse(
-                todoService.updateTodo(todoUpdateReq));
+        TodoRes todoRes = todoService.updateTodo(todoUpdateReq).get();
+        todoSseHandler.send(todoUpdateReq.getEmitterId(), "TODO UPDATED", todoRes);
+        return ResponseHandler.generateOkResponse(todoRes.getTodoId());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTodo(@PathVariable Long id){
-        todoService.deleteTodo(id);
+    @PostMapping
+    public ResponseEntity<Object> deleteTodo(@RequestBody TodoDeleteReq todoDeleteReq){
+        todoSseHandler.send(todoDeleteReq.getEmitterId(), "TODO DELETED", todoDeleteReq.getTodoId());
+        todoService.deleteTodo(todoDeleteReq.getTodoId());
         return ResponseHandler.generateNoContentResponse();
     }
 

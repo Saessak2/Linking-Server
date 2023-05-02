@@ -14,6 +14,9 @@ import java.util.List;
 public class TodoCreateReq {
 
     @NotNull
+    private int emitterId;
+
+    @NotNull
     private Long projectId;
 
     private Long parentId;

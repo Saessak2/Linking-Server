@@ -13,6 +13,9 @@ import java.time.LocalDate;
 public class TodoUpdateReq {
 
     @NotNull
+    private int emitterId;
+
+    @NotNull
     private Long todoId;
 
     @NotNull
