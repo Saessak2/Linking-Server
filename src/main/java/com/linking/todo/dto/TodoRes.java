@@ -1,6 +1,5 @@
 package com.linking.todo.dto;
 
-import com.linking.assign.domain.Assign;
 import com.linking.assign.dto.AssignRes;
 import lombok.*;
 

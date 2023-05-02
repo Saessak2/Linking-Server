@@ -3,6 +3,7 @@ package com.linking.todo.domain;
 import com.linking.assign.domain.Assign;
 import com.linking.project.domain.Project;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -29,7 +30,8 @@ public class Todo {
     @JoinColumn(name = "parent_todo_id")
     private Todo parentTodo;
 
-    @Column(name = "is_parent", nullable = false, columnDefinition = "true")
+    @Column(name = "is_parent", nullable = false)
+    @ColumnDefault("true")
     private boolean isParent;
 
     @Column(name = "start_date", nullable = false)
@@ -38,7 +40,8 @@ public class Todo {
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
-    @Column(nullable = false, length = 28, columnDefinition = " ")
+    @Column(nullable = false, length = 28)
+    @ColumnDefault("")
     private String content;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)

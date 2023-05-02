@@ -18,7 +18,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByProjectAndDate(@Param("project") Project project, @Param("date") LocalDate date);
 
     @Query(value = "SELECT t FROM Todo t WHERE :project = t.project" +
-            " AND function('date_format', :today, '%Y%m') BETWEEN t.startDate AND t.dueDate")
+            " AND function('date_format', :today, '%Y%m')" +
+            " BETWEEN function('date_format', t.startDate, '%Y%m') AND function('date_format', t.dueDate, '%Y%m')")
     List<Todo> findByProjectAndMonth(@Param("project") Project project, @Param("today") LocalDate today);
 
 }

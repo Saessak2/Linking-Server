@@ -1,5 +1,6 @@
 package com.linking.assign.controller;
 
+import com.linking.assign.dto.AssignStatusUpdateReq;
 import com.linking.assign.service.AssignService;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,10 @@ public class AssignController {
                 assignService.getAssignCompletionRate(id));
     }
 
-
-    // 할 일 상태 수정 -> assign
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> putTodoStatus(@PathVariable Long id, @RequestBody String status){
+    @PutMapping("/status")
+    public ResponseEntity<Object> putAssignStatus(@RequestBody AssignStatusUpdateReq assignStatusUpdateReq){
         return ResponseHandler.generateOkResponse(
-                assignService.updateAssignStatus(id, status));
+                assignService.updateAssignStatus(assignStatusUpdateReq));
     }
 
 }

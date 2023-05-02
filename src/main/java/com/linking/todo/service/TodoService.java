@@ -74,7 +74,7 @@ public class TodoService {
     }
 
     public void deleteTodo(Long id){
-        participantRepository.deleteById(id);
+        todoRepository.deleteById(id);
     }
 
 }

@@ -1,14 +1,16 @@
 package com.linking.assign.persistence;
 
 import com.linking.assign.domain.Assign;
-import com.linking.assign.dto.AssignCountReq;
+import com.linking.assign.dto.AssignCountRes;
 import com.linking.assign.dto.AssignRatioRes;
 import com.linking.assign.dto.AssignRes;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Mapper(componentModel = "spring")
 public interface AssignMapper {
 
@@ -26,25 +28,25 @@ public interface AssignMapper {
 
     List<AssignRes> toDto(List<Assign> assignList);
 
-    default AssignRatioRes toDto(AssignCountReq totalReq, AssignCountReq completeReq){
-        if(totalReq == null || completeReq == null)
+    default AssignRatioRes toRatioDto(AssignCountRes countReq){
+        if(countReq == null)
             return null;
 
         AssignRatioRes.AssignRatioResBuilder assignRatioResBuilder = AssignRatioRes.builder();
         return assignRatioResBuilder
-                .participantId(totalReq.getParticipantId())
-                .totalAssign(totalReq.getCount())
-                .completeAssign(completeReq.getCount())
-                .completionRatio((double) completeReq.getCount() / totalReq.getCount() * 100).build();
+                .participantId(countReq.getParticipantId())
+                .totalAssign(countReq.getCount())
+                .completeAssign(countReq.getCompleteCount())
+                .completionRatio((double) countReq.getCompleteCount() / (double) countReq.getCount() * 100).build();
     }
 
-    default List<AssignRatioRes> toDto(List<AssignCountReq> totalCountList, List<AssignCountReq> completeCountList){
-        if(totalCountList == null || completeCountList == null)
+    default List<AssignRatioRes> toRatioDto(List<AssignCountRes> countList){
+        if(countList == null)
             return null;
 
         List<AssignRatioRes> assignRatioList = new ArrayList<>();
-        for(int i = 0; i < totalCountList.size(); i++)
-            assignRatioList.add(toDto(totalCountList.get(i), completeCountList.get(i)));
+        for (AssignCountRes assignCountRes : countList)
+            assignRatioList.add(toRatioDto(assignCountRes));
 
         return assignRatioList;
     }

@@ -71,14 +71,12 @@ public class TodoController {
                 todoService.getMonthlyProjectTodos(id));
     }
 
-    // 할 일 수정
     @PutMapping
     public ResponseEntity<Object> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
         return ResponseHandler.generateOkResponse(
                 todoService.updateTodo(todoUpdateReq));
     }
 
-    // 할 일 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTodo(@PathVariable Long id){
         todoService.deleteTodo(id);
