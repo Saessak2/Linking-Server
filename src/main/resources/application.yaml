@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/linking?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
     username: root
-    password: A5b4c3d2e1.
+    password: 0881
 #    url: jdbc:mysql://172.17.0.2:3306/linking?serverTimezone=Asia/Seoul
 #    username: binmuxiz
 #    password: 4213

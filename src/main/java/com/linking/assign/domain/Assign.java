@@ -30,7 +30,7 @@ public class Assign {
     private Participant participant;
 
     @Enumerated(value = STRING)
-    @Column(nullable = false, length = 20, columnDefinition = "BEFORE_START")
+    @Column(nullable = false, length = 20)
     private Status status;
 
 }
