@@ -4,10 +4,7 @@ import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.block.domain.Block;
-import com.linking.block.dto.BlockCreateReq;
-import com.linking.block.dto.BlockIdRes;
-import com.linking.block.dto.BlockOrderReq;
-import com.linking.block.dto.BlockRes;
+import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
@@ -17,9 +14,11 @@ import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,73 +28,57 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class BlockService {
     private final PageEventHandler pageEventHandler;
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
-    private final AnnotationMapper annotationMapper;
 
-    Logger logger = LoggerFactory.getLogger(BlockService.class);
-
-    public List<BlockRes> toBlockResList(List<Block> blockList) {
-        List<BlockRes> blockResList = new ArrayList<>();
-
-        for (Block block : blockList) {
-            List<AnnotationRes> annotationResList = new ArrayList<>();
-            List<Annotation> annotations = block.getAnnotationList();
-            if (annotations.isEmpty()) {
-                annotationResList.add(annotationMapper.toEmptyDto());
-            } else {
-                for (Annotation annotation : block.getAnnotationList()) {
-                    annotationResList.add(annotationMapper.toDto(annotation));
-                }
-            }
-            blockResList.add(blockMapper.toDto(block, annotationResList));
-        }
-        return blockResList;
-    }
 
     @SneakyThrows
+    @Transactional
     public BlockRes createBlock(BlockCreateReq req, Long userId) {
-        Page page = pageRepository.findById(req.getPageId())
+
+        Page page = pageRepository.findByIdFetchBlocks(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
         if (page.getTemplate() == Template.BLANK) {
-            logger.error("블럭을 생성할 수 없는 페이지");
-            throw new IllegalAccessException("Blank template에는 블럭을 생성할 수 없습니다.");
+            log.error("cannot add block in Blank template");
+            throw new IllegalAccessException("cannot add block in Blank template");
         }
 
         Block block = blockMapper.toEntity(req);
         block.setPage(page);
-        List<AnnotationRes> dummy = new ArrayList<>();
-        dummy.add(new AnnotationRes(-1L, -1L, "", "00-00-00 AM 00:00", -1L, ""));
-        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block), dummy);
+        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
-        pageEventHandler.postBlock(page.getId(), userId, blockRes);
+        // 이벤트 전송
+        pageEventHandler.postBlock(page.getId(), userId, new BlockEventRes(blockRes.getBlockId(), blockRes.getPageId(), blockRes.getTitle()));
 
         return blockRes;
     }
 
-    public void updateBlockOrder(List<BlockOrderReq> req) {
-        List<Long> blockIds = req.stream()
-                .map(BlockOrderReq::getBlockId)
-                .collect(Collectors.toList());
-        // 받은 id 순대로 order update 해야함.
-        // findAllById 사용시 id 순 대로 정렬돼서 나오는것 같음.
-        int count = 0;
-        List<Block> blockList = blockRepository.findAllById(blockIds);
+    @Transactional
+    public boolean updateBlockOrder(BlockOrderReq req, Long userId) {
+
+        List<Block> blockList = blockRepository.findAllByPageId(req.getPageId());
+
+        boolean flag = false;
         for (Block b : blockList) {
-            int order = blockIds.indexOf(b.getId());
-            if (b.getBlockOrder() != order) {
-                b.updateOrder(order);
-                blockRepository.save(b);
-                count++;
+            int newOrder = req.getBlockIds().indexOf(b.getId());
+            if (newOrder != b.getBlockOrder()) {
+                b.updateOrder(newOrder);
+                flag = true;
             }
         }
-        logger.info("update block count => {}", count);
+        if (flag)
+            pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
+
+        return true;
     }
 
+    @Transactional
     public void deleteBlock(Long blockId, Long userId) {
         Block block = blockRepository.findById(blockId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
@@ -105,18 +88,9 @@ public class BlockService {
 
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
         int order = 0;
-        for (Block b : blockList) {
-            if (b.getBlockOrder() != order) {
-                b.updateOrder(order);
-                blockRepository.save(b);
-            }
-            order++;
-        }
-        pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
-    }
+        for (Block b : blockList) b.updateOrder(order++);
 
-    public Optional<Block> getBlock(Long blockId) {
-        return blockRepository.findById(blockId);
+        pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
     }
 }
 

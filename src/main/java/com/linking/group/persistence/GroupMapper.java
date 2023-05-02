@@ -23,6 +23,7 @@ public interface GroupMapper {
                 .groupId(source.getId())
                 .name(source.getName())
                 .build();
+
         return builder;
     }
 
@@ -34,14 +35,13 @@ public interface GroupMapper {
                 .name(source.getName())
                 .pageResList(pageResList)
                 .build();
+
         return builder;
     }
 
 
     default Group toEntity(GroupCreateReq source) {
-        if (source == null) {
-            return null;
-        }
+
         Group.GroupBuilder builder = Group.builder();
         builder
                 .name(source.getName())

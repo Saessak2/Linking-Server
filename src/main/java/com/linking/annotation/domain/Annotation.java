@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Table(name = "annotation")
 @Getter
@@ -23,9 +25,7 @@ public class Annotation {
 
     private LocalDateTime createdDatetime;
     private LocalDateTime lastModified;
-
     private String content;
-
     private String writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,5 +64,9 @@ public class Annotation {
     public void updateContent(String content) {
         this.content = content;
         this.lastModified = LocalDateTime.now();
+    }
+
+    public String getLastModified() {
+        return lastModified.format(DateTimeFormatter.ofPattern("YY-MM-dd a HH:mm").withLocale(Locale.forLanguageTag("en")));
     }
 }

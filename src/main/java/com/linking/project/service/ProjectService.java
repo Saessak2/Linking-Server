@@ -30,7 +30,6 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
-
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
@@ -89,6 +88,7 @@ public class ProjectService {
         if(project.getParticipantList().size() > 1)
             throw new DataIntegrityViolationException("삭제할 수 없는 프로젝트");
         projectRepository.deleteById(projectId);
-    }
 
+
+    }
 }

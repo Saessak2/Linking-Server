@@ -6,16 +6,13 @@ import com.linking.pageCheck.dto.PageCheckUpdateRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface PageCheckMapper {
 
-    default PageCheckRes toDto(PageCheck source, String userName, Long userId) {
+    default PageCheckRes toDto(PageCheck source) {
         PageCheckRes.PageCheckResBuilder builder = PageCheckRes.builder();
         builder
                 .pageCheckId(source.getId())
@@ -29,12 +26,12 @@ public interface PageCheckMapper {
                     .isChecked(true)
                     .lastChecked(source.getLastChecked());
         builder
-                .userName(userName)
-                .userId(userId);
+                .userName(source.getParticipant().getUser().getFullName())
+                .userId(source.getParticipant().getUser().getUserId());
         return builder.build();
     }
 
-    default PageCheckUpdateRes toDto(PageCheck source, Long userId) {
+    default PageCheckUpdateRes toPageCheckUpdateDto(PageCheck source) {
         PageCheckUpdateRes.PageCheckUpdateResBuilder builder = PageCheckUpdateRes.builder();
         // pagecheck update이 되는 경우는 lastChecked가 null일 수 없지만 혹시 몰라 null 확인 처리.
         if (source.getLastChecked() == null)
@@ -46,7 +43,7 @@ public interface PageCheckMapper {
                     .isChecked(true)
                     .lastChecked(source.getLastChecked());
         builder
-                .userId(userId);
+                .userId(source.getParticipant().getUser().getUserId());
         return builder.build();
     }
 

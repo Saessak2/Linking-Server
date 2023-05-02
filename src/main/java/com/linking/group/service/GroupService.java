@@ -1,7 +1,7 @@
 package com.linking.group.service;
 
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.DocumentEventHandler;
+import com.linking.group.controller.GroupEventHandler;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
@@ -28,29 +28,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupService {
-    private final DocumentEventHandler documentEventHandler;
-
+    private final GroupEventHandler groupEventHandler;
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final PageCheckRepository pageCheckRepository;
-    private final ParticipantRepository participantRepository;
 
 
     // 그룹 리스트 조회
     public List<GroupDetailedRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        if (groupList.isEmpty())
-            return new ArrayList<>();
+        if (groupList.isEmpty()) return new ArrayList<>();
 
-        // annoNotCnt를 위해 pageCheck 조회
-        Participant participant = participantRepository.findByUserAndProjectId(userId, projectId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PARTICIPANT));
-
-        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipantId(participant.getParticipantId());
+        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipant(userId, projectId);
 
         Map<Long, Integer> annoNotCnts = new HashMap<>(); // key -> pageId
         pageCheckList.forEach(pc -> {
@@ -61,10 +54,11 @@ public class GroupService {
         for (Group group : groupList) {  // order 순서
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();   // order 순서
-            if (!pageList.isEmpty())
+            if (!pageList.isEmpty()) {
                 pageList.forEach(p -> {
                     pageResList.add(pageMapper.toDto(p, annoNotCnts.get(p.getId())));
                 });
+            }
             groupDetailedResList.add(groupMapper.toDto(group, pageResList));
         }
 
@@ -79,7 +73,7 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
 
-        documentEventHandler.postGroup(project.getProjectId(), userId, groupRes);
+        groupEventHandler.postGroup(project.getProjectId(), userId, groupRes);
 
         return groupRes;
     }
@@ -92,7 +86,7 @@ public class GroupService {
         if (!findGroup.getName().equals(req.getName())) {
             findGroup.updateName(req.getName());
             GroupRes groupRes = groupMapper.toDto(groupRepository.save(findGroup));
-            documentEventHandler.putGroupName(findGroup.getProject().getProjectId(), userId, groupRes);
+            groupEventHandler.putGroupName(findGroup.getProject().getProjectId(), userId, groupRes);
         }
         return true;
     }
@@ -144,7 +138,7 @@ public class GroupService {
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
 
-        documentEventHandler.deleteGroup(projectId, userId, new GroupIdRes(groupId));
+        groupEventHandler.deleteGroup(projectId, userId, new GroupIdRes(groupId));
 
         // 그룹 순서를 0부터 재정렬
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);

@@ -1,5 +1,6 @@
 package com.linking.page.persistence;
 
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.dto.BlockRes;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.*;
@@ -15,23 +16,21 @@ import java.util.List;
 )
 public interface PageMapper {
 
-    default PageRes toDto(Page source, int annoNotiCnt) {
-        if (source == null) {
-            return null;
-        }
+    default PageRes toDto(Page source, int annoNotCnt) {
+
         PageRes.PageResBuilder builder = PageRes.builder();
         builder
                 .pageId(source.getId())
                 .title(source.getTitle())
                 .groupId(source.getGroup().getId())
                 .template(source.getTemplate())
-                .annoNotCnt(annoNotiCnt);
+                .annoNotCnt(annoNotCnt);
 
         return builder.build();
     }
 
     default BlockPageDetailRes toDto(
-                                    Page source, List<BlockRes> blockResList, List<PageCheckRes> pageCheckResList)
+            Page source, List<BlockDetailRes> blockResList, List<PageCheckRes> pageCheckResList)
     {
         BlockPageDetailRes builder = BlockPageDetailRes.builder()
                 .pageId(source.getId())
@@ -59,9 +58,7 @@ public interface PageMapper {
     }
 
     default Page toEntity(PageCreateReq source) {
-        if (source == null) {
-            return null;
-        }
+
         Page.PageBuilder builder = Page.builder();
         builder
                 .title(source.getTitle())

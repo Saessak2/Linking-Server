@@ -17,5 +17,4 @@ public class ProjectContainsPartsRes {
     private LocalDate beginDate;
     private LocalDate dueDate;
     private List<UserDetailedRes> partList;
-
 }

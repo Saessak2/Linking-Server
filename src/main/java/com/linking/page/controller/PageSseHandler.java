@@ -1,7 +1,9 @@
 package com.linking.page.controller;
 
 import com.linking.global.common.CustomEmitter;
+import com.linking.page.dto.BlockPageDetailRes;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -23,9 +25,9 @@ public class PageSseHandler {
 
     public SseEmitter connect(Long key, Long userId) {
         CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("@@ [PAGE][CONNECT] @@ key = {}", key);
-        Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
+        log.info("[PAGE][CONNECT] ** pageId = {}, userId = {}, emitter = {}", key, userId, customEmitter.getSseEmitter());
 
+        Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
         SseEmitter emitter = customEmitter.getSseEmitter();
 
         emitter.onTimeout(() -> {
@@ -35,7 +37,7 @@ public class PageSseHandler {
         emitter.onCompletion(() -> {
             log.info("onCompletion callback");
             customEmitters.remove(customEmitter);
-            log.info("@@ [PAGE][REMOVE_ONE] @@ pageId = {} @@ emitters.size = {}", key, customEmitters.size());
+            log.info("** [PAGE][REMOVE_ONE] ** pageId = {} @@ emitters.size = {}", key, customEmitters.size());
         });
         return emitter;
     }
@@ -50,10 +52,29 @@ public class PageSseHandler {
         } else {
             sseEmitters.add(customEmitter);
         }
-        log.info("@@ [PAGE][ALL_EMITTERS] @@ emitters.size = {}", pageSubscriber.size());
-        log.info("@@ [PAGE][ADD] @@ key = {} @@ emitters.size = {}", key, sseEmitters.size());
+        log.info("** [PAGE][ALL_EMITTERS] ** emitters.size = {}", pageSubscriber.size());
+        log.info("** [PAGE][ADD] @@ pageId = {} ** emitters.size = {}", key, sseEmitters.size());
 
         return sseEmitters;
+    }
+
+    public void send(Long key, Long publishUserId, String event, Object message) {
+        log.info("async test" + Thread.currentThread());
+
+        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
+        if (sseEmitters == null) return;
+        sseEmitters.forEach(emitter -> {
+            if (publishUserId != emitter.getUserId()) {
+                try {
+                    emitter.getSseEmitter().send(SseEmitter.event()
+                            .name(event)
+                            .data(message));
+                    log.info("send {} event", event);
+                } catch (IOException e) {
+                    log.error("IOException > send {}", emitter.getSseEmitter());
+                }
+            }
+        });
     }
 
     public void onClose(Long userId, Long pageId) {
@@ -74,25 +95,16 @@ public class PageSseHandler {
         return emitters.stream().map(CustomEmitter::getUserId).collect(Collectors.toSet());
     }
 
+    @Async("eventCallExecutor")
     public void removeEmittersByPage(Long key) { // 해당 페이지 emitters 삭제
+        log.info("removeEmitterByPage - {}", this.getClass().getName());
+
+        // pageSubscriber에서 remove(key)해도 emitter객체는 complete이 발생하기 전까지 삭제되지 않음.
+        Set<CustomEmitter> customEmitters = pageSubscriber.get(key);
+        for (CustomEmitter customEmitter : customEmitters)
+            customEmitter.getSseEmitter().complete();
+
         pageSubscriber.remove(key);
-        log.info("@@ [PAGE][REMOVE_ALL] page = {} is removed", key);
-    }
-
-    public void send(Long key, Long publishUserId, String event, Object message) {
-        Set<CustomEmitter> sseEmitters = this.pageSubscriber.get(key);
-        if (sseEmitters == null) return;
-        sseEmitters.forEach(emitter -> {
-            if (publishUserId != emitter.getUserId()) {
-                try {
-                    emitter.getSseEmitter().send(SseEmitter.event()
-                            .name(event)
-                            .data(message));
-
-                } catch (IOException e) {
-                    log.error("emitter send exception");
-                }
-            }
-        });
+        log.info("** [PAGE][REMOVE_ALL] page = {} is removed", key);
     }
 }

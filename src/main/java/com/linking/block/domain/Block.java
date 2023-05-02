@@ -1,10 +1,16 @@
 package com.linking.block.domain;
 
 import com.linking.annotation.domain.Annotation;
+import com.linking.global.common.BaseTimeEntity;
 import com.linking.page.domain.Page;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,11 +36,9 @@ public class Block {
     @JoinColumn(name = "page_id")
     private Page page;
 
-    @OneToMany(mappedBy = "block", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "block", orphanRemoval = true)
     @OrderBy("createdDatetime asc")
     private List<Annotation> annotationList;
-
-
 
     @Builder
     public Block(int blockOrder, String title) {
@@ -46,6 +50,7 @@ public class Block {
     public void prePersist() {
         this.title = this.title == null ? "untitled" : this.title;
         this.content = this.content == null ? "" : this.content;
+        this.annotationList = this.annotationList == null ? new ArrayList<>() : this.annotationList;
     }
 
     public void setPage(Page page) {
@@ -54,13 +59,6 @@ public class Block {
         this.page = page;
         if (!page.getBlockList().contains(this)) {
             page.getBlockList().add(this);
-        }
-    }
-
-    public void addAnnotation(Annotation annotation) {
-        this.annotationList.add(annotation);
-        if(annotation.getBlock() != this) {
-            annotation.setBlock(this);
         }
     }
 

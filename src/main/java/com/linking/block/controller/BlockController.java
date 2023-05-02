@@ -26,14 +26,17 @@ public class BlockController {
     ) {
 
         BlockRes blockRes = blockService.createBlock(req, userId);
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes.getBlockId());
     }
 
     @PutMapping("/order")
-    public ResponseEntity<Object> putBlockOrder(@RequestBody @Valid List<BlockOrderReq> req) {
+    public ResponseEntity<Object> putBlockOrder(
+            @RequestHeader(value = "userId") Long userId,
+            @RequestBody @Valid BlockOrderReq req
+    ) {
 
-        blockService.updateBlockOrder(req);
-        return ResponseHandler.generateOkResponse(true);
+        boolean res = blockService.updateBlockOrder(req, userId);
+        return ResponseHandler.generateOkResponse(res);
     }
 
 

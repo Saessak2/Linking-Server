@@ -35,6 +35,9 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     @Query(value = "SELECT p FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
     Optional<Participant> findByUserAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
 
+    @Query(value = "SELECT p.participantId FROM Participant p WHERE p.user.userId = :userId AND p.project.projectId = :projectId")
+    Optional<Long> findIdByUserAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
+
     @Query("SELECT p FROM Participant p WHERE p.project.projectId = :projectId")
     List<Participant> findAllByProjectId(@Param("projectId") Long projectId);
 

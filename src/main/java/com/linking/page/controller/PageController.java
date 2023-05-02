@@ -29,9 +29,11 @@ public class PageController extends TextWebSocketHandler {
 
     @GetMapping("/{id}")
     public ResponseEntity<PageDetailedRes> getPage(
-        @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
+        @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
     ) {
-        PageDetailedRes res = pageService.getPage(pageId, userId, pageSseHandler.enteringUserIds(pageId));
+        log.info("getPage - async test" + Thread.currentThread());
+        pageCheckService.updatePageChecked(pageId, projectId, userId, "enter");
+        PageDetailedRes res = pageService.getPage(pageId, pageSseHandler.enteringUserIds(pageId));
         return ResponseHandler.generateOkResponse(res);
     }
 
@@ -39,12 +41,15 @@ public class PageController extends TextWebSocketHandler {
     public ResponseEntity<SseEmitter> subscribePage(
             @RequestHeader(value = "userId") Long userId, @PathVariable("id") Long pageId
     ) {
+        log.info("subscribe Page - async test" + Thread.currentThread());
+
         SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
         try {
             sseEmitter.send(SseEmitter.event()
                     .name("connect")
                     .data("connected!")
             );
+            log.info("** send connect event userID = {}", userId);
         } catch (IOException e) {
             log.error("cannot send event");
         }
@@ -73,7 +78,7 @@ public class PageController extends TextWebSocketHandler {
             @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
     ) {
         pageSseHandler.onClose(userId, pageId);
-        pageCheckService.updatePageLastChecked(pageId, projectId, userId);
+        pageCheckService.updatePageChecked(pageId, projectId, userId, "leave");
     }
 }
 

@@ -9,10 +9,12 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class BlockRes {
+public class BlockDetailRes {
 
     private Long blockId;
     private Long pageId;
     private String title;
     private String content;
+    private List<AnnotationRes> annotationResList;
+
 }

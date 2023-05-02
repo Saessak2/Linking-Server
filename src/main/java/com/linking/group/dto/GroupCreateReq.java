@@ -2,6 +2,8 @@ package com.linking.group.dto;
 
 
 import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.BindingPriority;
+
 import javax.validation.constraints.NotNull;
 
 @Getter
