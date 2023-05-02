@@ -82,7 +82,8 @@ public class PageSseHandler {
         if (customEmitters == null) return;
         for (CustomEmitter ce : customEmitters) {
             if (ce.getUserId() == userId) {
-                ce.getSseEmitter().complete();
+                if (ce.getSseEmitter() != null)
+                    ce.getSseEmitter().complete();
                 break;
             }
         }
@@ -101,8 +102,10 @@ public class PageSseHandler {
 
         // pageSubscriber에서 remove(key)해도 emitter객체는 complete이 발생하기 전까지 삭제되지 않음.
         Set<CustomEmitter> customEmitters = pageSubscriber.get(key);
-        for (CustomEmitter customEmitter : customEmitters)
-            customEmitter.getSseEmitter().complete();
+        for (CustomEmitter customEmitter : customEmitters) {
+            if (customEmitter.getSseEmitter() != null)
+                customEmitter.getSseEmitter().complete();
+        }
 
         pageSubscriber.remove(key);
         log.info("** [PAGE][REMOVE_ALL] page = {} is removed", key);

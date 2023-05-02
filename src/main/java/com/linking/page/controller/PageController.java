@@ -77,6 +77,7 @@ public class PageController extends TextWebSocketHandler {
     public void unsubscribePage(
             @RequestHeader(value = "userId") Long userId, @RequestHeader(value = "projectId") Long projectId, @PathVariable("id") Long pageId
     ) {
+        log.info("unsubscribePage/{}", pageId);
         pageSseHandler.onClose(userId, pageId);
         pageCheckService.updatePageChecked(pageId, projectId, userId, "leave");
     }
