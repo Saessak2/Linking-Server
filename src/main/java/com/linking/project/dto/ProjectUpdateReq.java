@@ -27,6 +27,8 @@ public class ProjectUpdateReq {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
+    private Boolean isPartListChanged;
+
     private List<Long> partList;
 
 }

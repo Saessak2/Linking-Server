@@ -57,10 +57,16 @@ public class ProjectController {
     @PutMapping
     @Transactional
     public ResponseEntity<Object> putProject(@RequestBody @Valid ProjectUpdateReq projectUpdateReq){
-        return projectService.updateProject(projectUpdateReq, participantService.updateParticipantList(projectUpdateReq))
+        if(projectUpdateReq.getIsPartListChanged())
+            return projectService.updateProject(projectUpdateReq, participantService.updateParticipantList(projectUpdateReq))
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+        else
+            return projectService.updateProject(projectUpdateReq)
+                    .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
+                    .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProject(@PathVariable Long id){
