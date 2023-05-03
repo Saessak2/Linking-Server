@@ -29,7 +29,7 @@ public class Todo {
     @JoinColumn(name = "parent_todo_id")
     private Todo parentTodo;
 
-    @Column(name = "is_parent", nullable = false, columnDefinition = "true")
+    @Column(name = "is_parent", nullable = false)
     private boolean isParent;
 
     @Column(name = "start_date", nullable = false)
@@ -38,7 +38,7 @@ public class Todo {
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
-    @Column(nullable = false, length = 28, columnDefinition = " ")
+    @Column(nullable = false, length = 28)
     private String content;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)

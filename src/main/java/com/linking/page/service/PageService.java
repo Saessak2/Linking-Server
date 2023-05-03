@@ -13,6 +13,7 @@ import com.linking.global.message.ErrorMessage;
 import com.linking.group.controller.GroupEventHandler;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
+import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.dto.*;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PageService {
     private final GroupEventHandler groupEventHandler;
+    private final PageEventHandler pageEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final GroupRepository groupRepository;
@@ -138,7 +140,8 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        groupEventHandler.deletePage(projectId, userId, new PageIdRes(pageId, groupId));
+        groupEventHandler.deletePage(projectId, userId, new PageIdRes(groupId, pageId));
+        pageEventHandler.deletePage(pageId, userId, pageId);
 
         // 페이지 순서를 0부터 재정렬
         try {
