@@ -7,7 +7,6 @@ import com.linking.user.domain.User;
 import com.linking.user.dto.*;
 import com.linking.user.persistence.UserRepository;
 import com.linking.user.persistence.UserMapper;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;

@@ -64,6 +64,21 @@ public interface ProjectMapper {
         return projBuilder.build();
     }
 
+    default Project toEntity(ProjectUpdateReq projectUpdateReq) {
+        if(projectUpdateReq == null)
+            return null;
+
+        Project.ProjectBuilder projBuilder = Project.builder();
+        projBuilder
+                .projectId(projectUpdateReq.getProjectId())
+                .projectName(projectUpdateReq.getProjectName())
+                .beginDate(projectUpdateReq.getBeginDate())
+                .dueDate(projectUpdateReq.getDueDate())
+                .owner(new User(projectUpdateReq.getPartList().get(0)));
+
+        return projBuilder.build();
+    }
+
     default Project toEntity(ProjectUpdateReq projectUpdateReq, List<Participant> participantList) {
         if(projectUpdateReq == null)
             return null;

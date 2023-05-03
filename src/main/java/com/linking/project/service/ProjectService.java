@@ -82,6 +82,14 @@ public class ProjectService {
         return Optional.ofNullable(projectMapper.toDto(res, partList));
     }
 
+    public Optional<ProjectContainsPartsRes> updateProject(ProjectUpdateReq projectUpdateReq)
+            throws NoSuchElementException{
+        Project res = projectRepository.save(projectMapper.toEntity(projectUpdateReq));
+        List<UserDetailedRes> partList = userMapper.toDto(res.getParticipantList().stream()
+                .map(Participant::getUser).collect(Collectors.toList()));
+        return Optional.ofNullable(projectMapper.toDto(res, partList));
+    }
+
     public void deleteProject(Long projectId)
             throws DataIntegrityViolationException, EmptyResultDataAccessException {
         Project project = projectRepository.findById(projectId)
