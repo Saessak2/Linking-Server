@@ -11,11 +11,18 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.assign.dto.AssignRatioRes;
+import com.linking.todo.domain.Todo;
+import com.linking.todo.dto.TodoUpdateReq;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +49,42 @@ public class AssignService {
                     .todo(possibleAssign.get().getTodo())
                     .participant(possibleAssign.get().getParticipant())
                     .status(Status.valueOf(assignStatusUpdateReq.getStatus()));
-            return Optional.ofNullable(assignMapper.toDto(assignRepository.save(assignBuilder.build())));
+            return Optional.ofNullable(assignMapper.toResDto(assignRepository.save(assignBuilder.build())));
         }
         return Optional.empty();
+    }
+
+    public List<Long> updateAssignList(TodoUpdateReq todoUpdateReq){
+        List<Long> resAssignList = new ArrayList<>();
+        List<Assign> curAssignList = assignRepository.findByTodo(new Todo(todoUpdateReq.getTodoId()));
+        List<Long> curPartIdList = curAssignList.stream()
+                .map(a -> a.getParticipant().getParticipantId()).collect(Collectors.toList());
+        List<Long> reqPartIdList = new ArrayList<>();
+        for(Long id : todoUpdateReq.getAssignList())
+            reqPartIdList.add(
+                    participantRepository.findByUserAndProjectId(id, todoUpdateReq.getProjectId())
+                            .orElseThrow(NoSuchElementException::new).getParticipantId());
+
+        Assign.AssignBuilder assignBuilder = Assign.builder();
+        for(int i = 0, skippedIndex; i < reqPartIdList.size(); i++){
+            skippedIndex = curPartIdList.indexOf(reqPartIdList.get(i));
+            if(skippedIndex == -1 || curAssignList.isEmpty()){
+                Participant participant = participantRepository.findById(reqPartIdList.get(i))
+                        .orElseThrow(NoSuchElementException::new);
+                assignBuilder
+                        .todo(new Todo(todoUpdateReq.getTodoId()))
+                        .participant(participant)
+                        .status(Status.BEFORE_START);
+                resAssignList.add(
+                        assignRepository.save(assignBuilder.build()).getAssignId());
+            }
+            else{
+                resAssignList.add(curAssignList.get(skippedIndex).getAssignId());
+                curAssignList.remove(skippedIndex);
+            }
+        }
+        assignRepository.deleteAll(curAssignList);
+        return resAssignList;
     }
 
 }

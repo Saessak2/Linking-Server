@@ -14,27 +14,13 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AssignMapper {
 
-    default AssignRes toDto(Assign assign){
-        if(assign == null)
-            return null;
-
-        AssignRes.AssignResBuilder assignResBuilder = AssignRes.builder();
-        return assignResBuilder
-                .assignId(assign.getAssignId())
-                .userId(assign.getParticipant().getUser().getUserId())
-                .userName(assign.getParticipant().getUserName())
-                .status(String.valueOf(assign.getStatus())).build();
-    }
-
-    List<AssignRes> toDto(List<Assign> assignList);
-
     default AssignRatioRes toRatioDto(AssignCountRes countReq){
         if(countReq == null)
             return null;
 
         AssignRatioRes.AssignRatioResBuilder assignRatioResBuilder = AssignRatioRes.builder();
         return assignRatioResBuilder
-                .participantId(countReq.getParticipantId())
+                .userName(countReq.getParticipant().getUserName())
                 .totalAssign(countReq.getCount())
                 .completeAssign(countReq.getCompleteCount())
                 .completionRatio((double) countReq.getCompleteCount() / (double) countReq.getCount() * 100).build();
@@ -50,5 +36,19 @@ public interface AssignMapper {
 
         return assignRatioList;
     }
+
+    default AssignRes toResDto(Assign assign){
+        if(assign == null)
+            return null;
+
+        AssignRes.AssignResBuilder assignResBuilder = AssignRes.builder();
+        return assignResBuilder
+                .assignId(assign.getAssignId())
+                .userId(assign.getParticipant().getUser().getUserId())
+                .userName(assign.getParticipant().getUserName())
+                .status(String.valueOf(assign.getStatus())).build();
+    }
+
+    List<AssignRes> toResDto(List<Assign> assignList);
 
 }

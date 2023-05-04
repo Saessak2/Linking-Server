@@ -10,6 +10,7 @@ public class LabeledEmitter {
 
     private int emitterId;
     private Long userId;
+    private String clientType;
     private SseEmitter sseEmitter;
 
 }

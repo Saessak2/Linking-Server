@@ -1,10 +1,14 @@
 package com.linking.todo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.linking.assign.dto.AssignRes;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -14,16 +18,11 @@ import java.util.List;
 public class TodoRes {
 
     private Long todoId;
-    private Long projectId;
     private Boolean isParent;
-    private LocalDate startDate;
-    private LocalDate dueDate;
+    private Long parentId;
+    private String startDate;
+    private String dueDate;
     private String content;
     private List<AssignRes> assignList;
-
-    @JsonIgnore
-    public void setAssignList(List<AssignRes> assignList){
-        this.assignList = assignList;
-    }
 
 }

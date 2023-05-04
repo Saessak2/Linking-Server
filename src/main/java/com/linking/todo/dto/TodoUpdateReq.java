@@ -5,6 +5,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -27,14 +29,18 @@ public class TodoUpdateReq {
     private Boolean isParent;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;
+    private String startDate;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dueDate;
+    private String dueDate;
 
     @NotNull
     private String content;
+
+    @NotNull
+    private Boolean isAssignListChanged;
+
+    @NotNull
+    private List<Long> assignList;
 
 }

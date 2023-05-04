@@ -3,7 +3,7 @@ package com.linking.project.controller;
 import com.linking.global.common.ResponseHandler;
 import com.linking.group.controller.GroupSseHandler;
 import com.linking.participant.service.ParticipantService;
-import com.linking.project.dto.ProjectRes;
+import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.service.ProjectService;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectUpdateReq;
@@ -40,7 +40,7 @@ public class ProjectController {
 
     @GetMapping("/list/owner/{id}")
     public ResponseEntity<Object> getProjectListByOwner(@PathVariable Long id){
-        List<ProjectRes> projectList = projectService.getProjectsByOwnerId(id);
+        List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(id);
         if(projectList.isEmpty())
             return ResponseHandler.generateInternalServerErrorResponse();
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
@@ -48,7 +48,7 @@ public class ProjectController {
 
     @GetMapping("/list/part/{id}")
     public ResponseEntity<Object> getProjectListByPart(@PathVariable Long id){
-        List<ProjectRes> projectList = participantService.getPartsByUserId(id);
+        List<ProjectContainsPartsRes> projectList = projectService.getProjectsByUserId(id);
         if(projectList.isEmpty())
             return ResponseHandler.generateInternalServerErrorResponse();
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
@@ -64,12 +64,9 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProject(@PathVariable Long id){
-
         projectService.deleteProject(id);
-        /**
-         * 작성자 : 이은빈
-         */
         groupSseHandler.removeEmittersByProject(id);
         return ResponseHandler.generateNoContentResponse();
     }
+
 }

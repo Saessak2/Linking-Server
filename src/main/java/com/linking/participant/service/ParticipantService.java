@@ -1,6 +1,7 @@
 package com.linking.participant.service;
 
 import com.linking.pageCheck.service.PageCheckService;
+import com.linking.participant.dto.ParticipantSimplifiedRes;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantIdReq;
@@ -8,9 +9,7 @@ import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
-import com.linking.project.dto.ProjectRes;
 import com.linking.project.dto.ProjectUpdateReq;
-import com.linking.project.persistence.ProjectMapper;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,6 @@ public class ParticipantService {
     private final ParticipantMapper participantMapper;
 
     private final UserRepository userRepository;
-    private final ProjectMapper projectMapper;
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
@@ -55,22 +53,30 @@ public class ParticipantService {
                 .orElseThrow(NoSuchElementException::new));
     }
 
-    public List<ProjectRes> getPartsByUserId(Long userId)
+    public List<ParticipantSimplifiedRes> getParticipantsByProjectId(Long projectId)
             throws NoSuchElementException {
-        List<Project> projectList = participantRepository.findProjectsByUser(userId);
-        if (projectList.isEmpty())
+        List<Participant> participantList = participantRepository.findByProject(new Project(projectId));
+        if (participantList.isEmpty())
             throw new NoSuchElementException();
-        return projectMapper.toDto(projectList);
+        return participantMapper.toSimpleDto(participantList);
     }
 
     public List<Long> updateParticipantList(ProjectUpdateReq projectUpdateReq)
         throws DataIntegrityViolationException {
+        List<Long> resPartIdList = new ArrayList<>();
+        if(!projectUpdateReq.getIsPartListChanged()){
+            for(Long id : projectUpdateReq.getPartList())
+                resPartIdList.add(participantRepository.findByUserAndProjectId(id, projectUpdateReq.getProjectId())
+                        .orElseThrow(NoSuchElementException::new).getParticipantId());
+            return resPartIdList;
+        }
+
         List<Participant> curPartList =
                 participantRepository.findByProject(new Project(projectUpdateReq.getProjectId()));
         List<Long> partUserIdList = curPartList.stream()
                 .map(p->p.getUser().getUserId()).collect(Collectors.toList());
         List<Long> reqPartUserList = projectUpdateReq.getPartList();
-        List<Long> resPartIdList = new ArrayList<>();
+
 
         if(!curPartList.get(0).getUser().getUserId().equals(reqPartUserList.get(0)))
             throw new DataIntegrityViolationException("삭제할 수 없는 팀원");

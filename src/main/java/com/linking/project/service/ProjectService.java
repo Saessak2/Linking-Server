@@ -2,7 +2,6 @@ package com.linking.project.service;
 
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
-import com.linking.project.dto.ProjectRes;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
@@ -19,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -30,8 +30,9 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
-    private final UserMapper userMapper;
+
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final ParticipantRepository participantRepository;
 
     public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq)
@@ -61,12 +62,25 @@ public class ProjectService {
         return Optional.ofNullable(projectMapper.toDto(project, partList));
     }
 
-    public List<ProjectRes> getProjectsByOwnerId(Long ownerId)
+    public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId)
             throws NoSuchElementException{
         List<Project> projectList = projectRepository.findByOwner(ownerId);
         if(projectList.isEmpty())
             throw new NoSuchElementException();
         return projectMapper.toDto(projectList);
+    }
+
+    public List<ProjectContainsPartsRes> getProjectsByUserId(Long userId)
+            throws NoSuchElementException {
+        List<Project> projectList = participantRepository.findProjectsByUser(userId);
+        List<ProjectContainsPartsRes> projectResList = new ArrayList<>();
+        for(Project project : projectList){
+            List<UserDetailedRes> partList = userMapper.toDto(project.getParticipantList().stream()
+                    .map(Participant::getUser).collect(Collectors.toList()));
+            projectResList.add(projectMapper.toDto(project, partList));
+        }
+
+        return projectResList;
     }
 
     public Optional<ProjectContainsPartsRes> updateProject(
@@ -88,7 +102,6 @@ public class ProjectService {
         if(project.getParticipantList().size() > 1)
             throw new DataIntegrityViolationException("삭제할 수 없는 프로젝트");
         projectRepository.deleteById(projectId);
-
-
     }
+
 }

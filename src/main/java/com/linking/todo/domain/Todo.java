@@ -4,9 +4,11 @@ import com.linking.assign.domain.Assign;
 import com.linking.project.domain.Project;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -35,10 +37,10 @@ public class Todo {
     private boolean isParent;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "due_date", nullable = false)
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
 
     @Column(nullable = false, length = 28)
     @ColumnDefault("")

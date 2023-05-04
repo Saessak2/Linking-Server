@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
@@ -17,14 +18,16 @@ public class TodoSseHandler {
     private static int createdTodoEmitter = 0;
     private final List<LabeledEmitter> labeledEmitterList = new CopyOnWriteArrayList<>();
 
-    public LabeledEmitter connect(Long userId){
-        LabeledEmitter labeledEmitter = new LabeledEmitter(createdTodoEmitter++, userId, new SseEmitter(TIMEOUT));
+    public LabeledEmitter connect(String clientType, Long userId){
+        LabeledEmitter labeledEmitter = new LabeledEmitter(
+                ++createdTodoEmitter, userId, clientType, new SseEmitter(TIMEOUT));
         SseEmitter sseEmitter = addEmitter(labeledEmitter);
-        log.info("[CONNECT] ** emitterId = {}, userId = {}, emitter = {}", createdTodoEmitter, userId, sseEmitter);
+        log.info("[CONNECT] ** emitterId = {}, userId = {}, clientType = {}, emitter = {}",
+                labeledEmitter.getEmitterId(), labeledEmitter.getUserId(), labeledEmitter.getClientType(), sseEmitter);
 
         sseEmitter.onTimeout(sseEmitter::complete);
         sseEmitter.onCompletion(() -> {
-            log.info("[REMOVE] ** userId = {}", labeledEmitter.getUserId());
+            log.info("[REMOVE] ** emitterId = {}, userId = {}", labeledEmitter.getEmitterId(), labeledEmitter.getUserId());
             labeledEmitterList.remove(labeledEmitter);
         });
 
@@ -52,8 +55,33 @@ public class TodoSseHandler {
     public void send(int emitterId, String eventName, Object data) {
         if(labeledEmitterList.isEmpty())
             return;
-        for(LabeledEmitter labeledEmitter : labeledEmitterList){
-            if(labeledEmitter.getEmitterId() != emitterId) {
+        LabeledEmitter labeledEmitter =
+                labeledEmitterList.stream().filter(e -> e.getEmitterId() == emitterId)
+                        .findAny().orElseThrow(NoSuchElementException::new);
+
+        if(labeledEmitter.getClientType().equals("web"))
+            sendToAllEmitters(emitterId, eventName, data);
+        else if(labeledEmitter.getClientType().equals("mac"))
+            sendToAllUsers(labeledEmitter.getUserId(), eventName, data);
+    }
+
+    private void sendToAllEmitters(int emitterId, String eventName, Object data){
+        for(LabeledEmitter labeledEmitter : labeledEmitterList) {
+            if (labeledEmitter.getEmitterId() != emitterId) {
+                try {
+                    labeledEmitter.getSseEmitter()
+                            .send(SseEmitter.event().name(eventName).data(data));
+                    log.info("SEND {} EVENT", eventName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private void sendToAllUsers(Long userId, String eventName, Object data){
+        for(LabeledEmitter labeledEmitter : labeledEmitterList) {
+            if (!labeledEmitter.getUserId().equals(userId)) {
                 try {
                     labeledEmitter.getSseEmitter()
                             .send(SseEmitter.event().name(eventName).data(data));
@@ -66,3 +94,4 @@ public class TodoSseHandler {
     }
 
 }
+

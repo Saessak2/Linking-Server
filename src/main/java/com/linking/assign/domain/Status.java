@@ -3,7 +3,7 @@ package com.linking.assign.domain;
 public enum Status {
 
     BEFORE_START,
-    INPROGRESS,
+    IN_PROGRESS,
     INCOMPLETE_PROGRESS,
     INCOMPLETE,
     COMPLETE

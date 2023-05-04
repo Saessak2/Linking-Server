@@ -1,5 +1,6 @@
 package com.linking.assign.dto;
 
+import com.linking.participant.domain.Participant;
 import lombok.*;
 
 @Getter
@@ -8,12 +9,12 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AssignCountRes {
 
-    private Long participantId;
+    private Participant participant;
     private int count;
     private int completeCount;
 
-    public AssignCountRes(Long participantId, Long count, Long completeCount){
-        this.participantId = participantId;
+    public AssignCountRes(Participant participant, Long count, Long completeCount){
+        this.participant = participant;
         this.count = count.intValue();
         this.completeCount = completeCount.intValue();
     }
