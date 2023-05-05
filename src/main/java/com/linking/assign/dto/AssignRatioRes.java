@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AssignRatioRes {
 
-    private Long participantId;
+    private String userName;
     private int totalAssign;
     private int completeAssign;
     private double completionRatio;

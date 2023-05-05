@@ -1,14 +1,11 @@
 package com.linking.todo.dto;
 
-import com.linking.assign.domain.Assign;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -16,6 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TodoCreateReq {
+
+    @NotNull
+    private int emitterId;
 
     @NotNull
     private Long projectId;
@@ -26,12 +26,10 @@ public class TodoCreateReq {
     private Boolean isParent;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;
+    private String startDate;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dueDate;
+    private String dueDate;
 
     @NotNull
     private String content;

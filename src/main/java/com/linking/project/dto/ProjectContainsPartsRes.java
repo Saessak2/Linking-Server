@@ -16,5 +16,7 @@ public class ProjectContainsPartsRes {
     private String projectName;
     private LocalDate beginDate;
     private LocalDate dueDate;
+    private Long ownerId;
     private List<UserDetailedRes> partList;
+
 }

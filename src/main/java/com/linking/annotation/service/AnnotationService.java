@@ -58,7 +58,6 @@ public class AnnotationService {
         pageCheckList.forEach(pc -> {
             if (pc.getParticipant().getParticipantId() != participant.getParticipantId()) {
                 pc.increaseAnnotNotCount();
-//                pageCheckRepository.save(pc);
             }
         });
         // 페이지 들어가 있는 유저 아이디 목록
@@ -66,7 +65,7 @@ public class AnnotationService {
 
         // 주석 개수 증가 이벤트
         // TODO 프론트에서 pageId를 좀 더 빨리 찾을 수 있도록 groupId를 요청하여 page에서 group을 조회하기 떄문에 select page sql 발생
-        groupEventHandler.postAnnoNot(req.getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getId(), block.getPage().getGroup().getId()));
+        groupEventHandler.postAnnoNot(req.getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getGroup().getId(), block.getPage().getId()));
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
@@ -135,7 +134,7 @@ public class AnnotationService {
         // 페이지 들어가 있는 유저 아이디 목록
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(pageId);
         // 주석 개수 감소 이벤트
-        groupEventHandler.deleteAnnoNot(projectId, enteringUserIds, new PageIdRes(pageId, groupId));
+        groupEventHandler.deleteAnnoNot(projectId, enteringUserIds, new PageIdRes(groupId, pageId));
         // 주석 삭제 이벤트
         pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }

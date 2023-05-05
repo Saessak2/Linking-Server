@@ -54,4 +54,8 @@ public class PageEventHandler {
     public void updateAnnotation(Long pageId, Long publisherId, AnnotationUpdateRes res) {
         pageSseHandler.send(pageId, publisherId, "updateAnnotation", res);
     }
+    @Async("eventCallExecutor")
+    public void deletePage(Long pageId, Long publisherId, Long res) {
+        pageSseHandler.send(pageId, publisherId, "deletePage", res);
+    }
 }

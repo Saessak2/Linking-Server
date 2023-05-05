@@ -37,6 +37,8 @@ spring:
 #  ignore_explicit_for_joined=true:
 
 logging:
+  pattern:
+    dateformat: YY-MM-dd HH:mm:ss,Asia/Seoul
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
