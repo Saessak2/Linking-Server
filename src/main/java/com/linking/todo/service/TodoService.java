@@ -14,6 +14,7 @@ import com.linking.todo.persistence.TodoMapper;
 import com.linking.todo.persistence.TodoRepository;
 import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TodoService {
 
     private final TodoRepository todoRepository;
@@ -35,6 +37,8 @@ public class TodoService {
     private final AssignMapper assignMapper;
 
     public TodoRes createTodo(TodoCreateReq todoCreateReq){
+        log.info("createTodo - {} ", this.getClass().getSimpleName());
+
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
 
         List<Participant> participantList =

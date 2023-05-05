@@ -53,16 +53,20 @@ public class TodoSseHandler {
     }
 
     public void send(int emitterId, String eventName, Object data) {
+        log.info("send - {}", this.getClass().getSimpleName());
+
         if(labeledEmitterList.isEmpty())
             return;
         LabeledEmitter labeledEmitter =
                 labeledEmitterList.stream().filter(e -> e.getEmitterId() == emitterId)
                         .findAny().orElseThrow(NoSuchElementException::new);
 
-        if(labeledEmitter.getClientType().equals("web"))
+        if(labeledEmitter.getClientType().equals("web")) {
             sendToAllEmitters(emitterId, eventName, data);
-        else if(labeledEmitter.getClientType().equals("mac"))
+        }
+        else if(labeledEmitter.getClientType().equals("mac")) {
             sendToAllUsers(labeledEmitter.getUserId(), eventName, data);
+        }
     }
 
     private void sendToAllEmitters(int emitterId, String eventName, Object data){

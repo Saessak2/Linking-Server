@@ -9,6 +9,7 @@ import com.linking.todo.dto.TodoRes;
 import com.linking.todo.dto.TodoUpdateReq;
 import com.linking.todo.service.TodoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -19,6 +20,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/todos")
 @RequiredArgsConstructor
+@Slf4j
 public class TodoController {
 
     private final TodoSseHandler todoSseHandler;
@@ -49,8 +51,10 @@ public class TodoController {
 
     @PostMapping("/new")
     public ResponseEntity<Object> postTodo(@RequestBody @Valid TodoCreateReq todoCreateReq){
+        log.info("postTodo - {}", this.getClass().getSimpleName());
         TodoRes todoRes = todoService.createTodo(todoCreateReq);
         todoSseHandler.send(todoCreateReq.getEmitterId(), "TODO-POSTED", todoRes);
+        log.info("todoRes.getTodoId() = {}", todoRes.getTodoId());
         return ResponseHandler.generateCreatedResponse(todoRes.getTodoId());
     }
 
