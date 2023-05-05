@@ -3,6 +3,8 @@ package com.linking.participant.controller;
 import com.linking.global.common.ResponseHandler;
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantDeleteReq;
+import com.linking.participant.dto.ParticipantRes;
+import com.linking.participant.dto.ParticipantSimplifiedRes;
 import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +33,14 @@ public class ParticipantController {
         return participantService.getParticipant(id)
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+    }
+
+    @GetMapping("/list/project/{id}")
+    public ResponseEntity<Object> getParticipantList(@PathVariable("id") Long projectId){
+        List<ParticipantSimplifiedRes> participantList = participantService.getParticipantsByProjectId(projectId);
+        if(participantList.isEmpty())
+            return ResponseHandler.generateInternalServerErrorResponse();
+        return ResponseHandler.generateOkResponse(participantList);
     }
 
     @PostMapping

@@ -4,15 +4,16 @@ import com.linking.participant.domain.Participant;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectCreateReq;
 import com.linking.project.dto.ProjectContainsPartsRes;
-import com.linking.project.dto.ProjectRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.user.domain.User;
 import com.linking.user.dto.UserDetailedRes;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
@@ -27,15 +28,16 @@ public interface ProjectMapper {
                 .projectName(project.getProjectName())
                 .beginDate(project.getBeginDate())
                 .dueDate(project.getDueDate())
+                .ownerId(project.getOwner().getUserId())
                 .partList(partList);
 
         return projResBuilder.build();
     }
 
-    default List<ProjectRes> toDto(List<Project> projectList){
-        List<ProjectRes> projectResList = new ArrayList<>();
+    default List<ProjectContainsPartsRes> toDto(List<Project> projectList){
+        List<ProjectContainsPartsRes> projectResList = new ArrayList<>();
         for (Project project : projectList) {
-            ProjectRes.ProjectResBuilder projectResBuilder = ProjectRes.builder();
+            ProjectContainsPartsRes.ProjectContainsPartsResBuilder projectResBuilder = ProjectContainsPartsRes.builder();
             projectResBuilder
                     .projectId(project.getProjectId())
                     .projectName(project.getProjectName())

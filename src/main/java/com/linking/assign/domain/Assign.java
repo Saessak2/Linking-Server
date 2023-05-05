@@ -3,10 +3,9 @@ package com.linking.assign.domain;
 import com.linking.participant.domain.Participant;
 import com.linking.todo.domain.Todo;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-
-import static javax.persistence.EnumType.STRING;
 
 @Getter
 @Builder
@@ -29,8 +28,9 @@ public class Assign {
     @JoinColumn(name = "participant_id", nullable = false)
     private Participant participant;
 
-    @Enumerated(value = STRING)
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @ColumnDefault("BEFORE_START")
     private Status status;
 
 }

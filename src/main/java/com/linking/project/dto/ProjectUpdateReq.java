@@ -29,4 +29,6 @@ public class ProjectUpdateReq {
 
     private List<Long> partList;
 
+    private Boolean isPartListChanged;
+
 }

@@ -3,9 +3,12 @@ package com.linking.todo.domain;
 import com.linking.assign.domain.Assign;
 import com.linking.project.domain.Project;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -30,15 +33,17 @@ public class Todo {
     private Todo parentTodo;
 
     @Column(name = "is_parent", nullable = false)
+    @ColumnDefault("true")
     private boolean isParent;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "due_date", nullable = false)
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
 
     @Column(nullable = false, length = 28)
+    @ColumnDefault("")
     private String content;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)
@@ -49,6 +54,10 @@ public class Todo {
 
     public Todo(Long todoId){
         this.todoId = todoId;
+    }
+
+    public void setAssignList(List<Assign> assignList) {
+        this.assignList = assignList;
     }
 
 }

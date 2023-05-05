@@ -6,9 +6,10 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AssignCountReq {
+public class AssignStatusUpdateReq {
 
-    Long participantId;
-    int count;
+    private int emitterId;
+    private Long assignId;
+    private String status;
 
 }

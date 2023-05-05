@@ -1,8 +1,10 @@
 package com.linking.todo.dto;
 
+import com.linking.assign.dto.AssignRes;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,12 +15,10 @@ public class ParentTodoRes {
 
     private Long todoId;
     private Boolean isParent;
-    private LocalDate startDate;
-    private LocalDate dueDate;
+    private String startDate;
+    private String dueDate;
     private String content;
-    private Long userId;
-    private String userName;
-    private String status;
-    private List<ChildTodoRes> childTodoList;
+    private List<TodoRes> childTodoList;
+    private List<AssignRes> assignList;
 
 }

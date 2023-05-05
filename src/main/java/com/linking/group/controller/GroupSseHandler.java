@@ -104,8 +104,10 @@ public class GroupSseHandler {
         log.info("removeEmittersByProject - {}", this.getClass().getName());
 
         Set<CustomEmitter> customEmitters = groupSubscriber.get(key);
-        for (CustomEmitter customEmitter : customEmitters)
-            customEmitter.getSseEmitter().complete();
+        for (CustomEmitter customEmitter : customEmitters) {
+            if (customEmitter.getSseEmitter() != null)
+                customEmitter.getSseEmitter().complete();
+        }
 
         groupSubscriber.remove(key);
         log.info("** [GROUP][REMOVE_ALL] project = {} is removed", key);
