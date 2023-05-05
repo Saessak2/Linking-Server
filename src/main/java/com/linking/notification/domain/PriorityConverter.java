@@ -6,7 +6,7 @@ public class PriorityConverter implements AttributeConverter<String, Integer> {
 
     @Override
     public Integer convertToDatabaseColumn(String attribute) {
-        if ("ALL".equals(attribute))
+        if ("ALL".equals(attribute)) // mail + app/web notification
             return 1;
         else if ("NO_MAIL".equals(attribute))
             return 2;

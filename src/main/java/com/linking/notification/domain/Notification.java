@@ -22,7 +22,7 @@ public class Notification {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "receiver_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,12 +36,21 @@ public class Notification {
 
     private LocalDate createdDate;
 
+    @Column(nullable = false, columnDefinition = "TINYINT", length = 1)
+    private boolean isChecked;
+
+    private Long targetId;
+
+    private String type;
+
     @Builder
-    public Notification(User user, Project project, String sender, String priority) {
+    public Notification(User user, Project project, String sender, String priority, Long targetId, String type) {
         this.user = user;
         this.project = project;
         this.sender = sender;
         this.priority = priority;
+        this.targetId = targetId;
+        this.type = type;
     }
 
     @PrePersist
@@ -55,5 +64,9 @@ public class Notification {
 
     public String getInfo() {
         return project.getProjectName() + " " + sender + " " + getCreatedDate();
+    }
+
+    public void setIsChecked(boolean isChecked) {
+        this.isChecked = isChecked;
     }
 }

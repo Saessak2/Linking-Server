@@ -1,6 +1,8 @@
 package com.linking.notification.persistence;
 
 import com.linking.notification.domain.Notification;
+import com.linking.page.domain.Page;
+import com.linking.page.persistence.PageRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.user.domain.User;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,15 +31,24 @@ class NotificationRepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private PageRepository pageRepository;
+
 
     @Test
     @Rollback(value = false)
     void save() {
         User user = userRepository.getReferenceById(4L);
         Project project = projectRepository.getReferenceById(3L);
-
-        for (int i = 0; i < 8; i++) {
-            Notification notification = new Notification(user, project, "서민정", "ALL");
+        for (int i = 0; i < 3; i++) {
+            Notification notification = Notification.builder()
+                .user(user)
+                .project(project)
+                .priority("NO_MAIL")
+                .sender("서민정")
+                .targetId(31L)
+                .type("PAGE")
+                .build();
             notificationRepository.save(notification);
         }
 //        Notification notification2 = Notification.builder()
@@ -59,12 +71,19 @@ class NotificationRepositoryTest {
     }
 
     @Test
-    @Rollback
+    @Rollback(value = false)
+    void deleteAll() {
+        notificationRepository.deleteAll();
+    }
+
+    @Test
+    @Rollback(value = false)
     void findAllByUser() {
         User user = userRepository.getReferenceById(4L);
         List<Notification> allByUser = notificationRepository.findAllByUser(user);
-        Assertions.assertEquals(8, allByUser.size());
+        for (Notification noti : allByUser) {
+            noti.setIsChecked(true);
+        }
+        Assertions.assertEquals(3, allByUser.size());
     }
-
-
 }
