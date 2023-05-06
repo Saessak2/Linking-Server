@@ -4,6 +4,7 @@ import com.linking.assign.domain.Assign;
 import com.linking.assign.dto.AssignCountRes;
 import com.linking.assign.dto.AssignRatioRes;
 import com.linking.assign.dto.AssignRes;
+import com.linking.assign.dto.AssignSseUpdateData;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AssignMapper {
 
-    default AssignRatioRes toRatioDto(AssignCountRes countReq){
-        if(countReq == null)
+    default AssignRatioRes toRatioDto(AssignCountRes countReq) {
+        if (countReq == null)
             return null;
 
         AssignRatioRes.AssignRatioResBuilder assignRatioResBuilder = AssignRatioRes.builder();
@@ -26,8 +27,8 @@ public interface AssignMapper {
                 .completionRatio((double) countReq.getCompleteCount() / (double) countReq.getCount() * 100).build();
     }
 
-    default List<AssignRatioRes> toRatioDto(List<AssignCountRes> countList){
-        if(countList == null)
+    default List<AssignRatioRes> toRatioDto(List<AssignCountRes> countList) {
+        if (countList == null)
             return null;
 
         List<AssignRatioRes> assignRatioList = new ArrayList<>();
@@ -37,8 +38,8 @@ public interface AssignMapper {
         return assignRatioList;
     }
 
-    default AssignRes toResDto(Assign assign){
-        if(assign == null)
+    default AssignRes toResDto(Assign assign) {
+        if (assign == null)
             return null;
 
         AssignRes.AssignResBuilder assignResBuilder = AssignRes.builder();
@@ -50,5 +51,20 @@ public interface AssignMapper {
     }
 
     List<AssignRes> toResDto(List<Assign> assignList);
+
+    default AssignSseUpdateData toSseStatusUpdateData(Assign assign) {
+        if (assign == null)
+            return null;
+
+        AssignSseUpdateData.AssignSseUpdateDataBuilder assignSseUpdateDataBuilder = AssignSseUpdateData.builder();
+        assignSseUpdateDataBuilder
+                .todoId(assign.getTodo().getTodoId())
+                .assignId(assign.getAssignId())
+                .status(String.valueOf(assign.getStatus()));
+
+        if (!assign.getTodo().isParent())
+            assignSseUpdateDataBuilder.parentId(assign.getTodo().getParentTodo().getTodoId());
+        return assignSseUpdateDataBuilder.build();
+    }
 
 }

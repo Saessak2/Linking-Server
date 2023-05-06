@@ -34,4 +34,6 @@ public interface AssignRepository extends JpaRepository<Assign, Long> {
 
     List<Assign> findByTodo(@Param("todo") Todo todo);
 
+    Assign findByTodoAndParticipant(@Param("todo") Todo todo, @Param("Participant") Participant participant);
+
 }

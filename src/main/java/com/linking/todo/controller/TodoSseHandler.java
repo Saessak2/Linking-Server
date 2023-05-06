@@ -1,6 +1,7 @@
 package com.linking.todo.controller;
 
 import com.linking.global.common.LabeledEmitter;
+import com.linking.todo.dto.TodoSseConnectData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -18,12 +19,14 @@ public class TodoSseHandler {
     private static int createdTodoEmitter = 0;
     private final List<LabeledEmitter> labeledEmitterList = new CopyOnWriteArrayList<>();
 
-    public LabeledEmitter connect(String clientType, Long userId){
+    public LabeledEmitter connect(String clientType, Long userId) throws IOException {
         LabeledEmitter labeledEmitter = new LabeledEmitter(
                 ++createdTodoEmitter, userId, clientType, new SseEmitter(TIMEOUT));
         SseEmitter sseEmitter = addEmitter(labeledEmitter);
         log.info("[CONNECT] ** emitterId = {}, userId = {}, clientType = {}, emitter = {}",
                 labeledEmitter.getEmitterId(), labeledEmitter.getUserId(), labeledEmitter.getClientType(), sseEmitter);
+
+        sseEmitter.send(SseEmitter.event().name("connect").data(new TodoSseConnectData(labeledEmitter.getEmitterId())));
 
         sseEmitter.onTimeout(sseEmitter::complete);
         sseEmitter.onCompletion(() -> {

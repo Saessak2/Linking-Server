@@ -30,18 +30,9 @@ public class TodoController {
     private final AssignService assignService;
 
     @GetMapping("/connect/{clientType}/{userId}")
-    public ResponseEntity<SseEmitter> connect(@PathVariable String clientType, @PathVariable Long userId){
+    public ResponseEntity<SseEmitter> connect(@PathVariable String clientType, @PathVariable Long userId) throws IOException {
         LabeledEmitter labeledEmitter = todoSseHandler.connect(clientType, userId);
-        SseEmitter sseEmitter = labeledEmitter.getSseEmitter();
-        try{
-            sseEmitter
-                    .send(SseEmitter.event()
-                    .name("connect")
-                    .data(new TodoSseConnectRes(labeledEmitter.getEmitterId())));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok(sseEmitter);
+        return ResponseEntity.ok(labeledEmitter.getSseEmitter());
     }
 
     @GetMapping("/disconnect/{emitterId}")
@@ -102,16 +93,16 @@ public class TodoController {
     public ResponseEntity<Object> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
         TodoSingleRes todoSingleRes;
         if(!todoUpdateReq.getIsAssignListChanged())
-            todoSingleRes = todoService.updateTodo(todoUpdateReq).get();
+            todoSingleRes = todoService.updateTodo(todoUpdateReq);
         else
             todoSingleRes = todoService.updateTodo(
-                        todoUpdateReq, assignService.updateAssignList(todoUpdateReq)).get();
+                        todoUpdateReq, assignService.updateAssignList(todoUpdateReq));
         return ResponseHandler.generateOkResponse(todoSingleRes.getTodoId());
     }
 
     @PostMapping
     public ResponseEntity<Object> deleteTodo(@RequestBody TodoDeleteReq todoDeleteReq){
-        todoService.deleteTodo(todoDeleteReq.getTodoId());
+        todoService.deleteTodo(todoDeleteReq);
         return ResponseHandler.generateNoContentResponse();
     }
 

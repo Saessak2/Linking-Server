@@ -2,20 +2,17 @@ package com.linking.assign.service;
 
 import com.linking.assign.domain.Assign;
 import com.linking.assign.domain.Status;
-import com.linking.assign.dto.AssignCountRes;
-import com.linking.assign.dto.AssignRes;
-import com.linking.assign.dto.AssignStatusUpdateReq;
+import com.linking.assign.dto.*;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
-import com.linking.assign.dto.AssignRatioRes;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.TodoUpdateReq;
-import com.linking.user.domain.User;
+import com.linking.todo.persistence.TodoRepository;
+import com.linking.todo.service.TodoSseEventHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,10 +25,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AssignService {
 
+    private final TodoSseEventHandler todoSseEventHandler;
+
     private final AssignRepository assignRepository;
     private final AssignMapper assignMapper;
 
     private final ParticipantRepository participantRepository;
+    private final TodoRepository todoRepository;
 
     public List<AssignRatioRes> getAssignCompletionRate(Long id) {
         List<Participant> participantList = participantRepository.findByProject(new Project(id));
@@ -44,11 +44,16 @@ public class AssignService {
         Optional<Assign> possibleAssign = assignRepository.findById(assignStatusUpdateReq.getAssignId());
         if(possibleAssign.isPresent()) {
             Assign.AssignBuilder assignBuilder = Assign.builder();
-            assignBuilder
+            Assign assign = assignBuilder
                     .assignId(assignStatusUpdateReq.getAssignId())
                     .todo(possibleAssign.get().getTodo())
                     .participant(possibleAssign.get().getParticipant())
-                    .status(Status.valueOf(assignStatusUpdateReq.getStatus()));
+                    .status(Status.valueOf(assignStatusUpdateReq.getStatus())).build();
+
+            if(assign.getTodo().isParent())
+                todoSseEventHandler.updateParentStatus(assignStatusUpdateReq.getEmitterId(), assignMapper.toSseStatusUpdateData(assign));
+            else
+                todoSseEventHandler.updateChildStatus(assignStatusUpdateReq.getEmitterId(), assignMapper.toSseStatusUpdateData(assign));
             return Optional.ofNullable(assignMapper.toResDto(assignRepository.save(assignBuilder.build())));
         }
         return Optional.empty();
@@ -85,6 +90,17 @@ public class AssignService {
         }
         assignRepository.deleteAll(curAssignList);
         return resAssignList;
+    }
+
+    public void deleteAssign(AssignDeleteReq assignDeleteReq){
+        Participant participant = participantRepository.findByUserAndProject(
+                assignDeleteReq.getUserId(), assignDeleteReq.getProjectId()).get(0);
+        Assign assign = assignRepository.findByTodoAndParticipant(new Todo(assignDeleteReq.getTodoId()), participant);
+
+        if(assign.getTodo().getAssignList().size() == 1)
+            todoRepository.delete(assign.getTodo());
+        else
+            assignRepository.delete(assign);
     }
 
 }

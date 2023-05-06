@@ -1,6 +1,7 @@
 package com.linking.todo.persistence;
 
 import com.linking.assign.domain.Assign;
+import com.linking.assign.dto.AssignRes;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.project.domain.Project;
@@ -28,12 +29,16 @@ public class TodoMapper {
             return null;
 
         Todo.TodoBuilder todoBuilder = Todo.builder();
-        return todoBuilder
+        todoBuilder
                 .project(new Project(todoCreateReq.getProjectId()))
                 .isParent(todoCreateReq.getIsParent())
                 .startDate(LocalDateTime.parse(todoCreateReq.getStartDate(), formatter))
                 .dueDate(LocalDateTime.parse(todoCreateReq.getDueDate(), formatter))
-                .content(todoCreateReq.getContent()).build();
+                .content(todoCreateReq.getContent());
+
+        if(!todoCreateReq.getIsParent())
+            todoBuilder.parentTodo(new Todo(todoCreateReq.getParentId()));
+        return todoBuilder.build();
     }
 
     public Todo toEntity(TodoUpdateReq todoUpdateReq, List<Long> assignIdList){
@@ -131,6 +136,53 @@ public class TodoMapper {
             return null;
 
         return assignList.stream().map(this::toSimpleDto).collect(Collectors.toList());
+    }
+
+    public TodoSsePostData toSsePostData(TodoSingleRes todoSingleRes){
+        if(todoSingleRes == null)
+            return null;
+
+        TodoSsePostData.TodoSsePostDataBuilder todoSsePostDataBuilder = TodoSsePostData.builder();
+        todoSsePostDataBuilder
+                .todoId(todoSingleRes.getTodoId())
+                .isParent(todoSingleRes.getIsParent())
+                .startDate(todoSingleRes.getStartDate())
+                .dueDate(todoSingleRes.getDueDate())
+                .content(todoSingleRes.getContent())
+                .assignList(todoSingleRes.getAssignList());
+
+        if(!todoSingleRes.getIsParent())
+            todoSsePostDataBuilder.parentId(todoSingleRes.getParentId());
+        return todoSsePostDataBuilder.build();
+    }
+
+    public TodoSseUpdateData toSseUpdateData(TodoSingleRes todoSingleRes){
+        if(todoSingleRes == null)
+            return null;
+
+        TodoSseUpdateData.TodoSseUpdateDataBuilder todoSseUpdateDataBuilder = TodoSseUpdateData.builder();
+        todoSseUpdateDataBuilder
+                .todoId(todoSingleRes.getTodoId())
+                .startDate(todoSingleRes.getStartDate())
+                .dueDate(todoSingleRes.getDueDate())
+                .content(todoSingleRes.getContent())
+                .assignList(todoSingleRes.getAssignList());
+
+        if(!todoSingleRes.getIsParent())
+            todoSseUpdateDataBuilder.parentId(todoSingleRes.getParentId());
+        return todoSseUpdateDataBuilder.build();
+    }
+
+    public TodoSseDeleteData todoSseDeleteData(Todo todo){
+        if(todo == null)
+            return null;
+
+        TodoSseDeleteData.TodoSseDeleteDataBuilder todoSseDeleteDataBuilder = TodoSseDeleteData.builder();
+        todoSseDeleteDataBuilder.todoId(todo.getTodoId());
+
+        if(!todo.isParent())
+            todoSseDeleteDataBuilder.parentId(todo.getParentTodo().getTodoId());
+        return todoSseDeleteDataBuilder.build();
     }
 
 }
