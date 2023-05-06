@@ -2,7 +2,6 @@ package com.linking.todo.service;
 
 import com.linking.assign.domain.Assign;
 import com.linking.assign.domain.Status;
-import com.linking.assign.dto.AssignRes;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
@@ -36,7 +35,7 @@ public class TodoService {
     private final AssignRepository assignRepository;
     private final AssignMapper assignMapper;
 
-    public TodoRes createTodo(TodoCreateReq todoCreateReq){
+    public TodoSingleRes createTodo(TodoCreateReq todoCreateReq){
         log.info("createTodo - {} ", this.getClass().getSimpleName());
 
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
@@ -58,27 +57,23 @@ public class TodoService {
         return todoMapper.toResDto(todo);
     }
 
-    public Optional<TodoRes> getTodo(Long id){
+    public Optional<TodoSingleRes> getTodo(Long id){
         return todoRepository.findById(id)
                 .map(todoMapper::toResDto);
     }
 
-    public List<ParentTodoRes> getTodayUserTodos(Long id){
+    public List<TodoSimpleRes> getTodayUserUrgentTodos(Long id){
         List<Participant> participantList = participantRepository.findByUser(new User(id));
-        List<Todo> todoList = assignRepository.findByParticipantAndDate(participantList, LocalDate.now())
-                        .stream().map(Assign::getTodo).collect(Collectors.toList());
+        List<Assign> assignList = assignRepository.findByParticipantAndDate(participantList, LocalDate.now());
+        return todoMapper.toSimpleDto(assignList);
+    }
+
+    public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
+        List<Todo> todoList = todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now());
         return todoMapper.toParentDto(todoList);
     }
 
-    public List<ParentTodoRes> getDailyUserTodos(Long id, int year, int month, int day){
-        List<Participant> participantList = participantRepository.findByUser(new User(id));
-        List<Todo> todoList =
-                assignRepository.findByParticipantAndDateContains(participantList, LocalDate.of(year, month, day))
-                        .stream().map(Assign::getTodo).collect(Collectors.toList());
-        return todoMapper.toParentDto(todoList);
-    }
-
-    public List<ParentTodoRes> getTodayProjectTodos(Long id, int year, int month, int day){
+    public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
         List<Todo> todoList = todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day));
         return todoMapper.toParentDto(todoList);
     }
@@ -88,14 +83,23 @@ public class TodoService {
         return todoMapper.toParentDto(todoList);
     }
 
-    public Optional<TodoRes> updateTodo(TodoUpdateReq todoUpdateReq){
+    // TODO: To be deleted
+    public List<ParentTodoRes> getDailyUserTodos(Long id, int year, int month, int day){
+        List<Participant> participantList = participantRepository.findByUser(new User(id));
+        List<Todo> todoList =
+                assignRepository.findByParticipantAndDateContains(participantList, LocalDate.of(year, month, day))
+                        .stream().map(Assign::getTodo).collect(Collectors.toList());
+        return todoMapper.toParentDto(todoList);
+    }
+
+    public Optional<TodoSingleRes> updateTodo(TodoUpdateReq todoUpdateReq){
         List<Assign> assignList = todoRepository.findById(
                 todoUpdateReq.getTodoId()).orElseThrow(NoSuchElementException::new).getAssignList();
         Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignList.stream().map(Assign::getAssignId).collect(Collectors.toList())));
         return Optional.ofNullable(todoMapper.toResDto(todo));
     }
 
-    public Optional<TodoRes> updateTodo(TodoUpdateReq todoUpdateReq, List<Long> assignIdList){
+    public Optional<TodoSingleRes> updateTodo(TodoUpdateReq todoUpdateReq, List<Long> assignIdList){
         Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignIdList));
         return Optional.ofNullable(todoMapper.toResDto(todo));
     }

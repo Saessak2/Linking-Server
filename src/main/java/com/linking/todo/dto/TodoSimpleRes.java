@@ -8,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TodoSimpleRes {
 
-    private Long todoId;
+    private Long assignId;
+    private Long projectId;
     private String projectName;
     private String dueDate;
     private String content;

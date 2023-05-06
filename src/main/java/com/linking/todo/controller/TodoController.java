@@ -1,12 +1,10 @@
 package com.linking.todo.controller;
 
+import com.linking.assign.dto.AssignRes;
 import com.linking.assign.service.AssignService;
 import com.linking.global.common.LabeledEmitter;
 import com.linking.global.common.ResponseHandler;
-import com.linking.todo.dto.TodoCreateReq;
-import com.linking.todo.dto.TodoDeleteReq;
-import com.linking.todo.dto.TodoRes;
-import com.linking.todo.dto.TodoUpdateReq;
+import com.linking.todo.dto.*;
 import com.linking.todo.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +14,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/todos")
@@ -35,8 +36,8 @@ public class TodoController {
         try{
             sseEmitter
                     .send(SseEmitter.event()
-                    .name("CONNECT")
-                    .data(labeledEmitter.getEmitterId()));
+                    .name("connect")
+                    .data(new TodoSseConnectRes(labeledEmitter.getEmitterId())));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,14 +49,13 @@ public class TodoController {
         todoSseHandler.disconnect(emitterId);
     }
 
-
     @PostMapping("/new")
     public ResponseEntity<Object> postTodo(@RequestBody @Valid TodoCreateReq todoCreateReq){
-        log.info("postTodo - {}", this.getClass().getSimpleName());
-        TodoRes todoRes = todoService.createTodo(todoCreateReq);
-        todoSseHandler.send(todoCreateReq.getEmitterId(), "TODO-POSTED", todoRes);
-        log.info("todoRes.getTodoId() = {}", todoRes.getTodoId());
-        return ResponseHandler.generateCreatedResponse(todoRes.getTodoId());
+        TodoSingleRes todoSingleRes = todoService.createTodo(todoCreateReq);
+        List<Long> idList = new ArrayList<>();
+        idList.add(todoSingleRes.getTodoId());
+        idList.addAll(todoSingleRes.getAssignList().stream().map(AssignRes::getAssignId).collect(Collectors.toList()));
+        return ResponseHandler.generateCreatedResponse(idList);
     }
 
     @GetMapping("/single/{id}")
@@ -64,24 +64,23 @@ public class TodoController {
                 todoService.getTodo(id));
     }
 
-    @GetMapping("/list/today/user/{id}")
-    public ResponseEntity<Object> getTodayUserTodos(@PathVariable Long id){
+    @GetMapping("/list/today/user/{id}/urgent")
+    public ResponseEntity<Object> getTodayUserUrgentTodos(@PathVariable Long id){
         return ResponseHandler.generateOkResponse(
-                todoService.getTodayUserTodos(id));
+                todoService.getTodayUserUrgentTodos(id));
     }
 
-    @GetMapping("/list/daily/user/{id}/{year}/{month}/{day}")
-    public ResponseEntity<Object> getDailyUserTodos(@PathVariable Long id,
-            @PathVariable int year, @PathVariable int month, @PathVariable int day){
+    @GetMapping("/list/today/project/{id}/urgent")
+    public ResponseEntity<Object> getTodayProjectUrgentTodos(@PathVariable Long id){
         return ResponseHandler.generateOkResponse(
-                todoService.getDailyUserTodos(id, year, month, day));
+                todoService.getTodayProjectUrgentTodos(id));
     }
 
     @GetMapping("/list/daily/project/{id}/{year}/{month}/{day}")
     public ResponseEntity<Object> getDailyProjectTodos(@PathVariable Long id,
             @PathVariable int year, @PathVariable int month, @PathVariable int day){
         return ResponseHandler.generateOkResponse(
-                todoService.getTodayProjectTodos(id, year, month, day));
+                todoService.getDailyProjectTodos(id, year, month, day));
     }
 
     @GetMapping("/list/monthly/project/{id}/{year}/{month}")
@@ -91,21 +90,27 @@ public class TodoController {
                 todoService.getMonthlyProjectTodos(id, year, month));
     }
 
+    // TODO: To be deleted
+    @GetMapping("/list/daily/user/{id}/{year}/{month}/{day}")
+    public ResponseEntity<Object> getDailyUserTodos(@PathVariable Long id,
+            @PathVariable int year, @PathVariable int month, @PathVariable int day){
+        return ResponseHandler.generateOkResponse(
+                todoService.getDailyUserTodos(id, year, month, day));
+    }
+
     @PutMapping
     public ResponseEntity<Object> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
-        TodoRes todoRes;
+        TodoSingleRes todoSingleRes;
         if(!todoUpdateReq.getIsAssignListChanged())
-            todoRes = todoService.updateTodo(todoUpdateReq).get();
+            todoSingleRes = todoService.updateTodo(todoUpdateReq).get();
         else
-            todoRes = todoService.updateTodo(
+            todoSingleRes = todoService.updateTodo(
                         todoUpdateReq, assignService.updateAssignList(todoUpdateReq)).get();
-        todoSseHandler.send(todoUpdateReq.getEmitterId(), "TODO UPDATED", todoRes);
-        return ResponseHandler.generateOkResponse(todoRes.getTodoId());
+        return ResponseHandler.generateOkResponse(todoSingleRes.getTodoId());
     }
 
     @PostMapping
     public ResponseEntity<Object> deleteTodo(@RequestBody TodoDeleteReq todoDeleteReq){
-        todoSseHandler.send(todoDeleteReq.getEmitterId(), "TODO DELETED", todoDeleteReq.getTodoId());
         todoService.deleteTodo(todoDeleteReq.getTodoId());
         return ResponseHandler.generateNoContentResponse();
     }

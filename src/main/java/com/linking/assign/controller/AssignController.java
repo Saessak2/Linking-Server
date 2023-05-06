@@ -5,10 +5,11 @@ import com.linking.assign.dto.AssignStatusUpdateReq;
 import com.linking.assign.service.AssignService;
 import com.linking.global.common.ResponseHandler;
 import com.linking.todo.controller.TodoSseHandler;
-import com.linking.todo.dto.TodoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/assigns")
@@ -26,9 +27,11 @@ public class AssignController {
 
     @PutMapping("/status")
     public ResponseEntity<Object> putAssignStatus(@RequestBody AssignStatusUpdateReq assignStatusUpdateReq){
-        AssignRes assignRes = assignService.updateAssignStatus(assignStatusUpdateReq).get();
+        Optional<AssignRes> assignRes = assignService.updateAssignStatus(assignStatusUpdateReq);
+        if(assignRes.isEmpty())
+            return ResponseHandler.generateOkResponse(false);
         todoSseHandler.send(assignStatusUpdateReq.getEmitterId(), "TODO-POSTED", assignRes);
-        return ResponseHandler.generateOkResponse(assignRes.getAssignId());
+        return ResponseHandler.generateOkResponse(true);
     }
 
 }

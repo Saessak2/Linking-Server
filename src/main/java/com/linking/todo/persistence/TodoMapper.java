@@ -1,7 +1,6 @@
 package com.linking.todo.persistence;
 
 import com.linking.assign.domain.Assign;
-import com.linking.assign.dto.AssignRes;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.project.domain.Project;
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,22 +53,26 @@ public class TodoMapper {
                 .assignList(assignList).build();
     }
 
-    public TodoRes toResDto(Todo todo){
-        if(todo == null)
+    public TodoSingleRes toResDto(Todo todo) {
+        if (todo == null)
             return null;
 
-        TodoRes.TodoResBuilder todoResBuilder = TodoRes.builder();
-        return todoResBuilder
+        TodoSingleRes.TodoSingleResBuilder todoResBuilder = TodoSingleRes.builder();
+        todoResBuilder
                 .todoId(todo.getTodoId())
                 .isParent(todo.isParent())
-                .parentId(todo.getTodoId() == null ? todo.getParentTodo().getTodoId(): -1L)
+                .parentId(-1L)
                 .startDate(todo.getStartDate().format(formatter))
                 .dueDate(todo.getDueDate().format(formatter))
                 .content(todo.getContent())
-                .assignList(assignMapper.toResDto(todo.getAssignList())).build();
+                .assignList(assignMapper.toResDto(todo.getAssignList()));
+
+        if (!todo.isParent())
+            todoResBuilder.parentId(todo.getParentTodo().getTodoId());
+        return todoResBuilder.build();
     }
 
-    public List<TodoRes> toResDto(List<Todo> todoList){
+    public List<TodoSingleRes> toResDto(List<Todo> todoList){
         if(todoList == null)
             return null;
         return todoList.stream().map(this::toResDto).collect(Collectors.toList());
@@ -94,7 +96,41 @@ public class TodoMapper {
     public List<ParentTodoRes> toParentDto(List<Todo> todoList){
         if(todoList == null)
             return null;
-        return todoList.stream().map(this::toParentDto).collect(Collectors.toList());
+
+        List<Long> todoIdList = new ArrayList<>();
+        List<ParentTodoRes> todoResList = new ArrayList<>();
+        for (Todo todo : todoList) {
+            ParentTodoRes parentTodoRes = toParentDto(todo);
+            if (todoIdList.contains(parentTodoRes.getTodoId()))
+                break;
+            todoResList.add(parentTodoRes);
+            todoIdList.add(parentTodoRes.getTodoId());
+            todoIdList.addAll(parentTodoRes.getChildTodoList().stream().map(TodoSingleRes::getTodoId).collect(Collectors.toList()));
+        }
+
+        return todoResList;
+    }
+
+    public TodoSimpleRes toSimpleDto(Assign assign){
+        if(assign == null)
+            return null;
+
+        Todo todo = assign.getTodo();
+        TodoSimpleRes.TodoSimpleResBuilder todoSimplifiedResBuilder = TodoSimpleRes.builder();
+        return todoSimplifiedResBuilder
+                .assignId(assign.getAssignId())
+                .projectId(todo.getProject().getProjectId())
+                .projectName(todo.getProject().getProjectName())
+                .dueDate(todo.getDueDate().format(formatter))
+                .content(todo.getContent())
+                .status(String.valueOf(assign.getStatus())).build();
+    }
+
+    public List<TodoSimpleRes> toSimpleDto(List<Assign> assignList){
+        if(assignList == null)
+            return null;
+
+        return assignList.stream().map(this::toSimpleDto).collect(Collectors.toList());
     }
 
 }
