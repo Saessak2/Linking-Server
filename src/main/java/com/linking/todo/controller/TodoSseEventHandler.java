@@ -1,4 +1,4 @@
-package com.linking.todo.service;
+package com.linking.todo.controller;
 
 import com.linking.assign.dto.AssignSseUpdateData;
 import com.linking.todo.controller.TodoSseHandler;

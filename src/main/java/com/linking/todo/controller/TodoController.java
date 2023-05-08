@@ -4,7 +4,9 @@ import com.linking.assign.dto.AssignRes;
 import com.linking.assign.service.AssignService;
 import com.linking.global.common.LabeledEmitter;
 import com.linking.global.common.ResponseHandler;
+import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.*;
+import com.linking.todo.persistence.TodoMapper;
 import com.linking.todo.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,9 @@ import java.util.stream.Collectors;
 public class TodoController {
 
     private final TodoSseHandler todoSseHandler;
+    private final TodoSseEventHandler todoSseEventHandler;
     private final TodoService todoService;
+    private final TodoMapper todoMapper;
 
     private final AssignService assignService;
 
@@ -47,6 +51,12 @@ public class TodoController {
         List<Long> idList = new ArrayList<>();
         idList.add(todoSingleRes.getTodoId());
         idList.addAll(todoSingleRes.getAssignList().stream().map(AssignRes::getAssignId).collect(Collectors.toList()));
+
+
+        if(todoCreateReq.getIsParent())
+            todoSseEventHandler.postParent(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
+        else
+            todoSseEventHandler.postChild(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
         return ResponseHandler.generateCreatedResponse(idList);
     }
 
@@ -98,12 +108,22 @@ public class TodoController {
         else
             todoSingleRes = todoService.updateTodo(
                         todoUpdateReq, assignService.updateAssignList(todoUpdateReq));
+
+        if(todoUpdateReq.getIsParent())
+            todoSseEventHandler.updateParent(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
+        else
+            todoSseEventHandler.updateChild(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
         return ResponseHandler.generateOkResponse(todoSingleRes.getTodoId());
     }
 
     @PostMapping
     public ResponseEntity<Object> deleteTodo(@RequestBody TodoDeleteReq todoDeleteReq){
-        todoService.deleteTodo(todoDeleteReq);
+        Todo todo = todoService.deleteTodo(todoDeleteReq);
+        if(todo.isParent())
+            todoSseEventHandler.deleteParent(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
+        else
+            todoSseEventHandler.deleteChild(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
+
         return ResponseHandler.generateNoContentResponse();
     }
 

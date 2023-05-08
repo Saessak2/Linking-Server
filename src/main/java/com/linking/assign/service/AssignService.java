@@ -11,7 +11,7 @@ import com.linking.project.domain.Project;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.TodoUpdateReq;
 import com.linking.todo.persistence.TodoRepository;
-import com.linking.todo.service.TodoSseEventHandler;
+import com.linking.todo.controller.TodoSseEventHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
