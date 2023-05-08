@@ -20,7 +20,7 @@ public class FirebaseTokenService {
     private final FirebaseTokenRepository firebaseTokenRepository;
     private final UserRepository userRepository;
 
-    public void createFirebaseTokenEntity(Long userId) {
+    public void createFirebaseToken(Long userId) {
         User user = userRepository.getReferenceById(userId);
 
         FirebaseToken firebaseToken = FirebaseToken.builder()

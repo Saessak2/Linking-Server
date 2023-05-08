@@ -2,6 +2,7 @@ package com.linking.user.controller;
 
 import com.linking.firebase_token.service.FirebaseTokenService;
 import com.linking.global.common.ResponseHandler;
+import com.linking.push_settings.service.PushSettingsService;
 import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.dto.UserEmailVerifyReq;
 import com.linking.user.dto.UserSignUpReq;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class AuthController {
 
     private final UserService userService;
     private final FirebaseTokenService firebaseTokenService;
+    private final PushSettingsService pushSettingsService;
 
     /**
      * 수정자 : 이은빈
@@ -36,7 +37,8 @@ public class AuthController {
 
         UserDetailedRes res = userService.addUser(userSignUpReq).get();
         if(res == null) return ResponseHandler.generateInternalServerErrorResponse();
-        firebaseTokenService.createFirebaseTokenEntity(res.getUserId());
+        firebaseTokenService.createFirebaseToken(res.getUserId());
+        pushSettingsService.createPushSettings(res.getUserId());
         return ResponseHandler.generateCreatedResponse(res);
     }
 
