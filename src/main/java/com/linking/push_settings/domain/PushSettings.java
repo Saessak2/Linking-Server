@@ -2,6 +2,7 @@ package com.linking.push_settings.domain;
 
 import com.linking.user.domain.User;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -18,15 +19,28 @@ public class PushSettings {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Setter
     private boolean allowedAppPush;
-    @Setter
     private boolean allowedWebPush;
-    @Setter
+
     private boolean allowedMail;
 
     @Builder
     public PushSettings(User user) {
         this.user = user;
+    }
+
+    public void setAppSettings(boolean allowedAppPush, boolean allowedMail) {
+        this.allowedAppPush = allowedAppPush;
+        this.allowedMail = allowedMail;
+    }
+
+    public void setWepSettings(boolean allowedWebPush, boolean allowedMail) {
+        this.allowedWebPush = allowedWebPush;
+        this.allowedMail = allowedMail;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.allowedMail = true;
     }
 }
