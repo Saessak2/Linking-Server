@@ -76,8 +76,5 @@ public class UserService {
 
     @Transactional
     public void updateFcmToken(UserFcmTokenReq req) {
-        User user = userRepository.findById(req.getUserId())
-                .orElseThrow(NoSuchElementException::new);
-        user.setFcmToken(req.getFcmToken());
     }
 }
