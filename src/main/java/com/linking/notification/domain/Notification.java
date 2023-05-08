@@ -43,14 +43,17 @@ public class Notification {
 
     private String type;
 
+    private String body;
+
     @Builder
-    public Notification(User user, Project project, String sender, String priority, Long targetId, String type) {
+    public Notification(User user, Project project, String sender, String priority, Long targetId, String type, String body) {
         this.user = user;
         this.project = project;
         this.sender = sender;
         this.priority = priority;
         this.targetId = targetId;
         this.type = type;
+        this.body = body;
     }
 
     @PrePersist
