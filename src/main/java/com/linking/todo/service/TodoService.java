@@ -14,6 +14,8 @@ import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -49,11 +51,13 @@ public class TodoService {
         return todoMapper.toResDto(todo);
     }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public Optional<TodoSingleRes> getTodo(Long id){
         return todoRepository.findById(id)
                 .map(todoMapper::toResDto);
     }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<TodoSimpleRes> getTodayUserUrgentTodos(Long id){
         List<Participant> participantList = participantRepository.findByUser(new User(id));
         List<Assign> assignList = new ArrayList<>(assignRepository.findByParticipantAndStatusAndDate(participantList, LocalDate.now()));
@@ -61,18 +65,21 @@ public class TodoService {
         return todoMapper.toSimpleDto(assignList);
     }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.now()));
         todoList.addAll(todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now()));
         return todoMapper.toParentDto(todoList);
     }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, day)));
         todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
         return todoMapper.toParentDto(todoList);
     }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
@@ -80,6 +87,7 @@ public class TodoService {
     }
 
     // TODO: To be deleted
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getDailyUserTodos(Long id, int year, int month, int day){
         List<Participant> participantList = participantRepository.findByUser(new User(id));
         List<Todo> todoList =

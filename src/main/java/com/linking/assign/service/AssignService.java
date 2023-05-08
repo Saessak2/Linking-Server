@@ -14,6 +14,8 @@ import com.linking.todo.persistence.TodoRepository;
 import com.linking.todo.controller.TodoSseEventHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class AssignService {
 
     private final ParticipantRepository participantRepository;
     private final TodoRepository todoRepository;
-
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<AssignRatioRes> getAssignCompletionRate(Long id) {
         List<Participant> participantList = participantRepository.findByProject(new Project(id));
         List<AssignCountRes> countList =

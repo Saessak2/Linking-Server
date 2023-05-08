@@ -8,9 +8,9 @@ spring:
 #    url: jdbc:mysql://localhost:3306/linking-test?serverTimezone=Asia/Seoul
 #    username: root
 #    password: 0881
-    url: jdbc:mysql://172.17.0.2:3306/linking?serverTimezone=Asia/Seoul
-    username: binmuxiz
-    password: 4213
+    url: jdbc:mysql://linking-mysql.c23kvlbmlqie.ap-northeast-2.rds.amazonaws.com:3306/linking?serverTimezone=Asia/Seoul
+    username: saessack
+    password: dmsqls0881
 
   jpa:
     database: mysql
@@ -41,5 +41,6 @@ logging:
   pattern:
     dateformat: YY-MM-dd HH:mm:ss,Asia/Seoul
   level:
+    root: info
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
