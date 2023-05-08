@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -73,4 +74,10 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
+    public void updateFcmToken(UserFcmTokenReq req) {
+        User user = userRepository.findById(req.getUserId())
+                .orElseThrow(NoSuchElementException::new);
+        user.setFcmToken(req.getFcmToken());
+    }
 }

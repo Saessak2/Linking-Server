@@ -22,6 +22,7 @@ public interface GroupMapper {
         GroupRes builder = GroupRes.builder()
                 .groupId(source.getId())
                 .name(source.getName())
+                .pageResList(new ArrayList<>())
                 .build();
 
         return builder;

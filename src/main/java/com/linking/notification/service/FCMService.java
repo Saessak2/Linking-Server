@@ -7,7 +7,6 @@ import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -25,7 +24,7 @@ public class FCMService {
         User user = userRepository.findById(req.getTargetUserId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER));
 
-        if (user.getFirebaseToken() == null) {
+        if (user.getFcmToken() == null) {
             log.info("유저의 firebase Token이 존재하지 않습니다. targetUserId = {}", req.getTargetUserId());
             return;
         }
@@ -44,15 +43,15 @@ public class FCMService {
                 .putHeader("Urgency", "normal")
                 .build();
 
-        FcmOptions fcmOptions = FcmOptions.builder()
-                .setAnalyticsLabel()
-                .build();
-
+//        FcmOptions fcmOptions = FcmOptions.builder()
+//                .setAnalyticsLabel()
+//                .build();
+//
         Message message = Message.builder()
-                .setToken(user.getFirebaseToken())
+                .setToken(user.getFcmToken())
                 .setNotification(notification)
                 .putAllData(req.getData())
-                .setFcmOptions()
+//                .setFcmOptions()
                 .build();
 
         try {

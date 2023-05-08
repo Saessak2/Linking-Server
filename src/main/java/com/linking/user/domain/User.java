@@ -29,7 +29,8 @@ public class User {
     @Column(length = 20)
     private String password;
 
-    private String firebaseToken;
+    @Setter
+    private String fcmToken;
 
     public User(Long ownerId) {
         this.userId = ownerId;

@@ -73,7 +73,12 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
 
-        groupEventHandler.postGroup(project.getProjectId(), userId, groupRes);
+        GroupPostEvent groupPostEvent = GroupPostEvent.builder()
+                .groupId(groupRes.getGroupId())
+                .name(group.getName())
+                .build();
+
+        groupEventHandler.postGroup(project.getProjectId(), userId, groupPostEvent);
 
         return groupRes;
     }

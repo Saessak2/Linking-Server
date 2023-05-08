@@ -1,6 +1,7 @@
 package com.linking.group.controller;
 
 import com.linking.group.dto.GroupIdRes;
+import com.linking.group.dto.GroupPostEvent;
 import com.linking.group.dto.GroupRes;
 import com.linking.page.dto.PageIdRes;
 import com.linking.page.dto.PageRes;
@@ -17,7 +18,7 @@ public class GroupEventHandler {
     private final GroupSseHandler groupSseHandler;
 
     @Async("eventCallExecutor")
-    public void postGroup(Long projectId, Long userId, GroupRes res) {
+    public void postGroup(Long projectId, Long userId, GroupPostEvent res) {
         groupSseHandler.send(projectId, userId, "postGroup", res);
     }
 

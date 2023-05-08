@@ -2,6 +2,7 @@ package com.linking.user.controller;
 
 import com.linking.global.common.ResponseHandler;
 import com.linking.user.dto.UserEmailVerifyReq;
+import com.linking.user.dto.UserFcmTokenReq;
 import com.linking.user.dto.UserSignUpReq;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserSignInReq;
@@ -41,4 +42,12 @@ public class AuthController {
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
+    /**
+     * 작성자 : 이은빈
+     * 알림 기기 등록을 위한 토큰 저장
+     */
+    @PostMapping("/fcm-token")
+    public void putFcmToken(@RequestBody @Valid UserFcmTokenReq req) {
+        userService.updateFcmToken(req);
+    }
 }
