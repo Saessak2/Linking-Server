@@ -40,5 +40,4 @@ public class Project {
     public Project(Long projectId) {
         this.projectId = projectId;
     }
-
 }
