@@ -86,7 +86,7 @@ public class NotificationService {
         fcmReqBuilder
                 .data(data);
 
-        fcmService.sendNotificationByToken(fcmReqBuilder.build());
+//        fcmService.sendNotificationByToken(fcmReqBuilder.build());
     }
 
     public void sendMail() {
