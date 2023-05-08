@@ -1,8 +1,9 @@
 package com.linking.user.controller;
 
+import com.linking.firebase_token.service.FirebaseTokenService;
 import com.linking.global.common.ResponseHandler;
+import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.dto.UserEmailVerifyReq;
-import com.linking.user.dto.UserFcmTokenReq;
 import com.linking.user.dto.UserSignUpReq;
 import com.linking.user.service.UserService;
 import com.linking.user.dto.UserSignInReq;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,12 +21,23 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final UserService userService;
+    private final FirebaseTokenService firebaseTokenService;
 
+    /**
+     * 수정자 : 이은빈
+     * 23-05-09 06:07
+     * firebaseToken 및 push_settings 생성
+     */
     @PostMapping("/sign-up")
     public ResponseEntity<Object> signUpDefault(@RequestBody @Valid UserSignUpReq userSignUpReq){
-        return userService.addUser(userSignUpReq)
-                .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, u))
-                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+//        return userService.addUser(userSignUpReq)
+//                .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, u))
+//                .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
+
+        UserDetailedRes res = userService.addUser(userSignUpReq).get();
+        if(res == null) return ResponseHandler.generateInternalServerErrorResponse();
+        firebaseTokenService.createFirebaseTokenEntity(res.getUserId());
+        return ResponseHandler.generateCreatedResponse(res);
     }
 
     @PostMapping("/verify/email")

@@ -20,13 +20,13 @@ public class FirebaseTokenController {
     private final FirebaseTokenService firebaseTokenService;
 
     // TODO app token 요청
-    @PutMapping
+    @PutMapping("/app")
     public void putAppToken(@RequestBody @Valid TokenReq req) {
         firebaseTokenService.updateAppToken(req);
     }
 
     // TODO web token 요청
-    @PutMapping
+    @PutMapping("/web")
     public void putWebToken(@RequestBody @Valid TokenReq req) {
         firebaseTokenService.updateWebToken(req);
     }
