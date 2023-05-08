@@ -32,6 +32,7 @@ public class TodoController {
     @GetMapping("/connect/{clientType}/{userId}")
     public ResponseEntity<SseEmitter> connect(@PathVariable String clientType, @PathVariable Long userId) throws IOException {
         LabeledEmitter labeledEmitter = todoSseHandler.connect(clientType, userId);
+        todoSseHandler.send(labeledEmitter.getEmitterId(), "connect", new TodoSseConnectData(labeledEmitter.getEmitterId()));
         return ResponseEntity.ok(labeledEmitter.getSseEmitter());
     }
 

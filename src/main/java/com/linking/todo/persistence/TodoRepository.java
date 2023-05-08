@@ -1,5 +1,6 @@
 package com.linking.todo.persistence;
 
+import com.linking.assign.domain.Status;
 import com.linking.project.domain.Project;
 import com.linking.todo.domain.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;

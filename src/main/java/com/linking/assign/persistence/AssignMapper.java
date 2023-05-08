@@ -20,11 +20,15 @@ public interface AssignMapper {
             return null;
 
         AssignRatioRes.AssignRatioResBuilder assignRatioResBuilder = AssignRatioRes.builder();
-        return assignRatioResBuilder
+        assignRatioResBuilder
                 .userName(countReq.getParticipant().getUserName())
                 .totalAssign(countReq.getCount())
                 .completeAssign(countReq.getCompleteCount())
-                .completionRatio((double) countReq.getCompleteCount() / (double) countReq.getCount() * 100).build();
+                .completionRatio(0.0);
+
+        if(countReq.getCount() > 0)
+            assignRatioResBuilder.completionRatio((double) countReq.getCompleteCount() / countReq.getCount() * 100);
+        return assignRatioResBuilder.build();
     }
 
     default List<AssignRatioRes> toRatioDto(List<AssignCountRes> countList) {

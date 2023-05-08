@@ -15,6 +15,7 @@ import com.linking.todo.service.TodoSseEventHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -101,6 +102,25 @@ public class AssignService {
             todoRepository.delete(assign.getTodo());
         else
             assignRepository.delete(assign);
+    }
+
+    public void setAssignStatus(){
+        Assign.AssignBuilder assignBuilder = Assign.builder();
+        List<Assign> assignList = assignRepository.findByDateAndStatus(LocalDate.now(), Status.BEFORE_START);
+        for(Assign assign : assignList)
+            assignRepository.save(assignBuilder
+                    .assignId(assign.getAssignId())
+                    .todo(assign.getTodo())
+                    .participant(assign.getParticipant())
+                    .status(Status.INCOMPLETE).build());
+
+        assignList = assignRepository.findByDateAndStatus(LocalDate.now(), Status.IN_PROGRESS);
+        for(Assign assign : assignList)
+            assignRepository.save(assignBuilder
+                    .assignId(assign.getAssignId())
+                    .todo(assign.getTodo())
+                    .participant(assign.getParticipant())
+                    .status(Status.INCOMPLETE_PROGRESS).build());
     }
 
 }

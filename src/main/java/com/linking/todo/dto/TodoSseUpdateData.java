@@ -13,6 +13,7 @@ import java.util.List;
 public class TodoSseUpdateData {
 
     private Long todoId;
+    private Boolean isParent;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long parentId;

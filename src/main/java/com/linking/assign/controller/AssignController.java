@@ -5,7 +5,6 @@ import com.linking.assign.dto.AssignRes;
 import com.linking.assign.dto.AssignStatusUpdateReq;
 import com.linking.assign.service.AssignService;
 import com.linking.global.common.ResponseHandler;
-import com.linking.todo.controller.TodoSseHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

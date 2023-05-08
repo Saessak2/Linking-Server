@@ -1,7 +1,6 @@
 package com.linking.todo.persistence;
 
 import com.linking.assign.domain.Assign;
-import com.linking.assign.dto.AssignRes;
 import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.project.domain.Project;
@@ -47,15 +46,18 @@ public class TodoMapper {
 
         List<Assign> assignList = assignRepository.findAllById(assignIdList);
         Todo.TodoBuilder todoBuilder = Todo.builder();
-        return todoBuilder
+        todoBuilder
                 .todoId(todoUpdateReq.getTodoId())
                 .project(new Project(todoUpdateReq.getProjectId()))
-                .parentTodo(new Todo(todoUpdateReq.getTodoId()))
                 .isParent(todoUpdateReq.getIsParent())
                 .startDate(LocalDateTime.parse(todoUpdateReq.getStartDate(), formatter))
                 .dueDate(LocalDateTime.parse(todoUpdateReq.getDueDate(), formatter))
                 .content(todoUpdateReq.getContent())
-                .assignList(assignList).build();
+                .assignList(assignList);
+
+        if(!todoUpdateReq.getIsParent())
+            todoBuilder.parentTodo(new Todo(todoUpdateReq.getParentId()));
+        return todoBuilder.build();
     }
 
     public TodoSingleRes toResDto(Todo todo) {
@@ -163,6 +165,7 @@ public class TodoMapper {
         TodoSseUpdateData.TodoSseUpdateDataBuilder todoSseUpdateDataBuilder = TodoSseUpdateData.builder();
         todoSseUpdateDataBuilder
                 .todoId(todoSingleRes.getTodoId())
+                .isParent(todoSingleRes.getIsParent())
                 .startDate(todoSingleRes.getStartDate())
                 .dueDate(todoSingleRes.getDueDate())
                 .content(todoSingleRes.getContent())

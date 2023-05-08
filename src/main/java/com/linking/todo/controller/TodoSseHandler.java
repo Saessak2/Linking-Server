@@ -47,9 +47,7 @@ public class TodoSseHandler {
         labeledEmitterList.add(labeledEmitter);
         SseEmitter sseEmitter = labeledEmitter.getSseEmitter();
 
-        sseEmitter.onCompletion(() -> {
-            labeledEmitterList.remove(labeledEmitter);
-        });
+        sseEmitter.onCompletion(() -> labeledEmitterList.remove(labeledEmitter));
         sseEmitter.onTimeout(sseEmitter::complete);
 
         return sseEmitter;

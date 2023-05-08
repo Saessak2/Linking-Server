@@ -19,11 +19,6 @@ public class TodoSseEventHandler {
     private final TodoSseHandler todoSseHandler;
 
     @Async("eventCallExecutor")
-    public void connect(int emitterId){
-        todoSseHandler.send(emitterId, "connect", new TodoSseConnectData(emitterId));
-    }
-
-    @Async("eventCallExecutor")
     public void postParent(int emitterId, TodoSsePostData todoSsePostData){
         todoSseHandler.send(emitterId, "postParent", todoSsePostData);
     }

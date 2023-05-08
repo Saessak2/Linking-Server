@@ -2,7 +2,6 @@ package com.linking.todo.service;
 
 import com.linking.assign.domain.Assign;
 import com.linking.assign.domain.Status;
-import com.linking.assign.persistence.AssignMapper;
 import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
@@ -17,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +42,7 @@ public class TodoService {
 
         List<Assign> assignList = new ArrayList<>();
         for(Participant participant : participantList)
-            assignList.add(assignRepository.save(
+            assignList.add(assignRepository.saveAndFlush(
                     assignBuilder
                             .todo(todo)
                             .participant(participant)
@@ -68,22 +64,26 @@ public class TodoService {
 
     public List<TodoSimpleRes> getTodayUserUrgentTodos(Long id){
         List<Participant> participantList = participantRepository.findByUser(new User(id));
-        List<Assign> assignList = assignRepository.findByParticipantAndDate(participantList, LocalDate.now());
+        List<Assign> assignList = new ArrayList<>(assignRepository.findByParticipantAndStatusAndDate(participantList, LocalDate.now()));
+        assignList.addAll(assignRepository.findByParticipantAndDate(participantList, LocalDate.now()));
         return todoMapper.toSimpleDto(assignList);
     }
 
     public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
-        List<Todo> todoList = todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now());
+        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.now()));
+        todoList.addAll(todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now()));
         return todoMapper.toParentDto(todoList);
     }
 
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
-        List<Todo> todoList = todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day));
+        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, day)));
+        todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
         return todoMapper.toParentDto(todoList);
     }
 
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
-        List<Todo> todoList = todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1));
+        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
+        todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
         return todoMapper.toParentDto(todoList);
     }
 
@@ -110,7 +110,7 @@ public class TodoService {
     }
 
     public TodoSingleRes updateTodo(TodoUpdateReq todoUpdateReq, List<Long> assignIdList){
-        Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignIdList));
+        Todo todo = todoRepository.saveAndFlush(todoMapper.toEntity(todoUpdateReq, assignIdList));
 
         TodoSingleRes todoSingleRes = todoMapper.toResDto(todo);
         if(todoUpdateReq.getIsParent())
