@@ -73,8 +73,4 @@ public class UserService {
             throws EmptyResultDataAccessException, DataIntegrityViolationException {
         userRepository.deleteById(userId);
     }
-
-    @Transactional
-    public void updateFcmToken(UserFcmTokenReq req) {
-    }
 }

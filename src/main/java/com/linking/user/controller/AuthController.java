@@ -41,13 +41,4 @@ public class AuthController {
                 .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, u))
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
-
-    /**
-     * 작성자 : 이은빈
-     * 알림 기기 등록을 위한 토큰 저장
-     */
-    @PostMapping("/fcm-token")
-    public void putFcmToken(@RequestBody @Valid UserFcmTokenReq req) {
-        userService.updateFcmToken(req);
-    }
 }
