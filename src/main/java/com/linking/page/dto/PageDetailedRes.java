@@ -1,9 +1,8 @@
 package com.linking.page.dto;
 
-import com.linking.pageCheck.dto.PageCheckRes;
+import com.linking.page_check.dto.PageCheckRes;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import net.bytebuddy.implementation.bind.annotation.Super;
 
 import java.util.List;
 

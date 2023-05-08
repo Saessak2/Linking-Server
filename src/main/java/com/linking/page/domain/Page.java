@@ -2,9 +2,8 @@ package com.linking.page.domain;
 
 import com.linking.block.domain.Block;
 import com.linking.group.domain.Group;
-import com.linking.pageCheck.domain.PageCheck;
+import com.linking.page_check.domain.PageCheck;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;

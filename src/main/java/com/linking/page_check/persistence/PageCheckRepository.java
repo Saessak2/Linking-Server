@@ -1,7 +1,6 @@
-package com.linking.pageCheck.persistence;
+package com.linking.page_check.persistence;
 
-import com.linking.page.domain.Page;
-import com.linking.pageCheck.domain.PageCheck;
+import com.linking.page_check.domain.PageCheck;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

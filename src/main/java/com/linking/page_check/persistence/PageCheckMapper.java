@@ -1,8 +1,8 @@
-package com.linking.pageCheck.persistence;
+package com.linking.page_check.persistence;
 
-import com.linking.pageCheck.domain.PageCheck;
-import com.linking.pageCheck.dto.PageCheckRes;
-import com.linking.pageCheck.dto.PageCheckUpdateRes;
+import com.linking.page_check.domain.PageCheck;
+import com.linking.page_check.dto.PageCheckRes;
+import com.linking.page_check.dto.PageCheckUpdateRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

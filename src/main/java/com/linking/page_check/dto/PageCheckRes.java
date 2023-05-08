@@ -1,4 +1,4 @@
-package com.linking.pageCheck.dto;
+package com.linking.page_check.dto;
 
 import lombok.*;
 

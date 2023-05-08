@@ -5,7 +5,7 @@ import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
 import com.linking.page.service.PageService;
-import com.linking.pageCheck.service.PageCheckService;
+import com.linking.page_check.service.PageCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

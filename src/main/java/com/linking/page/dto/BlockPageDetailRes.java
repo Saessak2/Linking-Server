@@ -1,9 +1,7 @@
 package com.linking.page.dto;
 
 import com.linking.block.dto.BlockDetailRes;
-import com.linking.block.dto.BlockRes;
-import com.linking.pageCheck.dto.PageCheckRes;
-import lombok.Builder;
+import com.linking.page_check.dto.PageCheckRes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;

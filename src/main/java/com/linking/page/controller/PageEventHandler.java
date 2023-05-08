@@ -5,7 +5,7 @@ import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateRes;
 import com.linking.block.dto.BlockEventRes;
 import com.linking.block.dto.BlockIdRes;
-import com.linking.pageCheck.dto.PageCheckUpdateRes;
+import com.linking.page_check.dto.PageCheckUpdateRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

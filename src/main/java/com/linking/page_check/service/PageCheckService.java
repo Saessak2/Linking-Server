@@ -1,14 +1,14 @@
-package com.linking.pageCheck.service;
+package com.linking.page_check.service;
 
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
-import com.linking.pageCheck.domain.PageCheck;
-import com.linking.pageCheck.dto.PageCheckUpdateRes;
-import com.linking.pageCheck.persistence.PageCheckMapper;
-import com.linking.pageCheck.persistence.PageCheckRepository;
+import com.linking.page_check.domain.PageCheck;
+import com.linking.page_check.dto.PageCheckUpdateRes;
+import com.linking.page_check.persistence.PageCheckMapper;
+import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
