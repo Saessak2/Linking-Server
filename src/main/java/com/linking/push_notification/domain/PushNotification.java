@@ -28,7 +28,7 @@ public class PushNotification {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    private Long target_id;
+    private Long targetId;
 
     private String sender;
 
@@ -44,10 +44,10 @@ public class PushNotification {
 
     private String body;
 
-    public PushNotification(User user, Project project, Long target_id, String sender, NoticeType noticeType, int priority, String body) {
+    public PushNotification(User user, Project project, Long targetId, String sender, NoticeType noticeType, int priority, String body) {
         this.user = user;
         this.project = project;
-        this.target_id = target_id;
+        this.targetId = targetId;
         this.sender = sender;
         this.noticeType = noticeType;
         this.priority = priority;
