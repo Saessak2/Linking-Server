@@ -41,6 +41,8 @@ dependencies {
 
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
 
+	implementation 'org.springframework.boot:spring-boot-starter-mail:3.0.6'
+
 }
 
 tasks.named('test') {
