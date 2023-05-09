@@ -8,7 +8,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
@@ -21,10 +20,10 @@ public class TodoSseHandler {
 
     public LabeledEmitter connect(String clientType, Long projectId, Long userId) throws IOException {
         LabeledEmitter labeledEmitter = new LabeledEmitter(
-                ++createdTodoEmitter, userId, projectId, clientType, new SseEmitter(TIMEOUT));
+                ++createdTodoEmitter, projectId, userId, clientType, new SseEmitter(TIMEOUT));
         SseEmitter sseEmitter = addEmitter(labeledEmitter);
         log.info("[TODO][CONNECT] emitterId = {}, clientType = {}, projectId = {}, userId = {}",
-                labeledEmitter.getEmitterId(), labeledEmitter.getUserId(), labeledEmitter.getClientType(), sseEmitter);
+                labeledEmitter.getEmitterId(), labeledEmitter.getClientType(), labeledEmitter.getProjectId(), labeledEmitter.getUserId());
         sseEmitter.send(SseEmitter.event().name("connect").data(
                 new TodoSseConnectData(labeledEmitter.getEmitterId())));
 
@@ -56,18 +55,20 @@ public class TodoSseHandler {
     public void send(int emitterId, Long projectId, String eventName, Object data) {
         if(labeledEmitterList.isEmpty())
             return;
-        if(emitterId == -1)
+        if(emitterId == -1) {
             sendToAllEmittersFromAnonymous(eventName, data);
-        else {
-            LabeledEmitter labeledEmitter =
-                    labeledEmitterList.stream().filter(e -> e.getEmitterId() == emitterId)
-                            .findAny().orElseThrow(NoSuchElementException::new);
-            if (labeledEmitter.getClientType().equals("web")) {
-                sendToAllEmittersFromWeb(emitterId, projectId, eventName, data);
-            } else if (labeledEmitter.getClientType().equals("mac")) {
-                sendToAllUsersFromMac(labeledEmitter.getUserId(), projectId, eventName, data);
+            return;
+        }
+        for(LabeledEmitter labeledEmitter : labeledEmitterList) {
+            if (labeledEmitter.getEmitterId() == emitterId) {
+                if (labeledEmitter.getClientType().equals("web"))
+                    sendToAllEmittersFromWeb(emitterId, projectId, eventName, data);
+                else if (labeledEmitter.getClientType().equals("mac"))
+                    sendToAllUsersFromMac(labeledEmitter.getUserId(), projectId, eventName, data);
+                return;
             }
         }
+        sendToAllEmittersFromAnonymous(eventName, data);
     }
 
     private void sendToAllEmittersFromAnonymous(String eventName, Object data){
