@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
-@Table(name = "firebase_token")
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FirebaseToken {

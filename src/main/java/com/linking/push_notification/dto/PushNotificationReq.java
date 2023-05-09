@@ -9,20 +9,19 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class PushNotificationRes {
+public class PushNotificationReq {
 
     @NotNull
     private Long projectId;
     @NotNull
-    private String body;  // 페이지 / 할일 title
+    private Long userId;
     @NotNull
-    private String info;  // projectName + sender + createdDate
+    private String sender;
     @NotNull
-    private int priority;   // 0 / 1
+    private int priority;
     @NotNull
-    private NoticeType noticeType; // TODO / PAGE
+    private NoticeType noticeType;
+    private Long targetId; // 페이지인 경우에
     @NotNull
-    private boolean isChecked;
-
-    private Long targetId; // pageId
+    private String body;
 }

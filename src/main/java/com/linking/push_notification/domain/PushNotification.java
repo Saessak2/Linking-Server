@@ -2,10 +2,7 @@ package com.linking.push_notification.domain;
 
 import com.linking.project.domain.Project;
 import com.linking.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -16,12 +13,12 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PushNotification {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "push_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,6 +41,7 @@ public class PushNotification {
 
     private String body;
 
+    @Builder
     public PushNotification(User user, Project project, Long targetId, String sender, NoticeType noticeType, int priority, String body) {
         this.user = user;
         this.project = project;
