@@ -33,10 +33,15 @@ public class TodoController {
 
     private final AssignService assignService;
 
-    @GetMapping("/connect/{clientType}/{userId}")
-    public ResponseEntity<SseEmitter> connect(@PathVariable String clientType, @PathVariable Long userId) throws IOException {
-        LabeledEmitter labeledEmitter = todoSseHandler.connect(clientType, userId);
-        todoSseHandler.send(labeledEmitter.getEmitterId(), "connect", new TodoSseConnectData(labeledEmitter.getEmitterId()));
+    @GetMapping("/connect/{clientType}/project/{projectId}/user/{userId}")
+    public ResponseEntity<SseEmitter> connect(@PathVariable String clientType,
+            @PathVariable Long projectId, @PathVariable Long userId) throws IOException {
+        LabeledEmitter labeledEmitter = todoSseHandler.connect(clientType, projectId, userId);
+        todoSseHandler.send(
+                labeledEmitter.getEmitterId(),
+                projectId,
+                "connect",
+                new TodoSseConnectData(labeledEmitter.getEmitterId()));
         return ResponseEntity.ok(labeledEmitter.getSseEmitter());
     }
 
@@ -54,9 +59,9 @@ public class TodoController {
 
 
         if(todoCreateReq.getIsParent())
-            todoSseEventHandler.postParent(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
+            todoSseEventHandler.postParent(todoCreateReq.getEmitterId(), todoCreateReq.getProjectId(), todoMapper.toSsePostData(todoSingleRes));
         else
-            todoSseEventHandler.postChild(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
+            todoSseEventHandler.postChild(todoCreateReq.getEmitterId(), todoCreateReq.getProjectId(), todoMapper.toSsePostData(todoSingleRes));
         return ResponseHandler.generateCreatedResponse(idList);
     }
 
@@ -110,9 +115,9 @@ public class TodoController {
                         todoUpdateReq, assignService.updateAssignList(todoUpdateReq));
 
         if(todoUpdateReq.getIsParent())
-            todoSseEventHandler.updateParent(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
+            todoSseEventHandler.updateParent(todoUpdateReq.getEmitterId(), todoUpdateReq.getProjectId(), todoMapper.toSseUpdateData(todoSingleRes));
         else
-            todoSseEventHandler.updateChild(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
+            todoSseEventHandler.updateChild(todoUpdateReq.getEmitterId(), todoUpdateReq.getProjectId(), todoMapper.toSseUpdateData(todoSingleRes));
         return ResponseHandler.generateOkResponse(todoSingleRes.getTodoId());
     }
 
@@ -120,9 +125,15 @@ public class TodoController {
     public ResponseEntity<Object> deleteTodo(@RequestBody TodoDeleteReq todoDeleteReq){
         Todo todo = todoService.deleteTodo(todoDeleteReq);
         if(todo.isParent())
-            todoSseEventHandler.deleteParent(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
+            todoSseEventHandler.deleteParent(
+                    todoDeleteReq.getEmitterId(),
+                    todo.getProject().getProjectId(),
+                    todoMapper.todoSseDeleteData(todo));
         else
-            todoSseEventHandler.deleteChild(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
+            todoSseEventHandler.deleteChild(
+                    todoDeleteReq.getEmitterId(),
+                    todo.getProject().getProjectId(),
+                    todoMapper.todoSseDeleteData(todo));
 
         return ResponseHandler.generateNoContentResponse();
     }

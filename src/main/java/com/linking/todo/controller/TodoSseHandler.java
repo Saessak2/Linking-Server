@@ -19,21 +19,21 @@ public class TodoSseHandler {
     private static int createdTodoEmitter = 0;
     private final List<LabeledEmitter> labeledEmitterList = new CopyOnWriteArrayList<>();
 
-    public LabeledEmitter connect(String clientType, Long userId) throws IOException {
+    public LabeledEmitter connect(String clientType, Long projectId, Long userId) throws IOException {
         LabeledEmitter labeledEmitter = new LabeledEmitter(
-                ++createdTodoEmitter, userId, clientType, new SseEmitter(TIMEOUT));
+                ++createdTodoEmitter, userId, projectId, clientType, new SseEmitter(TIMEOUT));
         SseEmitter sseEmitter = addEmitter(labeledEmitter);
-        log.info("[CONNECT] ** emitterId = {}, userId = {}, clientType = {}, emitter = {}",
+        log.info("[TODO][CONNECT] emitterId = {}, clientType = {}, projectId = {}, userId = {}",
                 labeledEmitter.getEmitterId(), labeledEmitter.getUserId(), labeledEmitter.getClientType(), sseEmitter);
-
-        sseEmitter.send(SseEmitter.event().name("connect").data(new TodoSseConnectData(labeledEmitter.getEmitterId())));
+        sseEmitter.send(SseEmitter.event().name("connect").data(
+                new TodoSseConnectData(labeledEmitter.getEmitterId())));
 
         sseEmitter.onTimeout(sseEmitter::complete);
         sseEmitter.onCompletion(() -> {
-            log.info("[REMOVE] ** emitterId = {}, userId = {}", labeledEmitter.getEmitterId(), labeledEmitter.getUserId());
+            log.info("[TODO][REMOVE] emitterId = {}, userId = {}",
+                    labeledEmitter.getEmitterId(), labeledEmitter.getUserId());
             labeledEmitterList.remove(labeledEmitter);
         });
-
         return labeledEmitter;
     }
 
@@ -53,30 +53,42 @@ public class TodoSseHandler {
         return sseEmitter;
     }
 
-    public void send(int emitterId, String eventName, Object data) {
-        log.info("send - {}", this.getClass().getSimpleName());
-
+    public void send(int emitterId, Long projectId, String eventName, Object data) {
         if(labeledEmitterList.isEmpty())
             return;
-        LabeledEmitter labeledEmitter =
-                labeledEmitterList.stream().filter(e -> e.getEmitterId() == emitterId)
-                        .findAny().orElseThrow(NoSuchElementException::new);
-
-        if(labeledEmitter.getClientType().equals("web")) {
-            sendToAllEmitters(emitterId, eventName, data);
-        }
-        else if(labeledEmitter.getClientType().equals("mac")) {
-            sendToAllUsers(labeledEmitter.getUserId(), eventName, data);
+        if(emitterId == -1)
+            sendToAllEmittersFromAnonymous(eventName, data);
+        else {
+            LabeledEmitter labeledEmitter =
+                    labeledEmitterList.stream().filter(e -> e.getEmitterId() == emitterId)
+                            .findAny().orElseThrow(NoSuchElementException::new);
+            if (labeledEmitter.getClientType().equals("web")) {
+                sendToAllEmittersFromWeb(emitterId, projectId, eventName, data);
+            } else if (labeledEmitter.getClientType().equals("mac")) {
+                sendToAllUsersFromMac(labeledEmitter.getUserId(), projectId, eventName, data);
+            }
         }
     }
 
-    private void sendToAllEmitters(int emitterId, String eventName, Object data){
+    private void sendToAllEmittersFromAnonymous(String eventName, Object data){
         for(LabeledEmitter labeledEmitter : labeledEmitterList) {
-            if (labeledEmitter.getEmitterId() != emitterId) {
+            try {
+                labeledEmitter.getSseEmitter()
+                        .send(SseEmitter.event().name(eventName).data(data));
+                log.info("[TODO][SEND] EVENT {} FROM anonymous", eventName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void sendToAllEmittersFromWeb(int emitterId, Long projectId, String eventName, Object data){
+        for(LabeledEmitter labeledEmitter : labeledEmitterList) {
+            if (labeledEmitter.getEmitterId() != emitterId && labeledEmitter.getProjectId().equals(projectId)) {
                 try {
                     labeledEmitter.getSseEmitter()
                             .send(SseEmitter.event().name(eventName).data(data));
-                    log.info("SEND {} EVENT", eventName);
+                    log.info("[TODO][SEND] EVENT {} FROM web", eventName);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -84,13 +96,13 @@ public class TodoSseHandler {
         }
     }
 
-    private void sendToAllUsers(Long userId, String eventName, Object data){
+    private void sendToAllUsersFromMac(Long userId, Long projectId, String eventName, Object data){
         for(LabeledEmitter labeledEmitter : labeledEmitterList) {
-            if (!labeledEmitter.getUserId().equals(userId)) {
+            if (!labeledEmitter.getUserId().equals(userId) && labeledEmitter.getProjectId().equals(projectId)) {
                 try {
                     labeledEmitter.getSseEmitter()
                             .send(SseEmitter.event().name(eventName).data(data));
-                    log.info("SEND {} EVENT", eventName);
+                    log.info("SEND {} EVENT FROM mac", eventName);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

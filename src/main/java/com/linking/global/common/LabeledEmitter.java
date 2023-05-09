@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class LabeledEmitter {
 
     private int emitterId;
+    private Long projectId;
     private Long userId;
     private String clientType;
     private SseEmitter sseEmitter;
