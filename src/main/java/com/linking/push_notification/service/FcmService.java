@@ -2,7 +2,6 @@ package com.linking.push_notification.service;
 
 import com.google.firebase.messaging.*;
 import com.linking.push_notification.dto.FcmReq;
-import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FcmService {
-
-    private final FirebaseMessaging firebaseMessaging;
 
     @Async("eventCallExecutor")
     public void sendMessageToFcmServer(FcmReq req) {
@@ -52,7 +49,7 @@ public class FcmService {
                 .build();
 
         try {
-            String response = firebaseMessaging.send(message);
+            String response = FirebaseMessaging.getInstance().send(message);
             log.info("Successfully send message: {}", response);
         } catch (FirebaseMessagingException e) {
             log.error(e.getMessage());
