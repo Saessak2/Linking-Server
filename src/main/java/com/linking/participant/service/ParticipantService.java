@@ -10,6 +10,7 @@ import com.linking.participant.dto.ParticipantRes;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectUpdateReq;
+import com.linking.project.persistence.ProjectRepository;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +30,7 @@ public class ParticipantService {
     private final ParticipantMapper participantMapper;
 
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
@@ -71,14 +70,16 @@ public class ParticipantService {
             return resPartIdList;
         }
 
+        Project project = projectRepository.findById(projectUpdateReq.getProjectId())
+                .orElseThrow(NoSuchElementException::new);
         List<Participant> curPartList =
-                participantRepository.findByProject(new Project(projectUpdateReq.getProjectId()));
+                participantRepository.findByProject(project);
         List<Long> partUserIdList = curPartList.stream()
                 .map(p->p.getUser().getUserId()).collect(Collectors.toList());
         List<Long> reqPartUserList = projectUpdateReq.getPartList();
 
 
-        if(!curPartList.get(0).getUser().getUserId().equals(reqPartUserList.get(0)))
+        if(!project.getOwner().getUserId().equals(reqPartUserList.get(0)))
             throw new DataIntegrityViolationException("삭제할 수 없는 팀원");
 
         Participant.ParticipantBuilder participantBuilder = Participant.builder();
@@ -100,6 +101,12 @@ public class ParticipantService {
             }
         }
         participantRepository.deleteAll(curPartList);
+
+        Long ownerId = project.getOwner().getUserId();
+        for(int i = 0; i < resPartIdList.size(); i++) {
+            if (resPartIdList.get(i).equals(ownerId))
+                Collections.swap(resPartIdList, 0, i);
+        }
         return resPartIdList;
     }
 

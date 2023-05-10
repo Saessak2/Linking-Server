@@ -11,7 +11,7 @@ import com.linking.project.domain.Project;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.TodoUpdateReq;
 import com.linking.todo.persistence.TodoRepository;
-import com.linking.todo.service.TodoSseEventHandler;
+import com.linking.todo.controller.TodoSseEventHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,9 +52,15 @@ public class AssignService {
                     .status(Status.valueOf(assignStatusUpdateReq.getStatus())).build();
 
             if(assign.getTodo().isParent())
-                todoSseEventHandler.updateParentStatus(assignStatusUpdateReq.getEmitterId(), assignMapper.toSseStatusUpdateData(assign));
+                todoSseEventHandler.updateParentStatus(
+                        assignStatusUpdateReq.getEmitterId(),
+                        assign.getTodo().getProject().getProjectId(),
+                        assignMapper.toSseStatusUpdateData(assign));
             else
-                todoSseEventHandler.updateChildStatus(assignStatusUpdateReq.getEmitterId(), assignMapper.toSseStatusUpdateData(assign));
+                todoSseEventHandler.updateChildStatus(
+                        assignStatusUpdateReq.getEmitterId(),
+                        assign.getTodo().getProject().getProjectId(),
+                        assignMapper.toSseStatusUpdateData(assign));
             return Optional.ofNullable(assignMapper.toResDto(assignRepository.save(assignBuilder.build())));
         }
         return Optional.empty();

@@ -109,7 +109,7 @@ public class TodoMapper {
         for (Todo todo : todoList) {
             ParentTodoRes parentTodoRes = toParentDto(todo);
             if (todoIdList.contains(parentTodoRes.getTodoId()))
-                break;
+                continue;
             todoResList.add(parentTodoRes);
             todoIdList.add(parentTodoRes.getTodoId());
             todoIdList.addAll(parentTodoRes.getChildTodoList().stream().map(TodoSingleRes::getTodoId).collect(Collectors.toList()));

@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TodoService {
 
-    private final TodoSseEventHandler todoSseEventHandler;
-
     private final TodoRepository todoRepository;
     private final TodoMapper todoMapper;
 
@@ -42,19 +40,13 @@ public class TodoService {
 
         List<Assign> assignList = new ArrayList<>();
         for(Participant participant : participantList)
-            assignList.add(assignRepository.saveAndFlush(
+            assignList.add(assignRepository.save(
                     assignBuilder
                             .todo(todo)
                             .participant(participant)
                             .status(Status.BEFORE_START).build()));
         todo.setAssignList(assignList);
-        TodoSingleRes todoSingleRes = todoMapper.toResDto(todo);
-
-        if(todoCreateReq.getIsParent())
-            todoSseEventHandler.postParent(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
-        else
-            todoSseEventHandler.postChild(todoCreateReq.getEmitterId(), todoMapper.toSsePostData(todoSingleRes));
-        return todoSingleRes;
+        return todoMapper.toResDto(todo);
     }
 
     public Optional<TodoSingleRes> getTodo(Long id){
@@ -101,32 +93,18 @@ public class TodoService {
                 todoUpdateReq.getTodoId()).orElseThrow(NoSuchElementException::new).getAssignList();
         Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignList.stream().map(Assign::getAssignId).collect(Collectors.toList())));
 
-        TodoSingleRes todoSingleRes = todoMapper.toResDto(todo);
-        if(todoUpdateReq.getIsParent())
-            todoSseEventHandler.updateParent(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
-        else
-            todoSseEventHandler.updateChild(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
-        return todoSingleRes;
+        return todoMapper.toResDto(todo);
     }
 
     public TodoSingleRes updateTodo(TodoUpdateReq todoUpdateReq, List<Long> assignIdList){
-        Todo todo = todoRepository.saveAndFlush(todoMapper.toEntity(todoUpdateReq, assignIdList));
-
-        TodoSingleRes todoSingleRes = todoMapper.toResDto(todo);
-        if(todoUpdateReq.getIsParent())
-            todoSseEventHandler.updateParent(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
-        else
-            todoSseEventHandler.updateChild(todoUpdateReq.getEmitterId(), todoMapper.toSseUpdateData(todoSingleRes));
-        return todoSingleRes;
+        Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignIdList));
+        return todoMapper.toResDto(todo);
     }
 
-    public void deleteTodo(TodoDeleteReq todoDeleteReq){
+    public Todo deleteTodo(TodoDeleteReq todoDeleteReq){
         Todo todo = todoRepository.findById(todoDeleteReq.getTodoId()).orElseThrow(NoSuchElementException::new);
-        if(todo.isParent())
-            todoSseEventHandler.deleteParent(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
-        else
-            todoSseEventHandler.deleteChild(todoDeleteReq.getEmitterId(), todoMapper.todoSseDeleteData(todo));
         todoRepository.deleteById(todoDeleteReq.getTodoId());
+        return todo;
     }
 
 }
