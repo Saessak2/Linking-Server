@@ -35,12 +35,21 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: Saessack2019@gmail.com
-    password: kumohcse7540
+    password: kxbgomarjlqijxdy
     properties:
       mail:
+        debug: false
         smtp:
-          auth=true
-          starttls.enable=true
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+            required: true
+          auth: false
+
+#    prefix: classpath:templates/
+#    suffix: .html
+#    check-template-location: true
+#    cache: false
 
 
 #hibernate:

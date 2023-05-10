@@ -20,7 +20,7 @@ public interface AssignRepository extends JpaRepository<Assign, Long> {
 
     @Query("SELECT NEW com.linking.assign.dto.AssignCountRes" +
             " (p, COUNT(a.assignId), SUM(CASE WHEN a.status = :status THEN 1 ELSE 0 END))" +
-            " FROM Assign a right outer join Participant p ON a.participant = p" +
+            " FROM Assign a join Participant p ON a.participant = p" +
             " WHERE p in :partList GROUP BY p.participantId")
     List<AssignCountRes> findCountByParticipantAndStatus(@Param("status") Status status, @Param("partList") List<Participant> partList);
 

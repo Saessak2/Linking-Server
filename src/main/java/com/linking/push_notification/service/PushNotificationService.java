@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class PushNotificationService {
     private final PushSettingsRepository pushSettingsRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final EmailService emailService;
 
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
@@ -54,7 +56,11 @@ public class PushNotificationService {
     public void sendPushNotification(PushNotificationReq req) {
 
         PushNotification pushNotification = this.createPushNotification(req);
-
+        try {
+            this.sendEmail(pushNotification);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public PushNotification createPushNotification(PushNotificationReq req) {
@@ -77,5 +83,8 @@ public class PushNotificationService {
 
     // todo fcmService 로 알림 건내기
     // todo mailService 로 알림 건내기
+    public void sendEmail(PushNotification pushNotification) throws MessagingException {
+        emailService.sendEmail(pushNotification);
+    }
 
 }
