@@ -1,11 +1,14 @@
 package com.linking.push_notification.service;
 
+import com.linking.firebase_token.domain.FirebaseToken;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.push_notification.domain.PushNotification;
+import com.linking.push_notification.dto.FcmReq;
 import com.linking.push_notification.dto.PushNotificationReq;
 import com.linking.push_notification.dto.PushNotificationRes;
 import com.linking.push_notification.persistence.PushNotificationRepository;
+import com.linking.push_settings.domain.PushSettings;
 import com.linking.push_settings.persistence.PushSettingsRepository;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
@@ -13,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -27,6 +28,8 @@ public class PushNotificationService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final EmailService emailService;
+    private final FirebaseToken firebaseToken;
+    private final FcmService fcmService;
 
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
@@ -56,7 +59,43 @@ public class PushNotificationService {
     public void sendPushNotification(PushNotificationReq req) {
 
         PushNotification pushNotification = this.createPushNotification(req);
-        emailService.sendEmail(pushNotification);
+        PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
+                .orElseThrow(NoSuchElementException::new);
+
+        if (settings.isAllowedMail())
+            emailService.sendEmail(pushNotification);
+
+        if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
+
+            FcmReq.FcmReqBuilder fcmReqBuilder = FcmReq.builder();
+            fcmReqBuilder
+                    .title(pushNotification.getProject().getProjectName())
+                    .body(pushNotification.getSender() + "\n" + pushNotification.getBody());
+
+            Map<String, String> data = new HashMap<>();
+
+            if (settings.isAllowedWebPush()) {
+
+                data.put("link", "https://github.com/Saessak2/Linking-Server");
+
+                fcmReqBuilder
+                        .firebaseToken(firebaseToken.getWebToken())
+                        .data(data); //todo 이동할 링크
+                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+            }
+
+            if (settings.isAllowedAppPush()) {
+
+                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
+                data.put("type", String.valueOf(pushNotification.getNoticeType()));
+                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
+
+                fcmReqBuilder
+                        .firebaseToken(firebaseToken.getAppToken())
+                        .data(data);
+                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+            }
+        }
     }
 
     public PushNotification createPushNotification(PushNotificationReq req) {
