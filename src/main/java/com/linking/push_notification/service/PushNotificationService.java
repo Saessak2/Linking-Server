@@ -56,11 +56,7 @@ public class PushNotificationService {
     public void sendPushNotification(PushNotificationReq req) {
 
         PushNotification pushNotification = this.createPushNotification(req);
-        try {
-            this.sendEmail(pushNotification);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+        emailService.sendEmail(pushNotification);
     }
 
     public PushNotification createPushNotification(PushNotificationReq req) {
@@ -80,11 +76,4 @@ public class PushNotificationService {
 
         return pushNotificationRepository.save(pushNotification);
     }
-
-    // todo fcmService 로 알림 건내기
-    // todo mailService 로 알림 건내기
-    public void sendEmail(PushNotification pushNotification) throws MessagingException {
-        emailService.sendEmail(pushNotification);
-    }
-
 }
