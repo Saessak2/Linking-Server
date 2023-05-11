@@ -38,4 +38,6 @@ out/
 
 ### custom setting ###
 **/application.yaml
-generated/
+**/generated/
+**/firebase
+
