@@ -1,6 +1,7 @@
 package com.linking.push_settings.service;
 
 import com.linking.push_settings.domain.PushSettings;
+import com.linking.push_settings.dto.PushSettingRes;
 import com.linking.push_settings.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.persistence.PushSettingsRepository;
 import com.linking.user.domain.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -45,5 +47,30 @@ public class PushSettingsService {
         pushSettings.setWepSettings(req.isAllowedWebAppPush(), req.isAllowedMail()); // 웹 푸시 설정
 
         return true;
+    }
+
+    public PushSettingRes findAppPushSettingByUser(Long userId) {
+
+        PushSettings pushSettings = pushSettingsRepository.findByUserId(userId)
+                .orElseThrow(NoSuchElementException::new);
+
+        PushSettingRes pushSettingRes = PushSettingRes.builder()
+                .allowedWebAppPush(pushSettings.isAllowedAppPush())
+                .allowedMail(pushSettings.isAllowedMail()).build();
+
+        return pushSettingRes;
+    }
+
+    public PushSettingRes findWebPushSettingByUser(Long userId) {
+
+
+        PushSettings pushSettings = pushSettingsRepository.findByUserId(userId)
+                .orElseThrow(NoSuchElementException::new);
+
+        PushSettingRes pushSettingRes = PushSettingRes.builder()
+                .allowedWebAppPush(pushSettings.isAllowedWebPush())
+                .allowedMail(pushSettings.isAllowedMail()).build();
+
+        return pushSettingRes;
     }
 }

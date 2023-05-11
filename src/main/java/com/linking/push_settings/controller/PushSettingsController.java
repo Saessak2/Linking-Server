@@ -6,10 +6,7 @@ import com.linking.push_settings.service.PushSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -22,14 +19,26 @@ public class PushSettingsController {
     private final PushSettingsService pushSettingsService;
 
     @PutMapping("/app")
-    public ResponseEntity<Object> putAppSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
-        boolean res = pushSettingsService.updateAppSettings(req);
-        return ResponseHandler.generateOkResponse(res);
+    public ResponseEntity putAppPushSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
+
+        return ResponseHandler.generateOkResponse(pushSettingsService.updateAppSettings(req));
     }
 
     @PutMapping("/web")
-    public ResponseEntity<Object> putWebSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
-        boolean res = pushSettingsService.updateWebSettings(req);
-        return ResponseHandler.generateOkResponse(res);
+    public ResponseEntity putWebPushSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
+
+        return ResponseHandler.generateOkResponse(pushSettingsService.updateWebSettings(req));
+    }
+
+    @GetMapping("/app/{userId}")
+    public ResponseEntity getAppPushSettings(@PathVariable Long userId) {
+
+        return ResponseHandler.generateOkResponse(pushSettingsService.findAppPushSettingByUser(userId));
+    }
+
+    @GetMapping("/web/{userId}")
+    public ResponseEntity getWebPushSettings(@PathVariable Long userId) {
+
+        return ResponseHandler.generateOkResponse(pushSettingsService.findWebPushSettingByUser(userId));
     }
 }

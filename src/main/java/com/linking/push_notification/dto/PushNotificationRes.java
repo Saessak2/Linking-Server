@@ -25,4 +25,5 @@ public class PushNotificationRes {
     private boolean isChecked;
 
     private Long targetId; // pageId
+    private Long assistantId; // groupId
 }

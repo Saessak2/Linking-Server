@@ -30,19 +30,23 @@ public class FirebaseTokenService {
     }
 
     @Transactional
-    public void updateAppToken(TokenReq req) {
+    public boolean updateAppToken(TokenReq req) {
         FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(req.getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
         firebaseToken.setAppToken(req.getToken());
+
+        return true;
     }
 
     @Transactional
-    public void updateWebToken(TokenReq req) {
+    public boolean updateWebToken(TokenReq req) {
         FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(req.getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
         firebaseToken.setWebToken(req.getToken());
+
+        return true;
     }
 
 
