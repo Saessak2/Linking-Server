@@ -40,6 +40,6 @@ public class FirebaseToken {
 
     public void setWebToken(String webToken) {
         this.webToken = webToken;
-        this.appTimestamp = Timestamp.valueOf(LocalDateTime.now());
+        this.webTimestamp = Timestamp.valueOf(LocalDateTime.now());
     }
 }

@@ -1,6 +1,7 @@
 package com.linking.push_notification.service;
 
 import com.linking.firebase_token.domain.FirebaseToken;
+import com.linking.firebase_token.persistence.FirebaseTokenRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.push_notification.domain.PushNotification;
@@ -28,8 +29,8 @@ public class PushNotificationService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final EmailService emailService;
-    private final FirebaseToken firebaseToken;
     private final FcmService fcmService;
+    private final FirebaseTokenRepository firebaseTokenRepository;
 
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
@@ -78,6 +79,10 @@ public class PushNotificationService {
 
                 data.put("link", "https://github.com/Saessak2/Linking-Server");
 
+                FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
+                        .orElseThrow(NoSuchElementException::new);
+
+
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getWebToken())
                         .data(data); //todo 이동할 링크
@@ -89,6 +94,10 @@ public class PushNotificationService {
                 data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
                 data.put("type", String.valueOf(pushNotification.getNoticeType()));
                 data.put("targetId", String.valueOf(pushNotification.getTargetId()));
+
+                FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
+                        .orElseThrow(NoSuchElementException::new);
+
 
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getAppToken())
