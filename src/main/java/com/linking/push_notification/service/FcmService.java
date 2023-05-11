@@ -13,47 +13,46 @@ import org.springframework.stereotype.Service;
 public class FcmService {
 
     @Async("eventCallExecutor")
-    public void sendMessageToFcmServer(FcmReq req) {
+    public void sendWebMessageToFcmServer(FcmReq req) {
 
         Notification notification = Notification.builder()
-                .setTitle(req.getTitle())
-                .setBody(req.getBody())
-                .build();
-
-        ApnsFcmOptions apnsFcmOptions = ApnsFcmOptions.builder()
-                .setImage("")
-                .build();
-
-        ApnsConfig apnsConfig = ApnsConfig.builder()
-                .setAps(Aps.builder().setBadge(42).build())
-                .putHeader("apns-priority", "5")
-                .setFcmOptions(apnsFcmOptions)
+                .setTitle(req.getTitle()) // title
+                .setBody(req.getBody())   // body
+                .setImage("") // todo image 넣기 // image
                 .build();
 
         WebpushConfig webpushConfig = WebpushConfig.builder()
                 .putHeader("Urgency", "normal")
-                .putHeader("image", "")
+                .setFcmOptions(WebpushFcmOptions.builder().setLink(req.getLink()).build())  // web link
                 .build();
-//
-//        FcmOptions fcmOptions = FcmOptions.builder()
-//                .setAnalyticsLabel()
-//                .build();
+
+        ApnsConfig apnsConfig = ApnsConfig.builder()
+                .setAps(Aps.builder()
+                        .setBadge(0)
+                        .putCustomData("link", req.getLink()) // app link
+                        .build())
+                .putHeader("apns-priority", "5")
+//                .setFcmOptions(ApnsFcmOptions.builder().setImage("").build())
+                .build();
+
 
         Message message = Message.builder()
-                .setToken(req.getFirebaseToken())
+                .setToken(req.getFirebaseToken()) // token
                 .setNotification(notification)
-                .putAllData(req.getData())
-                .setApnsConfig(apnsConfig)
                 .setWebpushConfig(webpushConfig)
-//                .setFcmOptions()
+                .setApnsConfig(apnsConfig)
                 .build();
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
-            log.info("Successfully send message: {}", response);
+            log.info("Successfully send FcmMessage: {}", response);
+
         } catch (FirebaseMessagingException e) {
-            log.error(e.getMessage());
-            log.info("Error sending message");
+            log.error("Error sending FcmMessage\n" +
+                    "getMessage() -> {}\n" +
+                    "getDetailedErrorCode() -> {}\n" +
+                    "getHttpResponse() -> {}", e.getMessage(), e.getMessagingErrorCode(), e.getHttpResponse());
         }
     }
 }
+

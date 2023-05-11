@@ -80,34 +80,33 @@ public class PushNotificationService {
 
             Map<String, String> data = new HashMap<>();
 
-            if (settings.isAllowedWebPush()) {
 
-                data.put("link", "https://github.com/Saessak2/Linking-Server");
+            if (settings.isAllowedWebPush()) {
 
                 FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
                         .orElseThrow(NoSuchElementException::new);
 
-
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getWebToken())
-                        .data(data); //todo 이동할 링크
-                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+                        .link("https://github.com/Saessak2/Linking-Server");
+
+                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
             }
 
             if (settings.isAllowedAppPush()) {
 
-                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
-                data.put("type", String.valueOf(pushNotification.getNoticeType()));
-                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
+//                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
+//                data.put("type", String.valueOf(pushNotification.getNoticeType()));
+//                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
 
                 FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
                         .orElseThrow(NoSuchElementException::new);
 
-
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getAppToken())
-                        .data(data);
-                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+                        .link("https://github.com/Saessak2/Linking-Server");
+
+                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
             }
         }
         return true;
