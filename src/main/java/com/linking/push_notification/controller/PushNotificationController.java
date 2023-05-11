@@ -27,9 +27,9 @@ public class PushNotificationController {
         return ResponseHandler.generateOkResponse(res);
     }
 
-    // todo 알림 전송
     @PostMapping
-    public void postPushNotification(@RequestBody @Valid PushNotificationReq req) {
-        pushNotificationService.sendPushNotification(req);
+    public ResponseEntity postPushNotification(@RequestBody @Valid PushNotificationReq req) {
+
+        return ResponseHandler.generateOkResponse(pushNotificationService.sendPushNotification(req));
     }
 }

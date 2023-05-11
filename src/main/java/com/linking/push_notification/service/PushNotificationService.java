@@ -2,8 +2,10 @@ package com.linking.push_notification.service;
 
 import com.linking.firebase_token.domain.FirebaseToken;
 import com.linking.firebase_token.persistence.FirebaseTokenRepository;
+import com.linking.page.persistence.PageRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
+import com.linking.push_notification.domain.NoticePriority;
 import com.linking.push_notification.domain.PushNotification;
 import com.linking.push_notification.dto.FcmReq;
 import com.linking.push_notification.dto.PushNotificationReq;
@@ -31,6 +33,7 @@ public class PushNotificationService {
     private final EmailService emailService;
     private final FcmService fcmService;
     private final FirebaseTokenRepository firebaseTokenRepository;
+    private final PageRepository pageRepository;
 
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
@@ -47,7 +50,9 @@ public class PushNotificationService {
                     .priority(not.getPriority())
                     .noticeType(not.getNoticeType())
                     .isChecked(not.isChecked())
-                    .targetId(not.getTargetId()); //todo 할일인 경우에 null?
+                    .targetId(not.getTargetId())
+                    .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
+
 
             resList.add(builder.build());
         }
@@ -57,13 +62,13 @@ public class PushNotificationService {
     // todo 알림 한달마다 삭제
 
     // todo 알림 전송
-    public void sendPushNotification(PushNotificationReq req) {
+    public boolean sendPushNotification(PushNotificationReq req) {
 
         PushNotification pushNotification = this.createPushNotification(req);
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
-        if (settings.isAllowedMail())
+        if (req.getPriority() == NoticePriority.ALL && settings.isAllowedMail())
             emailService.sendEmail(pushNotification);
 
         if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
@@ -105,6 +110,7 @@ public class PushNotificationService {
                 fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
             }
         }
+        return true;
     }
 
     public PushNotification createPushNotification(PushNotificationReq req) {

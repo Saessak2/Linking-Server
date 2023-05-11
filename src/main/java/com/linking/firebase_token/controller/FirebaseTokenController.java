@@ -2,8 +2,10 @@ package com.linking.firebase_token.controller;
 
 import com.linking.firebase_token.dto.TokenReq;
 import com.linking.firebase_token.service.FirebaseTokenService;
+import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +23,16 @@ public class FirebaseTokenController {
 
     // TODO app token 요청
     @PutMapping("/app")
-    public void putAppToken(@RequestBody @Valid TokenReq req) {
-        firebaseTokenService.updateAppToken(req);
+    public ResponseEntity putAppFcmToken(@RequestBody @Valid TokenReq req) {
+
+        return ResponseHandler.generateOkResponse(firebaseTokenService.updateAppToken(req));
+
     }
 
     // TODO web token 요청
     @PutMapping("/web")
-    public void putWebToken(@RequestBody @Valid TokenReq req) {
-        firebaseTokenService.updateWebToken(req);
+    public ResponseEntity putWebFcmToken(@RequestBody @Valid TokenReq req) {
+
+        return ResponseHandler.generateOkResponse(firebaseTokenService.updateWebToken(req));
     }
 }
