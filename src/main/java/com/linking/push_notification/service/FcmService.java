@@ -29,7 +29,7 @@ public class FcmService {
         ApnsConfig apnsConfig = ApnsConfig.builder()
                 .setAps(Aps.builder()
                         .setBadge(0)
-                        .putCustomData("link", req.getLink()) // app link
+                        .putCustomData("link", req.getLink())
                         .build())
                 .putHeader("apns-priority", "5")
 //                .setFcmOptions(ApnsFcmOptions.builder().setImage("").build())
