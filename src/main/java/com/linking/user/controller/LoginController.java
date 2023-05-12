@@ -8,10 +8,7 @@ import com.linking.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -38,9 +35,9 @@ public class LoginController {
             return ResponseHandler.generateNotFoundResponse();
         }
 
-        UUID uid = Optional.ofNullable(UUID.class.cast(session.getAttribute("uid")))
-                  .orElse(UUID.randomUUID());
-        session.setAttribute(SessionConst.LOGIN_USER, uid);
+//        UUID uid = Optional.ofNullable(UUID.class.cast(session.getAttribute("uid")))
+//                  .orElse(UUID.randomUUID());
+        session.setAttribute(SessionConst.LOGIN_USER, res.getUserId());
 
         return ResponseHandler.generateOkResponse(res);
     }

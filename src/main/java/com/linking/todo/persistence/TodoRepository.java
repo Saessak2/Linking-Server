@@ -31,5 +31,4 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
             " AND function('date_format', :date, '%Y%m')" +
             " BETWEEN function('date_format', t.startDate, '%Y%m') AND function('date_format', t.dueDate, '%Y%m')")
     List<Todo> findByProjectAndMonthContains(@Param("project") Project project, @Param("date") LocalDate date);
-
 }
