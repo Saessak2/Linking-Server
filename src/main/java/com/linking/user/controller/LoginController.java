@@ -39,7 +39,7 @@ public class LoginController {
         }
 
         UUID uid = Optional.ofNullable(UUID.class.cast(session.getAttribute("uid")))
-                .orElse(UUID.randomUUID());
+                  .orElse(UUID.randomUUID());
         session.setAttribute(SessionConst.LOGIN_USER, uid);
 
         return ResponseHandler.generateOkResponse(res);
