@@ -50,12 +50,6 @@ public class TodoSseHandler {
         labeledEmitterList.add(labeledEmitter);
         SseEmitter sseEmitter = labeledEmitter.getSseEmitter();
 
-//        sseEmitter.onCompletion(() -> {
-//            labeledEmitterList.remove(labeledEmitter);
-//            log.info("emitterId = {} 삭제됨", labeledEmitter.getEmitterId());
-//        });
-//        sseEmitter.onTimeout(sseEmitter::complete);
-
         return sseEmitter;
     }
 
@@ -118,6 +112,5 @@ public class TodoSseHandler {
             }
         }
     }
-
 }
 
