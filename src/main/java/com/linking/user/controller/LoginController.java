@@ -1,6 +1,7 @@
 package com.linking.user.controller;
 
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.common.SessionConst;
 import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.dto.UserSignInReq;
 import com.linking.user.service.UserService;
@@ -24,7 +25,6 @@ import java.util.UUID;
 public class LoginController {
 
     private final UserService userService;
-    private static final String LOGIN_USER = "LOGIN_USER";
 
     @PostMapping("/login")
     public ResponseEntity login(
@@ -40,7 +40,7 @@ public class LoginController {
 
         UUID uid = Optional.ofNullable(UUID.class.cast(session.getAttribute("uid")))
                 .orElse(UUID.randomUUID());
-        session.setAttribute(LOGIN_USER, uid);
+        session.setAttribute(SessionConst.LOGIN_USER, uid);
 
         return ResponseHandler.generateOkResponse(res);
     }
