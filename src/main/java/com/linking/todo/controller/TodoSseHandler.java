@@ -18,9 +18,13 @@ public class TodoSseHandler {
     private static int createdTodoEmitter = 0;
     private final List<LabeledEmitter> labeledEmitterList = new CopyOnWriteArrayList<>();
 
+    public static synchronized int getEmitterId() {
+        return createdTodoEmitter++;
+    }
     public LabeledEmitter connect(String clientType, Long projectId, Long userId) throws IOException {
         LabeledEmitter labeledEmitter = new LabeledEmitter(
-                ++createdTodoEmitter, projectId, userId, clientType, new SseEmitter(TIMEOUT));
+                getEmitterId(), projectId, userId, clientType, new SseEmitter(TIMEOUT));
+
         SseEmitter sseEmitter = addEmitter(labeledEmitter);
         log.info("[TODO][CONNECT] emitterId = {}, clientType = {}, projectId = {}, userId = {}",
                 labeledEmitter.getEmitterId(), labeledEmitter.getClientType(), labeledEmitter.getProjectId(), labeledEmitter.getUserId());
@@ -46,8 +50,11 @@ public class TodoSseHandler {
         labeledEmitterList.add(labeledEmitter);
         SseEmitter sseEmitter = labeledEmitter.getSseEmitter();
 
-        sseEmitter.onCompletion(() -> labeledEmitterList.remove(labeledEmitter));
-        sseEmitter.onTimeout(sseEmitter::complete);
+//        sseEmitter.onCompletion(() -> {
+//            labeledEmitterList.remove(labeledEmitter);
+//            log.info("emitterId = {} 삭제됨", labeledEmitter.getEmitterId());
+//        });
+//        sseEmitter.onTimeout(sseEmitter::complete);
 
         return sseEmitter;
     }
@@ -89,7 +96,7 @@ public class TodoSseHandler {
                 try {
                     labeledEmitter.getSseEmitter()
                             .send(SseEmitter.event().name(eventName).data(data));
-                    log.info("[TODO][SEND] EVENT {} FROM web", eventName);
+                    log.info("[TODO][SEND] EVENT {} FROM web emitterId = {}", eventName, labeledEmitter.getEmitterId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
