@@ -94,11 +94,12 @@ public class TodoSseHandler {
         for(LabeledEmitter labeledEmitter : labeledEmitterList) {
             if (labeledEmitter.getEmitterId() != emitterId && labeledEmitter.getProjectId().equals(projectId)) {
                 try {
+                    log.info("emitter_id = {} ", labeledEmitter.getEmitterId());
                     labeledEmitter.getSseEmitter()
                             .send(SseEmitter.event().name(eventName).data(data));
                     log.info("[TODO][SEND] EVENT {} FROM web emitterId = {}", eventName, labeledEmitter.getEmitterId());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    log.error("Connection reset by peer");
                 }
             }
         }
@@ -112,7 +113,7 @@ public class TodoSseHandler {
                             .send(SseEmitter.event().name(eventName).data(data));
                     log.info("SEND {} EVENT FROM mac", eventName);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    log.error("Connection reset by peer");
                 }
             }
         }
