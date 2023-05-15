@@ -18,6 +18,7 @@ import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -35,6 +36,7 @@ public class PushNotificationService {
     private final FirebaseTokenRepository firebaseTokenRepository;
     private final PageRepository pageRepository;
 
+    @Transactional
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
         List<PushNotification> notifications = pushNotificationRepository.findAllByUserId(userId);
@@ -53,8 +55,9 @@ public class PushNotificationService {
                     .targetId(not.getTargetId())
                     .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
 
-
             resList.add(builder.build());
+
+            not.setChecked(true);
         }
         return resList;
     }
