@@ -1,4 +1,4 @@
-package com.linking.push_settings.dto;
+package com.linking.push_settings.domain.dto;
 
 import lombok.*;
 

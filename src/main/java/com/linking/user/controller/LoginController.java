@@ -1,7 +1,10 @@
 package com.linking.user.controller;
 
+import com.linking.global.common.Login;
 import com.linking.global.common.ResponseHandler;
 import com.linking.global.common.SessionConst;
+import com.linking.global.common.UserCheck;
+import com.linking.user.domain.User;
 import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.dto.UserSignInReq;
 import com.linking.user.service.UserService;
@@ -17,7 +20,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-@RestController("/auth")
+@RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class LoginController {
 
@@ -28,6 +32,7 @@ public class LoginController {
             @RequestBody @Valid UserSignInReq req,
             HttpSession session
     ) {
+        log.info("login controller 호출");
         UserDetailedRes res = null;
         try {
             res = userService.getUserWithEmailAndPw(req).get();
@@ -37,13 +42,15 @@ public class LoginController {
 
 //        UUID uid = Optional.ofNullable(UUID.class.cast(session.getAttribute("uid")))
 //                  .orElse(UUID.randomUUID());
-        session.setAttribute(SessionConst.LOGIN_USER, res.getUserId());
+
+        session.setAttribute(SessionConst.LOGIN_USER, new UserCheck(res.getUserId()));
 
         return ResponseHandler.generateOkResponse(res);
     }
 
     @GetMapping("/logout")
-    public ResponseEntity logout(HttpSession session) {
+    public ResponseEntity logout(HttpSession session, @Login UserCheck userCheck) {
+        log.info("logout => userId = {}", userCheck.getUserId());
         session.invalidate();
         return ResponseHandler.generateOkResponse("로그아웃 성공");
     }

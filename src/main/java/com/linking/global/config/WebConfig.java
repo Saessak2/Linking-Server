@@ -22,17 +22,16 @@ public class WebConfig implements WebMvcConfigurer {
 //        return registry;
 //    }
 
+    @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry
                 .addInterceptor(new LoginCheckInterceptor())
-                .order(0)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/", "/auth/login");
+                .excludePathPatterns("/error", "/auth/login");
     }
 
-
-//    @Override
-//    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-//        resolvers.add(new LoginUserArgumentResolver());
-//    }
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new LoginUserArgumentResolver());
+    }
 }

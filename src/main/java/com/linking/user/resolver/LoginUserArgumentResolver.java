@@ -2,6 +2,7 @@ package com.linking.user.resolver;
 
 import com.linking.global.common.Login;
 import com.linking.global.common.SessionConst;
+import com.linking.global.common.UserCheck;
 import com.linking.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -18,11 +19,11 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
     @Override
     // resolveArgument를 실행하기 위한 조건
-    // @Login 어노테이션 존재 && User 타입이어야 한다.
+    // @Login 어노테이션 존재 && UserCheck 타입이어야 한다.
     public boolean supportsParameter(MethodParameter parameter) {
 
         boolean hasLoginAnnotation = parameter.hasParameterAnnotation(Login.class);
-        boolean hasUserType = User.class.isAssignableFrom(parameter.getParameterType());
+        boolean hasUserType = UserCheck.class.isAssignableFrom(parameter.getParameterType());
         log.info("hasLoginAnnotation => {}, hasUserType => {}", hasLoginAnnotation, hasUserType);
         return hasLoginAnnotation && hasUserType;
     }

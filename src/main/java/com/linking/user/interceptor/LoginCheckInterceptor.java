@@ -20,18 +20,14 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         if (requestURI.equals("/auth/login"))
             return true;
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
 
-        if (session == null || session.getAttribute("LOGIN_USER") == null) {
+//        if (session == null || session.getAttribute("LOGIN_USER") == null) {
+        if (session == null) {
             log.info("미인증 사용자 요청");
             response.sendError(400, "로그인 하세요.");
             return false;
         }
         return true;
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 }

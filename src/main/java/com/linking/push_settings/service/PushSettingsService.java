@@ -1,7 +1,7 @@
 package com.linking.push_settings.service;
 
 import com.linking.push_settings.domain.PushSettings;
-import com.linking.push_settings.dto.PushSettingsUpdateReq;
+import com.linking.push_settings.domain.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.persistence.PushSettingsRepository;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
