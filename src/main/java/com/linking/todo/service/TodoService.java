@@ -6,6 +6,7 @@ import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
+import com.linking.project.persistence.ProjectRepository;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.*;
 import com.linking.todo.persistence.TodoMapper;
@@ -31,6 +32,7 @@ public class TodoService {
 
     private final ParticipantRepository participantRepository;
     private final AssignRepository assignRepository;
+    private final ProjectRepository projectRepository;
 
     public TodoSingleRes createTodo(TodoCreateReq todoCreateReq){
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
@@ -81,6 +83,7 @@ public class TodoService {
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
+
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
         return todoMapper.toParentDto(todoList);

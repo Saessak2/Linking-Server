@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupRes {
 
+    private Long projectId;
     private Long groupId;
     private String name;
     private List<PageRes> pageResList;

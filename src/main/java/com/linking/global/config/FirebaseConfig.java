@@ -17,7 +17,7 @@ import java.util.List;
 @Configuration
 public class FirebaseConfig {
 
-    private static final String firebaseConfigPath = "/firebase/linkingpush-56c01-firebase-adminsdk-8ix6z-47405fa974.json";
+    private static final String firebaseConfigPath = "/firebase/linking-32bc1-firebase-adminsdk-c2paj-770ba0d093.json";
 
 
     @PostConstruct

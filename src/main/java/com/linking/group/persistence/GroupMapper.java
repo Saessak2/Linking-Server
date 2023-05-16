@@ -20,6 +20,7 @@ public interface GroupMapper {
     default GroupRes toDto(Group source) {
 
         GroupRes builder = GroupRes.builder()
+                .projectId(source.getProject().getProjectId())
                 .groupId(source.getId())
                 .name(source.getName())
                 .pageResList(new ArrayList<>())

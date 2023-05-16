@@ -13,5 +13,6 @@ public class FcmReq {
     private String title;
     private String body;
     private String firebaseToken;
+    private String link;
     private Map<String, String> data;
 }
