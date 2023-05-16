@@ -71,9 +71,11 @@ public class PushNotificationService {
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
+        // 메일 전송
         if (req.getPriority() == NoticePriority.ALL && settings.isAllowedMail())
             emailService.sendEmail(pushNotification);
 
+        // 푸시 알림 전송
         if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
 
             FcmReq.FcmReqBuilder fcmReqBuilder = FcmReq.builder();
@@ -82,7 +84,6 @@ public class PushNotificationService {
                     .body(pushNotification.getSender() + "\n" + pushNotification.getBody());
 
             Map<String, String> data = new HashMap<>();
-
 
             if (settings.isAllowedWebPush()) {
 
