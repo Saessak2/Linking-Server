@@ -1,6 +1,8 @@
 package com.linking.push_settings.controller;
 
+import com.linking.global.common.Login;
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.common.UserCheck;
 import com.linking.push_settings.domain.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.service.PushSettingsService;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,19 @@ public class PushSettingsController {
     private final PushSettingsService pushSettingsService;
 
     @PutMapping("/app")
-    public ResponseEntity<Object> putAppSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
+    public ResponseEntity<Object> putAppSettings(
+            @RequestBody @Valid PushSettingsUpdateReq req,
+            @Login UserCheck userCheck
+    ) {
         boolean res = pushSettingsService.updateAppSettings(req);
         return ResponseHandler.generateOkResponse(res);
     }
 
     @PutMapping("/web")
-    public ResponseEntity<Object> putWebSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
+    public ResponseEntity<Object> putWebSettings(
+            @RequestBody @Valid PushSettingsUpdateReq req,
+            @Login UserCheck userCheck
+    ) {
         boolean res = pushSettingsService.updateWebSettings(req);
         return ResponseHandler.generateOkResponse(res);
     }

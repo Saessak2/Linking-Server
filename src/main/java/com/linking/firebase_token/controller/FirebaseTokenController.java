@@ -2,6 +2,8 @@ package com.linking.firebase_token.controller;
 
 import com.linking.firebase_token.dto.TokenReq;
 import com.linking.firebase_token.service.FirebaseTokenService;
+import com.linking.global.common.Login;
+import com.linking.global.common.UserCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,13 +23,19 @@ public class FirebaseTokenController {
 
     // TODO app token 요청
     @PutMapping("/app")
-    public void putAppToken(@RequestBody @Valid TokenReq req) {
+    public void putAppToken(
+            @RequestBody @Valid TokenReq req,
+            @Login UserCheck userCheck
+    ) {
         firebaseTokenService.updateAppToken(req);
     }
 
     // TODO web token 요청
     @PutMapping("/web")
-    public void putWebToken(@RequestBody @Valid TokenReq req) {
+    public void putWebToken(
+            @RequestBody @Valid TokenReq req,
+            @Login UserCheck userCheck
+    ) {
         firebaseTokenService.updateWebToken(req);
     }
 }

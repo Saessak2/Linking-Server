@@ -4,7 +4,9 @@ import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
+import com.linking.global.common.Login;
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.common.UserCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,31 +24,32 @@ public class BlockController {
 
     @PostMapping
     public ResponseEntity<Object> postBlock(
-            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid BlockCreateReq req
+            @RequestBody @Valid BlockCreateReq req,
+            @Login UserCheck userCheck
     ) {
 
-        BlockRes blockRes = blockService.createBlock(req, userId);
+        BlockRes blockRes = blockService.createBlock(req, userCheck.getUserId());
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes.getBlockId());
     }
 
     @PutMapping("/order")
     public ResponseEntity<Object> putBlockOrder(
-            @RequestHeader(value = "userId") Long userId,
-            @RequestBody @Valid BlockOrderReq req
+            @RequestBody @Valid BlockOrderReq req,
+            @Login UserCheck userCheck
     ) {
 
-        boolean res = blockService.updateBlockOrder(req, userId);
+        boolean res = blockService.updateBlockOrder(req, userCheck.getUserId());
         return ResponseHandler.generateOkResponse(res);
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBlock(
-            @RequestHeader(value = "userId") Long userId,
-            @PathVariable("id") Long blockId
+            @PathVariable("id") Long blockId,
+            @Login UserCheck userCheck
     ) {
 
-        blockService.deleteBlock(blockId, userId);
+        blockService.deleteBlock(blockId, userCheck.getUserId());
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
     }
 }
