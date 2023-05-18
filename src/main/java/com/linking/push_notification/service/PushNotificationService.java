@@ -51,12 +51,17 @@ public class PushNotificationService {
                     .info(not.getInfo())
                     .priority(not.getPriority())
                     .noticeType(not.getNoticeType())
-                    .isChecked(not.isChecked())
-                    .targetId(not.getTargetId())
-                    .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
-
+                    .isChecked(not.isChecked());
+            if (not.getTargetId() != null) {
+                builder
+                        .targetId(not.getTargetId())
+                        .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
+            } else {
+                builder
+                        .targetId(-1L)
+                        .assistantId(-1L);
+            }
             resList.add(builder.build());
-
             not.setChecked(true);
         }
         return resList;
