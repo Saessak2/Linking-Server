@@ -31,24 +31,24 @@ public class RedisConfig {
     // redis server 연결 설정
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-        redisStandaloneConfiguration.setHostName(redisHost);
-        redisStandaloneConfiguration.setPort(redisPort);
-        redisStandaloneConfiguration.setPassword(redisPassword);
-        return new LettuceConnectionFactory(redisStandaloneConfiguration);
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisHost);
+        config.setPort(redisPort);
+        config.setPassword(redisPassword);
+        return new LettuceConnectionFactory(config);
     }
 
     // redis serializer 설정
     @Bean
     public StringRedisTemplate stringRedisTemplate() {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+        StringRedisTemplate template = new StringRedisTemplate();
 
-        stringRedisTemplate.setConnectionFactory(redisConnectionFactory());
+        template.setConnectionFactory(redisConnectionFactory());
 
-        stringRedisTemplate.setKeySerializer(new StringRedisSerializer());
-        stringRedisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserCheck.class));
-        stringRedisTemplate.setDefaultSerializer(new StringRedisSerializer());
-        stringRedisTemplate.afterPropertiesSet();
-        return stringRedisTemplate;
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserCheck.class));
+        template.setDefaultSerializer(new StringRedisSerializer());
+        template.afterPropertiesSet();
+        return template;
     }
 }
