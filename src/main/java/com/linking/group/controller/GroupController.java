@@ -18,10 +18,10 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 
-@RestController
-@RequestMapping("/groups")
-@RequiredArgsConstructor
 @Slf4j
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/groups")
 public class GroupController {
     private final GroupSseHandler groupSseHandler;
     private final GroupService groupService;
