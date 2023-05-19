@@ -24,14 +24,13 @@ import java.util.*;
 @Slf4j
 public class GroupController {
     private final GroupSseHandler groupSseHandler;
-
     private final GroupService groupService;
 
     @GetMapping("/list")
     public ResponseEntity<List<GroupDetailedRes>> getGroups(
             @RequestParam("projectId") Long projectId,
             @Login UserCheck userCheck
-            ){
+    ){
         List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userCheck.getUserId());
         return ResponseHandler.generateOkResponse(allGroups);
     }

@@ -1,5 +1,7 @@
 package com.linking.user.service;
 
+import com.linking.global.exception.BadRequestException;
+import com.linking.global.message.ErrorMessage;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
@@ -10,6 +12,7 @@ import com.linking.user.persistence.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +29,16 @@ public class UserService {
     private final UserMapper userMapper;
 
     private final ParticipantRepository participantRepository;
+    private final PasswordEncoder bCryptPasswordEncoder;
 
-    public Optional<UserDetailedRes> addUser(UserSignUpReq userSignUpReq)
+
+    public UserDetailedRes addUser(UserSignUpReq userSignUpReq)
             throws DataIntegrityViolationException {
-        return Optional.of(
-                userMapper.toDto(
-                        userRepository.save(
-                                userMapper.toEntity(userSignUpReq))));
+
+        User user = userMapper.toEntity(userSignUpReq);
+        user.hashPassword(bCryptPasswordEncoder);
+
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public boolean isUniqueEmail(UserEmailVerifyReq emailReq){
@@ -61,12 +67,16 @@ public class UserService {
                 .orElseThrow(NoSuchElementException::new));
     }
 
-    public Optional<UserDetailedRes> getUserWithEmailAndPw(UserSignInReq userSignInReq)
-            throws NoSuchElementException{
-        String email = userSignInReq.getEmail(), pw = userSignInReq.getPassword();
-        return Optional.ofNullable(userRepository.findUserByEmailAndPassword(email, pw)
-                .map(userMapper::toDto)
-                .orElseThrow(NoSuchElementException::new));
+    public UserDetailedRes getUserWithEmailAndPw(UserSignInReq userSignInReq) {
+
+        User user = userRepository.findUserByEmail(userSignInReq.getEmail())
+                .orElseThrow(NoSuchElementException::new);
+
+        if (bCryptPasswordEncoder.matches(userSignInReq.getPassword(), user.getPassword())) {
+            return userMapper.toDto(user);
+        } else {
+            throw new BadRequestException(ErrorMessage.DO_NOT_MATCH_PW);
+        }
     }
 
     public void deleteUser(Long userId)

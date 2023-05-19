@@ -1,6 +1,7 @@
 package com.linking.user.domain;
 
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
@@ -37,4 +38,8 @@ public class User {
         return lastName + firstName;
     }
 
+    public User hashPassword(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(this.password);
+        return this;
+    }
 }
