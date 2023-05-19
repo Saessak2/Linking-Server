@@ -2,9 +2,10 @@ package com.linking.push_notification.service;
 
 import com.linking.firebase_token.domain.FirebaseToken;
 import com.linking.firebase_token.persistence.FirebaseTokenRepository;
-import com.linking.firebase_token.service.FirebaseTokenService;
+import com.linking.page.persistence.PageRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
+import com.linking.push_notification.domain.NoticePriority;
 import com.linking.push_notification.domain.PushNotification;
 import com.linking.push_notification.dto.FcmReq;
 import com.linking.push_notification.dto.PushNotificationReq;
@@ -17,6 +18,7 @@ import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -32,7 +34,9 @@ public class PushNotificationService {
     private final EmailService emailService;
     private final FcmService fcmService;
     private final FirebaseTokenRepository firebaseTokenRepository;
+    private final PageRepository pageRepository;
 
+    @Transactional
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
         List<PushNotification> notifications = pushNotificationRepository.findAllByUserId(userId);
@@ -47,10 +51,18 @@ public class PushNotificationService {
                     .info(not.getInfo())
                     .priority(not.getPriority())
                     .noticeType(not.getNoticeType())
-                    .isChecked(not.isChecked())
-                    .targetId(not.getTargetId()); //todo 할일인 경우에 null?
-
+                    .isChecked(not.isChecked());
+            if (not.getTargetId() != null) {
+                builder
+                        .targetId(not.getTargetId())
+                        .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
+            } else {
+                builder
+                        .targetId(-1L)
+                        .assistantId(-1L);
+            }
             resList.add(builder.build());
+            not.setChecked(true);
         }
         return resList;
     }
@@ -58,15 +70,17 @@ public class PushNotificationService {
     // todo 알림 한달마다 삭제
 
     // todo 알림 전송
-    public void sendPushNotification(PushNotificationReq req) {
+    public boolean sendPushNotification(PushNotificationReq req) {
 
         PushNotification pushNotification = this.createPushNotification(req);
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
-        if (settings.isAllowedMail())
+        // 메일 전송
+        if (req.getPriority() == NoticePriority.ALL && settings.isAllowedMail())
             emailService.sendEmail(pushNotification);
 
+        // 푸시 알림 전송
         if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
 
             FcmReq.FcmReqBuilder fcmReqBuilder = FcmReq.builder();
@@ -78,32 +92,33 @@ public class PushNotificationService {
 
             if (settings.isAllowedWebPush()) {
 
-                data.put("link", "https://github.com/Saessak2/Linking-Server");
-
                 FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
                         .orElseThrow(NoSuchElementException::new);
 
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getWebToken())
-                        .data(data); //todo 이동할 링크
-                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+                        .link("https://github.com/Saessak2/Linking-Server");
+
+                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
             }
 
             if (settings.isAllowedAppPush()) {
 
-                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
-                data.put("type", String.valueOf(pushNotification.getNoticeType()));
-                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
+//                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
+//                data.put("type", String.valueOf(pushNotification.getNoticeType()));
+//                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
 
                 FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
                         .orElseThrow(NoSuchElementException::new);
 
                 fcmReqBuilder
                         .firebaseToken(firebaseToken.getAppToken())
-                        .data(data);
-                fcmService.sendMessageToFcmServer(fcmReqBuilder.build());
+                        .link("https://github.com/Saessak2/Linking-Server");
+
+                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
             }
         }
+        return true;
     }
 
     public PushNotification createPushNotification(PushNotificationReq req) {

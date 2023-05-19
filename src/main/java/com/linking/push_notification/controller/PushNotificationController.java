@@ -31,12 +31,11 @@ public class PushNotificationController {
         return ResponseHandler.generateOkResponse(res);
     }
 
-    // todo 알림 전송
     @PostMapping
-    public void postPushNotification(
+    public ResponseEntity postPushNotification(
             @RequestBody @Valid PushNotificationReq req,
             @Login UserCheck userCheck
     ) {
-        pushNotificationService.sendPushNotification(req);
+        return ResponseHandler.generateOkResponse(pushNotificationService.sendPushNotification(req));
     }
 }
