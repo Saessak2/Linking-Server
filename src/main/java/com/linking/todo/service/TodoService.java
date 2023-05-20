@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,8 +103,9 @@ public class TodoService {
     public TodoSingleRes updateTodo(TodoUpdateReq todoUpdateReq){
         List<Assign> assignList = todoRepository.findById(
                 todoUpdateReq.getTodoId()).orElseThrow(NoSuchElementException::new).getAssignList();
-        Todo todo = todoRepository.save(todoMapper.toEntity(todoUpdateReq, assignList.stream().map(Assign::getAssignId).collect(Collectors.toList())));
-
+        Todo todo = todoRepository.save(
+                todoMapper.toEntity(todoUpdateReq,
+                        assignList.stream().map(Assign::getAssignId).collect(Collectors.toList())));
         return todoMapper.toResDto(todo);
     }
 
@@ -117,5 +119,20 @@ public class TodoService {
         todoRepository.deleteById(todoDeleteReq.getTodoId());
         return todo;
     }
+
+    private Todo excludeUnnecessaryTodos(Todo todo, LocalDate date){
+        if(todo.getChildTodoList().size() != 0) {
+            List<Todo> childTodoList = new ArrayList<>();
+            for (Todo childTodo : todo.getChildTodoList())
+                if(!(date.isAfter(ChronoLocalDate.from(childTodo.getStartDate()))
+                && date.isBefore(ChronoLocalDate.from(childTodo.getDueDate()))))
+                    childTodoList.add(childTodo);
+        }
+        return todo;
+    }
+
+//    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate dueDate){
+//
+//    }
 
 }
