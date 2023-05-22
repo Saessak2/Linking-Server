@@ -8,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MessageRes {
 
-    private Long messageId;
-    private Long userId;
-    private Long projectId;
+    private String userName;
     private String content;
     private String sentDatetime;
 

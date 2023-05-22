@@ -20,7 +20,17 @@ import java.util.Locale;
 )
 public interface MessageMapper {
 
-    MessageRes toRes(Message message);
+    default MessageRes toRes(Message message){
+        if(message == null)
+            return null;
+
+        MessageRes.MessageResBuilder messageResBuilder = MessageRes.builder();
+        return messageResBuilder
+                .userName(message.getParticipant().getUserName())
+                .content(message.getContent())
+                .sentDatetime(message.getSentDatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a").withLocale(Locale.ENGLISH)))
+                .build();
+    }
 
     default Message toMessage(MessageReq messageReq, Participant participant, ChatRoom chatRoom){
         if(messageReq == null || participant == null)

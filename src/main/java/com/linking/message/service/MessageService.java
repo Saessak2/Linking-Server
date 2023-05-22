@@ -33,7 +33,7 @@ public class MessageService {
 
     public void sendMessages(WebSocketSession webSocketSession, Message message){
         try{
-            webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+            webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(messageMapper.toRes(message))));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }

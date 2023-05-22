@@ -1,22 +1,26 @@
 package com.linking.message.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-@RequiredArgsConstructor
 @Configuration
 @EnableWebSocket
-public class ChattingWebSocketConfig implements WebSocketConfigurer {
+@RequiredArgsConstructor
+public class MessageWebSocketConfig implements WebSocketConfigurer {
 
-    private final ChattingWebSocketHandler chattingWebSocketHandler;
+    private final MessageWebSocketHandler messageWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chattingWebSocketHandler, "ws/chatting")
+        registry.addHandler(messageWebSocketHandler, "ws/chatting")
                 .setAllowedOrigins("*");
     }
+
+
 
 }
