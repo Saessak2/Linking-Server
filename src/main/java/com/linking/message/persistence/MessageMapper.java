@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -19,6 +20,8 @@ import java.util.Locale;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface MessageMapper {
+
+    List<MessageRes> toRes(List<Message> messageList);
 
     default MessageRes toRes(Message message){
         if(message == null)

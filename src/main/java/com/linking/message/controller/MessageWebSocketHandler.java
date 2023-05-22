@@ -42,7 +42,6 @@ public class MessageWebSocketHandler extends AbstractWebSocketHandler {
     private final ChatRoomMapper chatRoomMapper;
 
     private final MessageService messageService;
-    private final MessageMapper messageMapper;
 
     private final ObjectMapper objectMapper;
 

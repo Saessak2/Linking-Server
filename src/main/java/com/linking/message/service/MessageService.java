@@ -7,15 +7,17 @@ import com.linking.message.dto.MessageReq;
 import com.linking.message.dto.MessageRes;
 import com.linking.message.persistence.MessageMapper;
 import com.linking.message.persistence.MessageRepository;
-import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -39,8 +41,11 @@ public class MessageService {
         }
     }
 
-    public List<MessageRes> getMessagesByProjectId(Long id){
-        return null;
+    public List<MessageRes> getRecentMessages(Long id, Pageable pageable){
+        Page<Message> messagePage = messageRepository.findMessagesByChatroom(new ChatRoom(id), pageable);
+        if(messagePage!=null && messagePage.hasContent())
+            return messageMapper.toRes(messagePage.getContent());
+        return new ArrayList<>();
     }
 
     public Message saveMessage(ChatRoom chatRoom, MessageReq messageReq){
