@@ -6,8 +6,10 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
+@Builder
 @Entity
-@NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chatroom")
 public class ChatRoom {
 
@@ -19,12 +21,6 @@ public class ChatRoom {
     @OneToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
-
-    @Builder
-    public ChatRoom(Long chatRoomId, Project project) {
-        this.chatRoomId = chatRoomId;
-        this.project = project;
-    }
 
     public ChatRoom(Long chatRoomId) {
         this.chatRoomId = chatRoomId;

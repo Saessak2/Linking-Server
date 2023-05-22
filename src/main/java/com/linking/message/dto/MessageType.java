@@ -2,7 +2,8 @@ package com.linking.message.dto;
 
 public enum MessageType {
 
-    register,
-    text
+    open,
+    text,
+    close
 
 }

@@ -1,36 +1,22 @@
 package com.linking.message.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.chatroom.repository.ChatRoomMapper;
 import com.linking.chatroom.service.ChatRoomService;
 import com.linking.global.common.ChattingSession;
-import com.linking.global.common.ResponseHandler;
 import com.linking.message.domain.Message;
 import com.linking.message.dto.MessageReq;
-import com.linking.message.dto.MessageRes;
 import com.linking.message.dto.MessageType;
-import com.linking.message.persistence.MessageMapper;
 import com.linking.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
-import org.w3c.dom.Text;
 
-import javax.persistence.Transient;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,7 +31,7 @@ public class MessageWebSocketHandler extends AbstractWebSocketHandler {
 
     private final ObjectMapper objectMapper;
 
-    private final Set<ChattingSession> chattingSessions = new HashSet<>();
+    private final List<ChattingSession> chattingSessions = new ArrayList<>();
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> webSocketMessage) throws Exception {
@@ -56,16 +42,50 @@ public class MessageWebSocketHandler extends AbstractWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws JsonProcessingException {
+    protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws IOException {
         MessageReq messageReq = objectMapper.readValue(textMessage.getPayload(), MessageReq.class);
         ChatRoom chatRoom = chatRoomMapper.toEntity(chatRoomService.getChatRoomById(messageReq.getProjectId()));
-        ChattingSession chattingSession = new ChattingSession(messageReq.getUserId(), chatRoom, session);
-        log.info("[ CHATTING ] [ ROOM {} ] ENTERING", chatRoom);
 
-        if(messageReq.getMessageType().equals(MessageType.register))
-            chattingSessions.add(chattingSession);
-        else if(messageReq.getMessageType().equals(MessageType.text))
-            publishMessage(chattingSession, messageReq);
+        if(messageReq.getMessageType().equals(MessageType.open)) {
+            log.info("[ CHATTING ] [ ROOM {} ] ENTERED", chatRoom);
+            chattingSessions.add(new ChattingSession(messageReq.getUserId(), chatRoom, session));
+        }
+        else if(messageReq.getMessageType().equals(MessageType.text)) {
+            ChattingSession cs = new ChattingSession(messageReq.getUserId(), chatRoom, session);
+            log.info("[ CHATTING ] [ ROOM {} ] MESSAGE SENT", chatRoom);
+            System.out.println("접혻한 세션 아이디"+session.getId());
+            for(int i = 0; i < chattingSessions.size(); i++){
+                System.out.println("목록 아이디"+chattingSessions.get(i).getSession().getId());
+
+                if(session.getId().equals(chattingSessions.get(i).getSession().getId())) {
+                    cs = chattingSessions.get(i);
+                    break;
+                }
+            }
+//            ChattingSession chattingSession =
+//                    chattingSessions.stream()
+//                            .findAny().filter(cs -> cs.getSession().getId().equals(session.getId()))
+//                            .orElseThrow(NoSuchElementException::new);
+            publishMessage(cs, messageReq);
+        }
+        else if(messageReq.getMessageType().equals(MessageType.close)) {
+            log.info("[ CHATTING ] [ ROOM {} ] EXITED", chatRoom);
+            ChattingSession cs = new ChattingSession(messageReq.getUserId(), chatRoom, session);;
+//            ChattingSession chattingSession =
+//                    chattingSessions.stream()
+//                            .findAny().filter(cs -> cs.getSession().getId().equals(session.getId()))
+//                            .orElseThrow(NoSuchElementException::new);
+            System.out.println("접속한 세션 아이디"+session.getId());
+            for(int i = 0; i < chattingSessions.size(); i++){
+                System.out.println("목록의 아이디"+chattingSessions.get(i).getSession().getId());
+
+                if(session.getId().equals(chattingSessions.get(i).getSession().getId())) {
+                    cs.getSession().close();
+                    chattingSessions.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void publishMessage(ChattingSession chattingSession, MessageReq messageReq){
