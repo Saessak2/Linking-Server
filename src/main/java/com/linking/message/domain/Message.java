@@ -1,8 +1,7 @@
 package com.linking.message.domain;
 
-import com.linking.chatroom.domain.Chatroom;
+import com.linking.chatroom.domain.ChatRoom;
 import com.linking.participant.domain.Participant;
-import com.linking.project.domain.Project;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "message")
+@ToString
 public class Message {
 
     @Id
@@ -27,7 +27,7 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chatroom_id", nullable = false)
-    private Chatroom chatroom;
+    private ChatRoom chatroom;
 
     @Column(nullable = false)
     private String content;
