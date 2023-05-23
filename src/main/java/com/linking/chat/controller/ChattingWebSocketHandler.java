@@ -1,15 +1,13 @@
 package com.linking.chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linking.chatroom.domain.ChattingSession;
+import com.linking.chatroom.service.ChatRoomManagerService;
 import com.linking.chatroom.domain.ChatRoom;
-import com.linking.chatroom.dto.ChatRoomFocusingUserRes;
 import com.linking.chatroom.repository.ChatRoomMapper;
 import com.linking.chatroom.service.ChatRoomService;
-import com.linking.global.common.ChattingSession;
-import com.linking.chat.domain.Chat;
 import com.linking.chat.dto.ChatReq;
 import com.linking.chat.service.ChatService;
-import com.linking.global.common.LabeledEmitter;
 import com.linking.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +17,6 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -32,10 +27,11 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
 
     private final ChatService chatService;
 
+    private final ChatRoomManagerService chatRoomManagerService;
+
     private final ChatRoomService chatRoomService;
     private final ChatRoomMapper chatRoomMapper;
 
-    private final List<ChattingSession> chattingSessions = new ArrayList<>();
 
     @Override
     public void handleMessage(@Nonnull WebSocketSession session, @Nonnull WebSocketMessage<?> webSocketMessage) throws Exception {
@@ -52,99 +48,33 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
 
         switch(chatReq.getReqType()) {
             case register:
-                chattingSessions.add(new ChattingSession(chatReq.getUserId(), chatReq.getProjectId(), chatRoom, chatReq.getIsFocusing(), session));
+                chatRoomManagerService.registerChattingSession(chatReq.getProjectId(), chatRoom,
+                        new ChattingSession(chatReq.getUserId(), chatReq.getProjectId(), false, session));
                 log.info("[ CHATROOM {} ] [ SESSION {} ] REGISTERED", chatRoom.getChatRoomId(), session.getId());
                 break;
 
             case open:
-                for (ChattingSession chattingSession : chattingSessions) {
-                    if (session.getId().equals(chattingSession.getSession().getId())) {
-                        chattingSession.setIsFocusing(true);
-                        sendFocusingUserList(session, chatReq);
-                        alertFocusingUserListUpdated(true, chattingSession, chatReq);
-                        break;
-                    }
-                }
-
+                chatRoomManagerService.changeChattingSessionFocusState(chatReq.getProjectId(), chatRoom, session, true);
                 break;
 
             case text:
-                for (ChattingSession chattingSession : chattingSessions) {
-                    if (session.getId().equals(chattingSession.getSession().getId())) {
-                        publishMessage(chattingSession, chatReq);
-                        break;
-                    }
-                }
+                chatRoomManagerService.publishMessage(chatReq.getProjectId(), chatRoom,
+                        new TextMessage(objectMapper.writeValueAsString(chatService.saveChat(chatRoom, chatReq))));
                 log.info("[ CHATROOM {} ] [ SESSION {} ] MESSAGE SENT", chatRoom.getChatRoomId(), session.getId());
                 break;
 
             case close:
-                for (ChattingSession chattingSession : chattingSessions) {
-                    if (session.getId().equals(chattingSession.getSession().getId())) {
-                        chattingSession.setIsFocusing(false);
-                        alertFocusingUserListUpdated(false, chattingSession, chatReq);
-                        break;
-                    }
-                }
+                chatRoomManagerService.changeChattingSessionFocusState(chatReq.getProjectId(), chatRoom, session, false);
                 break;
 
             case disconnect:
                 log.info("[ CHATROOM {} SESSION {} ] DISCONNECT ", chatRoom.getChatRoomId(), session.getId());
-                for(int i = 0; i < chattingSessions.size(); i++) {
-                    if(session.getId().equals(chattingSessions.get(i).getSession().getId())) {
-                        chattingSessions.get(i).getSession().close();
-                        chattingSessions.remove(i);
-                        break;
-                    }
-                }
+                chatRoomManagerService.disconnectSession(chatReq.getProjectId(), chatRoom, session);
                 break;
 
             default:
                 throw new BadRequestException("Request Type Mismatch");
         }
-    }
-
-    private void publishMessage(ChattingSession chattingSession, ChatReq chatReq){
-        Set<WebSocketSession> sessions =
-                chattingSessions.stream()
-                        .filter(cs -> cs.getChatRoom().getChatRoomId().equals(chattingSession.getChatRoom().getChatRoomId()))
-                        .map(ChattingSession::getSession).collect(Collectors.toSet());
-
-        Chat chat = chatService.saveChat(chattingSession.getChatRoom(), chatReq);
-        sessions
-                .forEach(session -> chatService.sendChat(session, chat));
-    }
-
-    private void sendFocusingUserList(WebSocketSession webSocketSession, ChatReq chatReq){
-        List<Long> userIdList = new ArrayList<>();
-        try{
-            for(ChattingSession cs : chattingSessions){
-                if(cs.getIsFocusing() && cs.getProjectId().equals(chatReq.getProjectId()))
-                    userIdList.add(cs.getUserId());
-            }
-            webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(userIdList)));
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    private void alertFocusingUserListUpdated(boolean isNew, ChattingSession chattingSession, ChatReq chatReq){
-            if (isNew) {
-                Set<WebSocketSession> sessions =
-                        chattingSessions.stream()
-                                .filter(cs -> cs.getChatRoom().getChatRoomId().equals(chattingSession.getChatRoom().getChatRoomId()))
-                                .map(ChattingSession::getSession).collect(Collectors.toSet());
-
-                    sessions
-                            .forEach(s -> {
-                                try {
-                                    s.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatReq.getUserId())));
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            });
-
-            }
     }
 
 }

@@ -48,10 +48,10 @@ public class ChatService {
         return new ArrayList<>();
     }
 
-    public Chat saveChat(ChatRoom chatRoom, ChatReq chatReq){
-        return chatRepository.save(
+    public ChatRes saveChat(ChatRoom chatRoom, ChatReq chatReq) {
+        return chatMapper.toRes(chatRepository.save(
                 participantRepository.findByUserAndProjectId(chatReq.getUserId(), chatReq.getProjectId())
-                        .map(p -> chatMapper.toMessage(chatReq, p, chatRoom)).orElseThrow(NoSuchElementException::new));
+                        .map(p -> chatMapper.toMessage(chatReq, p, chatRoom)).orElseThrow(NoSuchElementException::new)));
     }
 
 }

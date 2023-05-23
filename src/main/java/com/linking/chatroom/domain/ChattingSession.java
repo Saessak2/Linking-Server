@@ -1,4 +1,4 @@
-package com.linking.global.common;
+package com.linking.chatroom.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.linking.chatroom.domain.ChatRoom;
@@ -12,11 +12,9 @@ public class ChattingSession {
 
     private Long userId;
     private Long projectId;
-    private ChatRoom chatRoom;
     private Boolean isFocusing;
-    private WebSocketSession session;
+    private WebSocketSession webSocketSession;
 
-    @JsonIgnore
     public void setIsFocusing(Boolean isFocusing){
         this.isFocusing = isFocusing;
     }
