@@ -7,7 +7,9 @@ import com.linking.chat.dto.ChatReq;
 import com.linking.chat.dto.ChatRes;
 import com.linking.chat.persistence.ChatMapper;
 import com.linking.chat.persistence.ChatRepository;
+import com.linking.chatroom.repository.ChatRoomRepository;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.project.domain.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,12 +28,13 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class ChatService {
 
+    private final ObjectMapper objectMapper;
+
     private final ChatRepository chatRepository;
     private final ChatMapper chatMapper;
+    private final ChatRoomRepository chatRoomRepository;
 
     private final ParticipantRepository participantRepository;
-
-    private final ObjectMapper objectMapper;
 
     public void sendChat(WebSocketSession webSocketSession, Chat chat){
         try{
@@ -42,8 +45,9 @@ public class ChatService {
     }
 
     public List<ChatRes> getRecentChatList(Long id, Pageable pageable){
-        Page<Chat> messagePage = chatRepository.findMessagesByChatroom(new ChatRoom(id), pageable);
-        if(messagePage!=null && messagePage.hasContent())
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(new Project(id)).orElseThrow(NoSuchElementException::new);
+        Page<Chat> messagePage = chatRepository.findMessagesByChatroom(chatRoom, pageable);
+        if(messagePage != null && messagePage.hasContent())
             return chatMapper.toRes(messagePage.getContent());
         return new ArrayList<>();
     }

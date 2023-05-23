@@ -14,7 +14,7 @@ public class ChatRoomController {
 
     private final ChatService chatService;
 
-    @GetMapping("/{id}/messages")
+    @GetMapping("/{id}/chat-list")
     public ResponseEntity<Object> getMessages(@PathVariable Long id, Pageable pageable){
         return ResponseHandler.generateOkResponse(chatService.getRecentChatList(id, pageable));
     }

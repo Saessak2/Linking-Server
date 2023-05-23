@@ -28,7 +28,8 @@ public class ChatRoomManager {
     public void sendTextMessageToSessions(TextMessage textMessage) throws RuntimeException {
         chattingSessionSet.forEach(cs -> {
             try {
-                cs.getWebSocketSession().sendMessage(textMessage);
+                if(cs.getWebSocketSession().isOpen())
+                    cs.getWebSocketSession().sendMessage(textMessage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

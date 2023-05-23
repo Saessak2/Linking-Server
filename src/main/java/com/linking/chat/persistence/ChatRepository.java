@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
-    @Query(value = "SELECT c FROM Chat c" +
+    @Query(value = "SELECT c FROM Chat c " +
             " WHERE c.chatroom = :chatRoom ORDER by c.sentDatetime DESC")
     Page<Chat> findMessagesByChatroom(ChatRoom chatRoom, Pageable pageable);
 
