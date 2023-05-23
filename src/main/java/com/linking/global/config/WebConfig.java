@@ -1,8 +1,7 @@
 package com.linking.global.config;
 
-import com.linking.user.interceptor.LoginCheckInterceptor;
-import com.linking.user.resolver.LoginUserArgumentResolver;
-import org.springframework.context.annotation.Bean;
+import com.linking.global.auth.interceptor.LoginCheckInterceptor;
+import com.linking.global.auth.resolver.LoginUserArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
