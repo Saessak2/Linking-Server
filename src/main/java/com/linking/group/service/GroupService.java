@@ -52,6 +52,7 @@ public class GroupService {
         for (Group group : groupList) {  // order 순서
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();   // order 순서
+
             if (!pageList.isEmpty()) {
                 pageList.forEach(p -> {
                     pageResList.add(pageMapper.toDto(p, annoNotCnts.get(p.getId())));
@@ -59,7 +60,6 @@ public class GroupService {
             }
             groupDetailedResList.add(groupMapper.toDto(group, pageResList));
         }
-
         return groupDetailedResList;
     }
 

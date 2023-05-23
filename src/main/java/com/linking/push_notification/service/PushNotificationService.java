@@ -51,12 +51,17 @@ public class PushNotificationService {
                     .info(not.getInfo())
                     .priority(not.getPriority())
                     .noticeType(not.getNoticeType())
-                    .isChecked(not.isChecked())
-                    .targetId(not.getTargetId())
-                    .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
-
+                    .isChecked(not.isChecked());
+            if (not.getTargetId() != null) {
+                builder
+                        .targetId(not.getTargetId())
+                        .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
+            } else {
+                builder
+                        .targetId(-1L)
+                        .assistantId(-1L);
+            }
             resList.add(builder.build());
-
             not.setChecked(true);
         }
         return resList;
@@ -71,9 +76,11 @@ public class PushNotificationService {
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
+        // 메일 전송
         if (req.getPriority() == NoticePriority.ALL && settings.isAllowedMail())
             emailService.sendEmail(pushNotification);
 
+        // 푸시 알림 전송
         if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
 
             FcmReq.FcmReqBuilder fcmReqBuilder = FcmReq.builder();
@@ -82,7 +89,6 @@ public class PushNotificationService {
                     .body(pushNotification.getSender() + "\n" + pushNotification.getBody());
 
             Map<String, String> data = new HashMap<>();
-
 
             if (settings.isAllowedWebPush()) {
 
