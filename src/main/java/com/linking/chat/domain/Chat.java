@@ -1,4 +1,4 @@
-package com.linking.message.domain;
+package com.linking.chat.domain;
 
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.participant.domain.Participant;
@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "message")
+@Table(name = "chat")
 @ToString
-public class Message {
+public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id")
+    @Column(name = "chat_id")
     private Long messageId;
 
     @ManyToOne

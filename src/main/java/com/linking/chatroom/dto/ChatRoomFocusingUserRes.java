@@ -2,18 +2,13 @@ package com.linking.chatroom.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoomReq {
+public class ChatRoomFocusingUserRes {
 
-    @NotNull
     private Long userId;
-
-    @NotNull
-    private Long projectId;
+    private String userName;
 
 }

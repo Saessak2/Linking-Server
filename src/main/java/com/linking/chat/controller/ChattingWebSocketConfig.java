@@ -1,4 +1,4 @@
-package com.linking.message.controller;
+package com.linking.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +9,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class MessageWebSocketConfig implements WebSocketConfigurer {
+public class ChattingWebSocketConfig implements WebSocketConfigurer {
 
-    private final MessageWebSocketHandler messageWebSocketHandler;
+    private final ChattingWebSocketHandler chattingWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(messageWebSocketHandler, "ws/chatting")
+        registry.addHandler(chattingWebSocketHandler, "ws/chatting")
                 .setAllowedOrigins("*");
     }
 

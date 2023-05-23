@@ -1,4 +1,4 @@
-package com.linking.message.dto;
+package com.linking.chat.dto;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MessageRes {
+public class ChatRes {
 
     private String userName;
     private String content;

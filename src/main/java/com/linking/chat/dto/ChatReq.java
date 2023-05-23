@@ -1,4 +1,4 @@
-package com.linking.message.dto;
+package com.linking.chat.dto;
 
 import lombok.*;
 
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MessageReq {
+public class ChatReq {
 
     @NotNull
     private Long userId;
@@ -18,13 +18,16 @@ public class MessageReq {
     @NotNull
     private Long projectId;
 
-    @NotNull
     private String content;
 
     @NotNull
     private String sentDatetime;
 
+    @NotNull
     @Enumerated(value = EnumType.STRING)
-    private MessageType messageType;
+    private ReqType reqType;
+
+    @NotNull
+    private Boolean isFocusing;
 
 }
