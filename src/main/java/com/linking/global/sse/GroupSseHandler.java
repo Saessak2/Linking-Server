@@ -1,6 +1,7 @@
 package com.linking.global.sse;
 
 import com.linking.global.common.CustomEmitter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -13,52 +14,33 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class GroupSseHandler {
 
     private static final Long TIMEOUT = 600 * 1000L; // 10분
-    /**
-     * key : (Long) projectId
-     */
-    private final Map<Long, Set<CustomEmitter>> groupSubscriber = new ConcurrentHashMap<>();
+    private final IGroupSseRepository groupSseInMemoryRepository;
 
-    public SseEmitter connect(Long key, Long userId) {
+    public SseEmitter connect(Long projectId, Long userId) {
 
-        CustomEmitter customEmitter = new CustomEmitter(userId, new SseEmitter(TIMEOUT));
-        log.info("[GROUP][CONNECT] userId = {}, projectId = {}", userId, key);
+        log.info("[GROUP][CONNECT] projectId = {}, userId = {}", projectId, userId);
 
-        Set<CustomEmitter> customEmitters = this.addEmitter(key, customEmitter);
+        CustomEmitter customEmitter = groupSseInMemoryRepository.save(projectId, new CustomEmitter(userId, new SseEmitter(TIMEOUT)));
         SseEmitter emitter = customEmitter.getSseEmitter();
 
         emitter.onTimeout(() -> {
             emitter.complete();
         });
-
-        emitter.onCompletion(()-> {
-            customEmitters.remove(customEmitter);
-            log.info("[GROUP][REMOVE] projectId = {} @@ emitters.size = {}", key, customEmitters.size());
+        emitter.onCompletion(() -> {
+            groupSseInMemoryRepository.deleteEmitter(projectId, customEmitter);
+            log.info("[GROUP][REMOVE] projectId = {}, userId = {}", projectId, userId);
         });
         return emitter;
-    }
-
-    public Set<CustomEmitter> addEmitter(Long key, CustomEmitter customEmitter) {
-        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
-
-        if (sseEmitters == null) {
-            sseEmitters = Collections.synchronizedSet(new HashSet<>());
-            sseEmitters.add(customEmitter);
-            this.groupSubscriber.put(key, sseEmitters);
-        } else {
-            sseEmitters.add(customEmitter);
-        }
-        log.info("[GROUP][ADD] projectId = {}, size = {}", key, sseEmitters.size());
-
-        return sseEmitters;
     }
 
     @EventListener
     public void send(GroupEvent event) {
 
-        Set<CustomEmitter> emittersByProject = this.groupSubscriber.get(event.getProjectId());
+        Set<CustomEmitter> emittersByProject = groupSseInMemoryRepository.findEmittersByKey(event.getProjectId());
         if (emittersByProject == null) return;
 
         if (event.getUserId() == null)
@@ -77,7 +59,7 @@ public class GroupSseHandler {
                             SseEmitter.event()
                                     .name(event.getEventName())
                                     .data(event.getData()));
-                    log.info("send {} event", event.getEventName());
+                    log.info("send {} event to user {}", event.getEventName(), emitter.getUserId());
 
                 } catch (IOException e) {
                     log.error("Connection reset by peer");
@@ -106,62 +88,17 @@ public class GroupSseHandler {
         });
     }
 
-
-//
-//    public void send(Long key, Long publishUserId, String event, Object message) {
-//
-//        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
-//        if (sseEmitters == null) return;
-//
-//        sseEmitters.forEach(emitter -> {
-//            if (publishUserId != emitter.getUserId()) {
-//                try {
-//                    emitter.getSseEmitter().send(SseEmitter.event()
-//                            .name(event)
-//                            .data(message));
-//                    log.info("send {} event", event);
-//
-//                } catch (IOException e) {
-//                    log.error("Connection reset by peer");
-//                }
-//            }
-//        });
-//    }
-
-//
-//    /**
-//     * send for event of post/deleteAnnoNot
-//     */
-//    public void send(Long key, Set<Long> pageSubscriberIds, String event, Object message) {
-//
-//        Set<CustomEmitter> sseEmitters = this.groupSubscriber.get(key);
-//        if (sseEmitters == null) return;
-//        sseEmitters.forEach(emitter -> {
-//            if (!pageSubscriberIds.contains(emitter.getUserId())) {
-//                try {
-//                    emitter.getSseEmitter().send(SseEmitter.event()
-//                            .name(event)
-//                            .data(message));
-//                    log.info("send {} event", event);
-//
-//                } catch (IOException e) {
-//                    log.error("Connection reset by peer");
-//                }
-//            }
-//        });
-//    }
-
     @Async("eventCallExecutor")
-    public void removeEmittersByProject(Long key) {
-        log.info("removeEmittersByProject - {}", this.getClass().getName());
+    public void removeEmittersByProject(Long projectId) {
 
-        Set<CustomEmitter> customEmitters = groupSubscriber.get(key);
+        log.info("GroupSseHandler.removeEmittersByProject");
+
+        Set<CustomEmitter> customEmitters = groupSseInMemoryRepository.deleteAllByProject(projectId);
+
         for (CustomEmitter customEmitter : customEmitters) {
             if (customEmitter.getSseEmitter() != null)
                 customEmitter.getSseEmitter().complete();
         }
-
-        groupSubscriber.remove(key);
-        log.info("** [GROUP][REMOVE_ALL] project = {} is removed", key);
+        log.info("** [GROUP][REMOVE_ALL] project = {} is removed", projectId);
     }
 }
