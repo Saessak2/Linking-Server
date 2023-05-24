@@ -5,8 +5,6 @@ import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateReq;
 import com.linking.annotation.service.AnnotationService;
 import com.linking.global.common.ResponseHandler;
-import com.linking.group.controller.GroupSseHandler;
-import com.linking.page.controller.PageSseHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

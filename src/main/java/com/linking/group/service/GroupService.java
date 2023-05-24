@@ -1,7 +1,8 @@
 package com.linking.group.service;
 
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.GroupEventHandler;
+import com.linking.global.sse.EventType;
+import com.linking.global.sse.GroupEvent;
 import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
@@ -17,6 +18,7 @@ import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupService {
-    private final GroupEventHandler groupEventHandler;
+    private final ApplicationEventPublisher publisher;
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
@@ -34,9 +36,8 @@ public class GroupService {
     private final PageMapper pageMapper;
     private final PageCheckRepository pageCheckRepository;
 
-
     // 그룹 리스트 조회
-    public List<GroupDetailedRes> findAllGroups(Long projectId, Long userId)  {
+    public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
         if (groupList.isEmpty()) return new ArrayList<>();
@@ -48,7 +49,7 @@ public class GroupService {
             annoNotCnts.put(pc.getPage().getId(), pc.getAnnoNotCount());
         });
 
-        List<GroupDetailedRes> groupDetailedResList = new ArrayList<>();
+        List<GroupRes> groupDetailedResList = new ArrayList<>();
         for (Group group : groupList) {  // order 순서
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();   // order 순서
@@ -69,14 +70,19 @@ public class GroupService {
 
         Group group = groupMapper.toEntity(req);
         group.setProject(project);
-        GroupRes groupRes = groupMapper.toDto(groupRepository.save(group));
+        GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
-        GroupPostEvent groupPostEvent = GroupPostEvent.builder()
-                .groupId(groupRes.getGroupId())
-                .name(group.getName())
+        GroupEvent groupEvent = GroupEvent.builder()
+                .eventName(EventType.POST_GROUP)
+                .projectId(project.getProjectId())
+                .userId(userId)
+                .data(GroupRes.builder()
+                        .groupId(groupRes.getGroupId())
+                        .name(group.getName())
+                        .build())
                 .build();
 
-        groupEventHandler.postGroup(project.getProjectId(), userId, groupPostEvent);
+        publisher.publishEvent(groupEvent);
 
         return groupRes;
     }
@@ -88,14 +94,25 @@ public class GroupService {
 
         if (!findGroup.getName().equals(req.getName())) {
             findGroup.updateName(req.getName());
-            GroupRes groupRes = groupMapper.toDto(groupRepository.save(findGroup));
-            groupEventHandler.putGroupName(findGroup.getProject().getProjectId(), userId, groupRes);
+            Group group = groupRepository.save(findGroup);
+
+            GroupEvent groupEvent = GroupEvent.builder()
+                    .eventName(EventType.PUT_GROUP_NAME)
+                    .projectId(findGroup.getProject().getProjectId())
+                    .userId(userId)
+                    .data(GroupRes.builder()
+                            .groupId(group.getId())
+                            .name(group.getName())
+                            .build())
+                    .build();
+
+            publisher.publishEvent(groupEvent);
         }
         return true;
     }
 
     // 순서 변경 (그룹 + 페이지)
-    public boolean updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList, Long userId) {
+    public boolean updateDocumentsOrder(List<GroupOrderReq> groupOrderReqList) {
 
         // 그룹 순서 변경
         List<Long> groupIds = groupOrderReqList.stream()
@@ -141,7 +158,14 @@ public class GroupService {
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
 
-        groupEventHandler.deleteGroup(projectId, userId, new GroupIdRes(groupId));
+        GroupEvent groupEvent = GroupEvent.builder()
+                .eventName(EventType.DELETE_GROUP)
+                .projectId(projectId)
+                .userId(userId)
+                .data(GroupRes.builder().groupId(groupId).build())
+                .build();
+
+        publisher.publishEvent(groupEvent);
 
         // 그룹 순서를 0부터 재정렬
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);

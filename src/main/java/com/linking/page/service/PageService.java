@@ -8,7 +8,8 @@ import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.GroupEventHandler;
+import com.linking.global.sse.EventType;
+import com.linking.global.sse.GroupEvent;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.controller.PageEventHandler;
@@ -25,6 +26,7 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class PageService {
-    private final GroupEventHandler groupEventHandler;
+    private final ApplicationEventPublisher publisher;
     private final PageEventHandler pageEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
@@ -121,7 +123,14 @@ public class PageService {
         }
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page), 0);
 
-        groupEventHandler.postPage(group.getProject().getProjectId(), userId, pageRes);
+        GroupEvent groupEvent = GroupEvent.builder()
+                .eventName(EventType.POST_PAGE)
+                .projectId(group.getProject().getProjectId())
+                .userId(userId)
+                .data(pageRes)
+                .build();
+
+        publisher.publishEvent(groupEvent);
 
         return pageRes;
     }
@@ -135,7 +144,15 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        groupEventHandler.deletePage(projectId, userId, new PageIdRes(groupId, pageId));
+        GroupEvent groupEvent = GroupEvent.builder()
+                .eventName(EventType.DELETE_PAGE)
+                .projectId(projectId)
+                .userId(userId)
+                .data(new PageIdRes(groupId, pageId))
+                .build();
+
+        publisher.publishEvent(groupEvent);
+
         pageEventHandler.deletePage(pageId, userId, pageId);
 
         // 페이지 순서를 0부터 재정렬

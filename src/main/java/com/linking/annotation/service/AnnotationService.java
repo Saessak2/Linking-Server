@@ -8,7 +8,8 @@ import com.linking.block.domain.Block;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
-import com.linking.group.controller.GroupEventHandler;
+import com.linking.global.sse.EventType;
+import com.linking.global.sse.GroupEvent;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.controller.PageSseHandler;
 import com.linking.page.dto.PageIdRes;
@@ -18,6 +19,7 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class AnnotationService {
     private final PageSseHandler pageSseHandler;
-    private final GroupEventHandler groupEventHandler;
+    private final ApplicationEventPublisher publisher;
     private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
@@ -65,7 +67,13 @@ public class AnnotationService {
 
         // 주석 개수 증가 이벤트
         // TODO 프론트에서 pageId를 좀 더 빨리 찾을 수 있도록 groupId를 요청하여 page에서 group을 조회하기 떄문에 select page sql 발생
-        groupEventHandler.postAnnoNot(req.getProjectId(), enteringUserIds, new PageIdRes(block.getPage().getGroup().getId(), block.getPage().getId()));
+        publisher.publishEvent(GroupEvent.builder()
+                .eventName(EventType.POST_ANNOT)
+                .projectId(req.getProjectId())
+                .userIds(enteringUserIds)
+                .data(new PageIdRes(block.getPage().getGroup().getId(), block.getPage().getId()))
+                .build());
+
         // 주석 생성 이벤트
         pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
 
@@ -133,8 +141,15 @@ public class AnnotationService {
 
         // 페이지 들어가 있는 유저 아이디 목록
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(pageId);
+
         // 주석 개수 감소 이벤트
-        groupEventHandler.deleteAnnoNot(projectId, enteringUserIds, new PageIdRes(groupId, pageId));
+        publisher.publishEvent(GroupEvent.builder()
+                .eventName(EventType.DELETE_ANNOT)
+                .projectId(projectId)
+                .userIds(enteringUserIds)
+                .data(new PageIdRes(groupId, pageId))
+                .build());
+
         // 주석 삭제 이벤트
         pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
     }

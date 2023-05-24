@@ -1,6 +1,7 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.sse.GroupSseHandler;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +21,15 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupController {
-    private final GroupSseHandler groupSseHandler;
 
+    private final GroupSseHandler groupSseHandler;
     private final GroupService groupService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<GroupDetailedRes>> getGroups(
+    public ResponseEntity<List<GroupRes>> getGroups(
             @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
     ){
-        List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
+        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userId);
         return ResponseHandler.generateOkResponse(allGroups);
     }
 
@@ -73,9 +74,9 @@ public class GroupController {
 
     @PutMapping("/order")
     public ResponseEntity<Object> putDocumentOrder(
-            @RequestHeader(value = "userid") Long userId, @RequestBody @Valid List<GroupOrderReq> req) {
+            @RequestBody @Valid List<GroupOrderReq> req) {
 
-        boolean res = groupService.updateDocumentsOrder(req, userId);
+        boolean res = groupService.updateDocumentsOrder(req);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 }
