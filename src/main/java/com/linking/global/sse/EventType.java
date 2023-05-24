@@ -1,13 +1,12 @@
 package com.linking.global.sse;
 
-public class EventType {
+public interface EventType {
 
-    public static final String POST_GROUP = "postGroup";
-    public static final String PUT_GROUP_NAME = "putGroupName";
-    public static final String DELETE_GROUP = "deleteGroup";
-    public static final String POST_PAGE = "postPage";
-    public static final String DELETE_PAGE = "deletePage";
-    public static final String POST_ANNOT = "postAnnoNot";
-    public static final String DELETE_ANNOT = "deleteAnnoNot";
-
+    String POST_GROUP = "postGroup";
+    String PUT_GROUP_NAME = "putGroupName";
+    String DELETE_GROUP = "deleteGroup";
+    String POST_PAGE = "postPage";
+    String DELETE_PAGE = "deletePage";
+    String POST_ANNOT = "postAnnoNot";
+    String DELETE_ANNOT = "deleteAnnoNot";
 }
