@@ -1,8 +1,6 @@
 package com.linking.user.controller;
 
-import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.UserCheck;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;
@@ -23,8 +21,7 @@ public class UserController {
 
     @PostMapping("/email")
     public ResponseEntity<Object> getUserListWithEmail(
-            @RequestBody UserEmailReq userEmailReq,
-            @Login UserCheck userCheck
+            @RequestBody UserEmailReq userEmailReq
     ){
         List<UserDetailedRes> userList = userService.getUsersByPartOfEmail(userEmailReq);
         if(userList.isEmpty())
@@ -36,8 +33,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUser(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         return userService.getUserById(id)
                 .map(u -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, u))
@@ -47,8 +43,7 @@ public class UserController {
     // TODO: 프로젝트를 소유하는 회원이면 소유자를 이전함( -> project service)
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         userService.deleteUser(id);
         return ResponseHandler.generateNoContentResponse();

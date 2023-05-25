@@ -5,10 +5,7 @@ import com.linking.user.dto.UserDetailedRes;
 import com.linking.user.dto.UserEmailVerifyReq;
 import com.linking.user.dto.UserSignUpReq;
 import com.linking.user.service.UserService;
-import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.SessionConst;
-import com.linking.global.auth.UserCheck;
 import com.linking.push_settings.service.PushSettingsService;
 import com.linking.user.dto.UserSignInReq;
 import lombok.RequiredArgsConstructor;
@@ -62,27 +59,9 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity signIn(
-            HttpSession session,
-            @RequestBody @Valid UserSignInReq req,
-            HttpServletResponse response
+            @RequestBody @Valid UserSignInReq req
     ) {
-
-        log.info("login controller 호출");
         UserDetailedRes res = userService.getUserWithEmailAndPw(req);
-        session.setAttribute(SessionConst.LOGIN_USER, new UserCheck(res.getUserId()));
-
-        response.addHeader("SESSION_ID", Base64Utils.encodeToString(session.getId().getBytes()));
-
         return ResponseHandler.generateOkResponse(res);
-    }
-
-    @GetMapping("/sign-out")
-    public ResponseEntity signOut(
-            HttpSession session,
-            @Login UserCheck userCheck
-    ) {
-        log.info("logout => userId = {}", userCheck.getUserId());
-        session.invalidate();
-        return ResponseHandler.generateOkResponse("로그아웃 성공");
     }
 }

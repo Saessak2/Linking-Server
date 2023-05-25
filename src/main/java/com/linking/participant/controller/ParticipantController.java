@@ -2,9 +2,7 @@ package com.linking.participant.controller;
 
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantSimplifiedRes;
-import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.UserCheck;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +22,7 @@ public class ParticipantController {
 
     @PostMapping("/new")
     public ResponseEntity<Object> postParticipant(
-            @RequestBody @Valid ParticipantIdReq participantIdReq,
-            @Login UserCheck userCheck
+            @RequestBody @Valid ParticipantIdReq participantIdReq
     ){
         return participantService.createParticipant(participantIdReq)
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, p))
@@ -34,8 +31,7 @@ public class ParticipantController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getParticipant(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         return participantService.getParticipant(id)
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
@@ -44,8 +40,7 @@ public class ParticipantController {
 
     @GetMapping("/list/project/{id}")
     public ResponseEntity<Object> getParticipantList(
-            @PathVariable("id") Long projectId,
-            @Login UserCheck userCheck
+            @PathVariable("id") Long projectId
     ){
         List<ParticipantSimplifiedRes> participantList = participantService.getParticipantsByProjectId(projectId);
         if(participantList.isEmpty())
@@ -55,8 +50,7 @@ public class ParticipantController {
 
     @PostMapping
     public ResponseEntity<Object> deleteParticipants(
-            @RequestBody ParticipantDeleteReq participantDeleteReq,
-            @Login UserCheck userCheck
+            @RequestBody ParticipantDeleteReq participantDeleteReq
     ){
         participantService.deleteParticipant(participantDeleteReq);
         return ResponseHandler.generateNoContentResponse();

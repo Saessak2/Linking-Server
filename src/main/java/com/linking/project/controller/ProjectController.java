@@ -6,8 +6,6 @@ import com.linking.participant.service.ParticipantService;
 import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;
 import com.linking.project.service.ProjectService;
-import com.linking.global.auth.Login;
-import com.linking.global.auth.UserCheck;
 import com.linking.project.dto.ProjectCreateReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,8 +27,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<Object> postProject(
-            @RequestBody @Valid ProjectCreateReq projectCreateReq,
-            @Login UserCheck userCheck
+            @RequestBody @Valid ProjectCreateReq projectCreateReq
     ) {
         return projectService.createProject(projectCreateReq)
                 .map(ResponseHandler::generateCreatedResponse)
@@ -39,8 +36,7 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getProject(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ) {
         return projectService.getProjectsContainingParts(id)
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
@@ -49,8 +45,7 @@ public class ProjectController {
 
     @GetMapping("/list/owner/{id}")
     public ResponseEntity<Object> getProjectListByOwner(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(id);
         if(projectList.isEmpty())
@@ -60,8 +55,7 @@ public class ProjectController {
 
     @GetMapping("/list/part/{id}")
     public ResponseEntity<Object> getProjectListByPart(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         List<ProjectContainsPartsRes> projectList = projectService.getProjectsByUserId(id);
         if(projectList.isEmpty())
@@ -72,8 +66,7 @@ public class ProjectController {
     @PutMapping
     @Transactional
     public ResponseEntity<Object> putProject(
-            @RequestBody @Valid ProjectUpdateReq projectUpdateReq,
-            @Login UserCheck userCheck
+            @RequestBody @Valid ProjectUpdateReq projectUpdateReq
     ){
         return projectService.updateProject(projectUpdateReq, participantService.updateParticipantList(projectUpdateReq))
                 .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
@@ -82,8 +75,7 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProject(
-            @PathVariable Long id,
-            @Login UserCheck userCheck
+            @PathVariable Long id
     ){
         projectService.deleteProject(id);
         groupSseHandler.removeEmittersByProject(id);
