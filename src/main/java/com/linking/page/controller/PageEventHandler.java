@@ -1,9 +1,9 @@
 package com.linking.page.controller;
 
+import com.linking.block.dto.BlockEventRes;
 import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateRes;
-import com.linking.block.dto.BlockEventRes;
 import com.linking.block.dto.BlockIdRes;
 import com.linking.page_check.dto.PageCheckUpdateRes;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,6 @@ package com.linking.push_settings.domain;
 
 import com.linking.user.domain.User;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 

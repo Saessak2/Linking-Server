@@ -1,7 +1,6 @@
 package com.linking.page.controller;
 
 import com.linking.global.common.CustomEmitter;
-import com.linking.page.dto.BlockPageDetailRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

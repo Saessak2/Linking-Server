@@ -1,9 +1,9 @@
 package com.linking.block.persistence;
 
 import com.linking.annotation.dto.AnnotationRes;
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockCreateReq;
-import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.dto.BlockRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

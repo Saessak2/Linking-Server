@@ -1,9 +1,6 @@
 package com.linking.block.dto;
 
-import com.linking.annotation.dto.AnnotationRes;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Builder

@@ -1,9 +1,11 @@
 package com.linking.push_notification.controller;
 
-import com.linking.global.common.ResponseHandler;
 import com.linking.push_notification.dto.PushNotificationReq;
 import com.linking.push_notification.dto.PushNotificationRes;
 import com.linking.push_notification.service.PushNotificationService;
+import com.linking.global.auth.Login;
+import com.linking.global.common.ResponseHandler;
+import com.linking.global.auth.UserCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +23,19 @@ public class PushNotificationController {
     private final PushNotificationService pushNotificationService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity getAllNotifications(@PathVariable("userId") Long userId) {
+    public ResponseEntity getAllNotifications(
+            @Login UserCheck userCheck
+    ) {
 
-        List<PushNotificationRes> res = pushNotificationService.findAllPushNotificationsByUser(userId);
+        List<PushNotificationRes> res = pushNotificationService.findAllPushNotificationsByUser(userCheck.getUserId());
         return ResponseHandler.generateOkResponse(res);
     }
 
     @PostMapping
-    public ResponseEntity postPushNotification(@RequestBody @Valid PushNotificationReq req) {
-
+    public ResponseEntity postPushNotification(
+            @RequestBody @Valid PushNotificationReq req,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(pushNotificationService.sendPushNotification(req));
     }
 }

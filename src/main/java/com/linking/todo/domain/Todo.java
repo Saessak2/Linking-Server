@@ -4,10 +4,8 @@ import com.linking.assign.domain.Assign;
 import com.linking.project.domain.Project;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

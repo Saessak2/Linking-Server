@@ -1,21 +1,21 @@
 package com.linking.group.service;
 
+import com.linking.group.domain.Group;
+import com.linking.group.persistence.GroupRepository;
+import com.linking.page_check.domain.PageCheck;
+import com.linking.page_check.persistence.PageCheckRepository;
+import com.linking.project.domain.Project;
+import com.linking.project.persistence.ProjectRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.global.sse.EventType;
 import com.linking.global.sse.GroupEvent;
-import com.linking.group.domain.Group;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
-import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Page;
 import com.linking.page.dto.PageOrderReq;
 import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
-import com.linking.page_check.domain.PageCheck;
-import com.linking.page_check.persistence.PageCheckRepository;
-import com.linking.project.domain.Project;
-import com.linking.project.persistence.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GroupService {
+
     private final ApplicationEventPublisher publisher;
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
@@ -72,7 +73,7 @@ public class GroupService {
         group.setProject(project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
-        GroupEvent groupEvent = GroupEvent.builder()
+        publisher.publishEvent(GroupEvent.builder()
                 .eventName(EventType.POST_GROUP)
                 .projectId(project.getProjectId())
                 .userId(userId)
@@ -80,9 +81,7 @@ public class GroupService {
                         .groupId(groupRes.getGroupId())
                         .name(group.getName())
                         .build())
-                .build();
-
-        publisher.publishEvent(groupEvent);
+                .build());
 
         return groupRes;
     }
@@ -96,7 +95,7 @@ public class GroupService {
             findGroup.updateName(req.getName());
             Group group = groupRepository.save(findGroup);
 
-            GroupEvent groupEvent = GroupEvent.builder()
+            publisher.publishEvent(GroupEvent.builder()
                     .eventName(EventType.PUT_GROUP_NAME)
                     .projectId(findGroup.getProject().getProjectId())
                     .userId(userId)
@@ -104,9 +103,7 @@ public class GroupService {
                             .groupId(group.getId())
                             .name(group.getName())
                             .build())
-                    .build();
-
-            publisher.publishEvent(groupEvent);
+                    .build());
         }
         return true;
     }
@@ -158,14 +155,12 @@ public class GroupService {
         Long projectId = group.getProject().getProjectId();
         groupRepository.delete(group);
 
-        GroupEvent groupEvent = GroupEvent.builder()
+        publisher.publishEvent(GroupEvent.builder()
                 .eventName(EventType.DELETE_GROUP)
                 .projectId(projectId)
                 .userId(userId)
                 .data(GroupRes.builder().groupId(groupId).build())
-                .build();
-
-        publisher.publishEvent(groupEvent);
+                .build());
 
         // 그룹 순서를 0부터 재정렬
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);

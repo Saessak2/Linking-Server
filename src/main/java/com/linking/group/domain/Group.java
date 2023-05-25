@@ -1,7 +1,7 @@
 package com.linking.group.domain;
 
-import com.linking.page.domain.Page;
 import com.linking.project.domain.Project;
+import com.linking.page.domain.Page;
 import lombok.*;
 
 import javax.persistence.*;

@@ -1,10 +1,10 @@
 package com.linking.page.service;
 
+import com.linking.block.dto.BlockDetailRes;
 import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.block.domain.Block;
-import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
@@ -12,18 +12,20 @@ import com.linking.global.sse.EventType;
 import com.linking.global.sse.GroupEvent;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
-import com.linking.page.controller.PageEventHandler;
-import com.linking.page.domain.Page;
-import com.linking.page.domain.Template;
-import com.linking.page.dto.*;
-import com.linking.page.persistence.PageMapper;
-import com.linking.page.persistence.PageRepository;
+import com.linking.page.dto.PageCreateReq;
+import com.linking.page.dto.PageDetailedRes;
+import com.linking.page.dto.PageRes;
 import com.linking.page_check.domain.PageCheck;
 import com.linking.page_check.dto.PageCheckRes;
 import com.linking.page_check.persistence.PageCheckMapper;
 import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.page.controller.PageEventHandler;
+import com.linking.page.domain.Page;
+import com.linking.page.domain.Template;
+import com.linking.page.persistence.PageMapper;
+import com.linking.page.persistence.PageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class PageService {
+
     private final ApplicationEventPublisher publisher;
     private final PageEventHandler pageEventHandler;
     private final PageRepository pageRepository;

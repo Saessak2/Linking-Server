@@ -1,30 +1,23 @@
 package com.linking.block.service;
 
-import com.linking.annotation.domain.Annotation;
-import com.linking.annotation.dto.AnnotationRes;
-import com.linking.annotation.persistence.AnnotationMapper;
+import com.linking.block.persistence.BlockMapper;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
-import com.linking.block.persistence.BlockMapper;
+import com.linking.domain.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
-import com.linking.global.message.ErrorMessage;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
+import com.linking.global.message.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

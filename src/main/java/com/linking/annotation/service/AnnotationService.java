@@ -6,6 +6,10 @@ import com.linking.annotation.persistence.AnnotationMapper;
 import com.linking.annotation.persistence.AnnotationRepository;
 import com.linking.block.domain.Block;
 import com.linking.block.persistence.BlockRepository;
+import com.linking.page_check.domain.PageCheck;
+import com.linking.page_check.persistence.PageCheckRepository;
+import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
 import com.linking.global.sse.EventType;
@@ -13,10 +17,6 @@ import com.linking.global.sse.GroupEvent;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.controller.PageSseHandler;
 import com.linking.page.dto.PageRes;
-import com.linking.page_check.domain.PageCheck;
-import com.linking.page_check.persistence.PageCheckRepository;
-import com.linking.participant.domain.Participant;
-import com.linking.participant.persistence.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,9 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class AnnotationService {
     private final PageSseHandler pageSseHandler;

@@ -23,5 +23,4 @@ public class UserSignUpReq {
 
     @NotNull
     private String password;
-
 }
