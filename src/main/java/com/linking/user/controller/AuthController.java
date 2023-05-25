@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -62,12 +63,15 @@ public class AuthController {
     @PostMapping("/sign-in")
     public ResponseEntity signIn(
             HttpSession session,
-            @RequestBody @Valid UserSignInReq req
+            @RequestBody @Valid UserSignInReq req,
+            HttpServletResponse response
     ) {
 
         log.info("login controller 호출");
         UserDetailedRes res = userService.getUserWithEmailAndPw(req);
         session.setAttribute(SessionConst.LOGIN_USER, new UserCheck(res.getUserId()));
+
+        response.addHeader("SESSION_ID", Base64Utils.encodeToString(session.getId().getBytes()));
 
         return ResponseHandler.generateOkResponse(res);
     }
