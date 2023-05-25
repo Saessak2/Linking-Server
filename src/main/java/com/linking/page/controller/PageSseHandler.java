@@ -101,9 +101,12 @@ public class PageSseHandler {
 
         // pageSubscriber에서 remove(key)해도 emitter객체는 complete이 발생하기 전까지 삭제되지 않음.
         Set<CustomEmitter> customEmitters = pageSubscriber.get(key);
-        for (CustomEmitter customEmitter : customEmitters) {
-            if (customEmitter.getSseEmitter() != null)
-                customEmitter.getSseEmitter().complete();
+
+        if (customEmitters != null) {
+            for (CustomEmitter customEmitter : customEmitters) {
+                if (customEmitter.getSseEmitter() != null)
+                    customEmitter.getSseEmitter().complete();
+            }
         }
 
         pageSubscriber.remove(key);

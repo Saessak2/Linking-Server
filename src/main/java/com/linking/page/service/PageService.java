@@ -121,16 +121,15 @@ public class PageService {
             PageCheck pageCheck = new PageCheck(participant, page);
             pageCheckRepository.save(pageCheck);
         }
+
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page), 0);
 
-        GroupEvent groupEvent = GroupEvent.builder()
+        publisher.publishEvent(GroupEvent.builder()
                 .eventName(EventType.POST_PAGE)
                 .projectId(group.getProject().getProjectId())
                 .userId(userId)
                 .data(pageRes)
-                .build();
-
-        publisher.publishEvent(groupEvent);
+                .build());
 
         return pageRes;
     }
@@ -144,14 +143,15 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        GroupEvent groupEvent = GroupEvent.builder()
+        publisher.publishEvent(GroupEvent.builder()
                 .eventName(EventType.DELETE_PAGE)
                 .projectId(projectId)
                 .userId(userId)
-                .data(new PageIdRes(groupId, pageId))
-                .build();
-
-        publisher.publishEvent(groupEvent);
+                .data(PageRes.builder()
+                        .groupId(groupId)
+                        .pageId(pageId)
+                        .build())
+                .build());
 
         pageEventHandler.deletePage(pageId, userId, pageId);
 

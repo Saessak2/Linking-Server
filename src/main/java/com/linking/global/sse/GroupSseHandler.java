@@ -95,10 +95,13 @@ public class GroupSseHandler {
 
         Set<CustomEmitter> customEmitters = groupSseInMemoryRepository.deleteAllByProject(projectId);
 
-        for (CustomEmitter customEmitter : customEmitters) {
-            if (customEmitter.getSseEmitter() != null)
-                customEmitter.getSseEmitter().complete();
+        if (customEmitters != null) {
+            for (CustomEmitter customEmitter : customEmitters) {
+                if (customEmitter.getSseEmitter() != null)
+                    customEmitter.getSseEmitter().complete();
+            }
         }
+
         log.info("** [GROUP][REMOVE_ALL] project = {} is removed", projectId);
     }
 }

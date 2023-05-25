@@ -12,7 +12,7 @@ import com.linking.global.sse.EventType;
 import com.linking.global.sse.GroupEvent;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.controller.PageSseHandler;
-import com.linking.page.dto.PageIdRes;
+import com.linking.page.dto.PageRes;
 import com.linking.page_check.domain.PageCheck;
 import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
@@ -67,11 +67,15 @@ public class AnnotationService {
 
         // 주석 개수 증가 이벤트
         // TODO 프론트에서 pageId를 좀 더 빨리 찾을 수 있도록 groupId를 요청하여 page에서 group을 조회하기 떄문에 select page sql 발생
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.POST_ANNOT)
-                .projectId(req.getProjectId())
-                .userIds(enteringUserIds)
-                .data(new PageIdRes(block.getPage().getGroup().getId(), block.getPage().getId()))
+        publisher.publishEvent(
+                GroupEvent.builder()
+                    .eventName(EventType.POST_ANNOT)
+                    .projectId(req.getProjectId())
+                    .userIds(enteringUserIds)
+                    .data(PageRes.builder()
+                            .groupId(block.getPage().getGroup().getId())
+                            .pageId(block.getPage().getId())
+                            .build())
                 .build());
 
         // 주석 생성 이벤트
@@ -143,11 +147,15 @@ public class AnnotationService {
         Set<Long> enteringUserIds = pageSseHandler.enteringUserIds(pageId);
 
         // 주석 개수 감소 이벤트
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.DELETE_ANNOT)
-                .projectId(projectId)
-                .userIds(enteringUserIds)
-                .data(new PageIdRes(groupId, pageId))
+        publisher.publishEvent(
+                GroupEvent.builder()
+                    .eventName(EventType.DELETE_ANNOT)
+                    .projectId(projectId)
+                    .userIds(enteringUserIds)
+                    .data(PageRes.builder()
+                            .groupId(groupId)
+                            .pageId(pageId)
+                            .build())
                 .build());
 
         // 주석 삭제 이벤트
