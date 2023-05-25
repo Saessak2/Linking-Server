@@ -29,9 +29,10 @@ public interface ChatMapper {
 
         ChatRes.ChatResBuilder chatResBuilder = ChatRes.builder();
         return chatResBuilder
+                .firstName(chat.getParticipant().getUser().getFirstName())
                 .userName(chat.getParticipant().getUserName())
                 .content(chat.getContent())
-                .sentDatetime(chat.getSentDatetime().format(DateTimeFormatter.ofPattern("yyyy. M. dd. a hh:mm:ss").withLocale(Locale.KOREAN)))
+                .sentDatetime(chat.getSentDatetime().format(DateTimeFormatter.ofPattern("yyyy. M. d. a h:m").withLocale(Locale.KOREAN)))
                 .build();
     }
 
@@ -45,7 +46,7 @@ public interface ChatMapper {
                 .chatroom(chatRoom)
                 .content(chatReq.getContent())
                 .sentDatetime(LocalDateTime.parse(chatReq.getSentDatetime(),
-                        DateTimeFormatter.ofPattern("yyyy. M. dd. a hh:mm:ss").withLocale(Locale.KOREAN)))
+                        DateTimeFormatter.ofPattern("yyyy. M. d. a h:m:s").withLocale(Locale.KOREAN)))
                 .build();
 
     }

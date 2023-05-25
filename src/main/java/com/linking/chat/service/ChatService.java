@@ -36,15 +36,16 @@ public class ChatService {
 
     private final ParticipantRepository participantRepository;
 
-    public void sendChat(WebSocketSession webSocketSession, Chat chat){
-        try{
-            webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMapper.toRes(chat))));
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
+//    public void sendChat(WebSocketSession webSocketSession, Chat chat){
+//        try{
+//            webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMapper.toRes(chat))));
+//        } catch (IOException e) {
+//            log.error(e.getMessage(), e);
+//        }
+//    }
 
     public List<ChatRes> getRecentChatList(Long id, Pageable pageable){
+        log.info("page info {} -------------------------------------------------------------------" ,pageable);
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(new Project(id)).orElseThrow(NoSuchElementException::new);
         Page<Chat> messagePage = chatRepository.findMessagesByChatroom(chatRoom, pageable);
         if(messagePage != null && messagePage.hasContent())
