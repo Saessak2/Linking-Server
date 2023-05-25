@@ -2,7 +2,6 @@ package com.linking.group.persistence;
 
 import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
-import com.linking.group.dto.GroupDetailedRes;
 import com.linking.group.dto.GroupRes;
 import com.linking.page.dto.PageRes;
 import org.mapstruct.Mapper;
@@ -17,21 +16,9 @@ import java.util.List;
 )
 public interface GroupMapper {
 
-    default GroupRes toDto(Group source) {
+    default GroupRes toDto(Group source, List<PageRes> pageResList) {
 
         GroupRes builder = GroupRes.builder()
-                .projectId(source.getProject().getProjectId())
-                .groupId(source.getId())
-                .name(source.getName())
-                .pageResList(new ArrayList<>())
-                .build();
-
-        return builder;
-    }
-
-    default GroupDetailedRes toDto(Group source, List<PageRes> pageResList) {
-
-        GroupDetailedRes builder = GroupDetailedRes.builder()
                 .groupId(source.getId())
                 .projectId(source.getProject().getProjectId())
                 .name(source.getName())

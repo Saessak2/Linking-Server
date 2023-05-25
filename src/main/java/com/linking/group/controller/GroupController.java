@@ -1,8 +1,13 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.sse.GroupSseHandler;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
+import com.linking.global.auth.Login;
+import com.linking.global.common.ResponseHandler;
+import com.linking.global.auth.UserCheck;
+import com.linking.group.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,28 +20,30 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 
-@RestController
-@RequestMapping("/groups")
-@RequiredArgsConstructor
 @Slf4j
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/groups")
 public class GroupController {
-    private final GroupSseHandler groupSseHandler;
 
+    private final GroupSseHandler groupSseHandler;
     private final GroupService groupService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<GroupDetailedRes>> getGroups(
-            @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
+    public ResponseEntity<List<GroupRes>> getGroups(
+            @RequestParam("projectId") Long projectId,
+            @Login UserCheck userCheck
     ){
-        List<GroupDetailedRes> allGroups = groupService.findAllGroups(projectId, userId);
+        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userCheck.getUserId());
         return ResponseHandler.generateOkResponse(allGroups);
     }
 
     @GetMapping(path = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribeGroup(
-            @RequestParam("projectId") Long projectId, @RequestHeader(value = "userId") Long userId
+            @RequestParam("projectId") Long projectId,
+            @Login UserCheck userCheck
     ){
-        SseEmitter sseEmitter = groupSseHandler.connect(projectId, userId);
+        SseEmitter sseEmitter = groupSseHandler.connect(projectId, userCheck.getUserId());
         try {
             sseEmitter.send(SseEmitter.event().name("connect").data("connected!"));
         } catch (IOException e) {
@@ -47,35 +54,41 @@ public class GroupController {
 
     @PostMapping
     public ResponseEntity<Object> postGroup(
-            @RequestHeader(value = "userId") Long userId, @RequestBody @Valid GroupCreateReq req
+            @RequestBody @Valid GroupCreateReq req,
+            @Login UserCheck userCheck
     ){
-        GroupRes res = groupService.createGroup(req, userId);
+        GroupRes res = groupService.createGroup(req, userCheck.getUserId());
         return ResponseHandler.generateCreatedResponse(res);
     }
 
     @PutMapping
     public ResponseEntity<Object> putGroupName(
-            @RequestBody @Valid GroupNameReq req, @RequestHeader(value = "userId") Long userId
+            @RequestBody @Valid GroupNameReq req,
+            @Login UserCheck userCheck
     ) {
 
-        Boolean res = groupService.updateGroupName(req, userId);
+        Boolean res = groupService.updateGroupName(req, userCheck.getUserId());
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteGroup(
-            @PathVariable("id") Long groupId, @RequestHeader(value = "userId") Long userId) {
+            @PathVariable("id") Long groupId,
+            @Login UserCheck userCheck
+    ) {
 
-        groupService.deleteGroup(groupId, userId);
+        groupService.deleteGroup(groupId, userCheck.getUserId());
 
         return ResponseHandler.generateNoContentResponse();
     }
 
     @PutMapping("/order")
     public ResponseEntity<Object> putDocumentOrder(
-            @RequestHeader(value = "userid") Long userId, @RequestBody @Valid List<GroupOrderReq> req) {
+            @RequestBody @Valid List<GroupOrderReq> req,
+            @Login UserCheck userCheck
+    ) {
 
-        boolean res = groupService.updateDocumentsOrder(req, userId);
+        boolean res = groupService.updateDocumentsOrder(req);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 }

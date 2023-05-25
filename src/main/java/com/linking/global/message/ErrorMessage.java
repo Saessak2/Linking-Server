@@ -15,5 +15,6 @@ public class ErrorMessage {
     public static final String NO_BLOCK = "no such block";
     public static final String NO_ANNOTATION = "no such annotation";
     public static final String NO_PAGE_CHECK = "no such page check";
+    public static final String DO_NOT_MATCH_PW = "do not match password";
 
 }

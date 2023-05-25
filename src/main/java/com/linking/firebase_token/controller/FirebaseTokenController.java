@@ -2,6 +2,8 @@ package com.linking.firebase_token.controller;
 
 import com.linking.firebase_token.dto.TokenReq;
 import com.linking.firebase_token.service.FirebaseTokenService;
+import com.linking.global.auth.Login;
+import com.linking.global.auth.UserCheck;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +25,19 @@ public class FirebaseTokenController {
 
     // TODO app token 요청
     @PutMapping("/app")
-    public ResponseEntity putAppFcmToken(@RequestBody @Valid TokenReq req) {
-
+    public ResponseEntity putAppFcmToken(
+            @RequestBody @Valid TokenReq req,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(firebaseTokenService.updateAppToken(req));
-
     }
 
     // TODO web token 요청
     @PutMapping("/web")
-    public ResponseEntity putWebFcmToken(@RequestBody @Valid TokenReq req) {
-
+    public ResponseEntity putWebFcmToken(
+            @RequestBody @Valid TokenReq req,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(firebaseTokenService.updateWebToken(req));
     }
 }

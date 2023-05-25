@@ -1,8 +1,8 @@
 package com.linking.annotation.persistence;
 
 import com.linking.annotation.domain.Annotation;
-import com.linking.annotation.dto.AnnotationCreateReq;
 import com.linking.annotation.dto.AnnotationRes;
+import com.linking.annotation.dto.AnnotationCreateReq;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

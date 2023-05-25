@@ -1,12 +1,12 @@
 package com.linking.participant.service;
 
-import com.linking.page_check.service.PageCheckService;
-import com.linking.participant.dto.ParticipantSimplifiedRes;
-import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantIdReq;
-import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.dto.ParticipantRes;
+import com.linking.participant.dto.ParticipantSimplifiedRes;
+import com.linking.page_check.service.PageCheckService;
+import com.linking.participant.persistence.ParticipantRepository;
+import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.persistence.ParticipantMapper;
 import com.linking.project.domain.Project;
 import com.linking.project.dto.ProjectUpdateReq;

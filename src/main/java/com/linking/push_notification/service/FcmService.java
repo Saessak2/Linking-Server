@@ -18,7 +18,6 @@ public class FcmService {
         Notification notification = Notification.builder()
                 .setTitle(req.getTitle()) // title
                 .setBody(req.getBody())   // body
-                .setImage("") // todo image 넣기 // image
                 .build();
 
         WebpushConfig webpushConfig = WebpushConfig.builder()
@@ -32,7 +31,6 @@ public class FcmService {
                         .putCustomData("link", req.getLink())
                         .build())
                 .putHeader("apns-priority", "5")
-//                .setFcmOptions(ApnsFcmOptions.builder().setImage("").build())
                 .build();
 
 

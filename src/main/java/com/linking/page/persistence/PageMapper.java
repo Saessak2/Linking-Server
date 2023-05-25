@@ -1,9 +1,12 @@
 package com.linking.page.persistence;
 
 import com.linking.block.dto.BlockDetailRes;
-import com.linking.page.domain.Page;
-import com.linking.page.dto.*;
+import com.linking.page.dto.BlankPageDetailRes;
+import com.linking.page.dto.BlockPageDetailRes;
+import com.linking.page.dto.PageCreateReq;
+import com.linking.page.dto.PageRes;
 import com.linking.page_check.dto.PageCheckRes;
+import com.linking.page.domain.Page;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

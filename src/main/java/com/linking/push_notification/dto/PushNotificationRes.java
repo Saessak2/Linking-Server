@@ -23,7 +23,6 @@ public class PushNotificationRes {
     private NoticeType noticeType; // TODO / PAGE
     @NotNull
     private boolean isChecked;
-
     private Long targetId; // pageId
     private Long assistantId; // groupId
 }

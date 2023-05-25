@@ -1,6 +1,8 @@
 package com.linking.push_settings.controller;
 
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
+import com.linking.global.auth.UserCheck;
 import com.linking.push_settings.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.service.PushSettingsService;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +21,34 @@ public class PushSettingsController {
     private final PushSettingsService pushSettingsService;
 
     @PutMapping("/app")
-    public ResponseEntity putAppPushSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
-
+    public ResponseEntity putAppPushSettings(
+            @RequestBody @Valid PushSettingsUpdateReq req,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(pushSettingsService.updateAppSettings(req));
     }
 
     @PutMapping("/web")
-    public ResponseEntity putWebPushSettings(@RequestBody @Valid PushSettingsUpdateReq req) {
-
+    public ResponseEntity putWebPushSettings(
+            @RequestBody @Valid PushSettingsUpdateReq req,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(pushSettingsService.updateWebSettings(req));
     }
 
     @GetMapping("/app/{userId}")
-    public ResponseEntity getAppPushSettings(@PathVariable Long userId) {
-
+    public ResponseEntity getAppPushSettings(
+            @PathVariable Long userId,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(pushSettingsService.findAppPushSettingByUser(userId));
     }
 
     @GetMapping("/web/{userId}")
-    public ResponseEntity getWebPushSettings(@PathVariable Long userId) {
-
+    public ResponseEntity getWebPushSettings(
+            @PathVariable Long userId,
+            @Login UserCheck userCheck
+    ) {
         return ResponseHandler.generateOkResponse(pushSettingsService.findWebPushSettingByUser(userId));
     }
 }

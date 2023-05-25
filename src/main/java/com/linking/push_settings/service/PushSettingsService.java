@@ -1,18 +1,17 @@
 package com.linking.push_settings.service;
 
-import com.linking.push_settings.domain.PushSettings;
 import com.linking.push_settings.dto.PushSettingRes;
 import com.linking.push_settings.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.persistence.PushSettingsRepository;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
+import com.linking.push_settings.domain.PushSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,6 +41,7 @@ public class PushSettingsService {
 
     @Transactional
     public boolean updateWebSettings(PushSettingsUpdateReq req) {
+
         PushSettings pushSettings = pushSettingsRepository.findByUserId(req.getUserId())
                 .orElseThrow(NoSuchElementException::new);
         pushSettings.setWepSettings(req.isAllowedWebAppPush(), req.isAllowedMail()); // 웹 푸시 설정

@@ -20,7 +20,7 @@ public interface PageCheckMapper {
         if (source.getLastChecked() == null)
             builder
                     .isChecked(false)
-                    .lastChecked("00-00-00 AM 00:00");
+                    .lastChecked("00-01-01 AM 00:00");
         else
             builder
                     .isChecked(true)
@@ -37,7 +37,7 @@ public interface PageCheckMapper {
         if (source.getLastChecked() == null)
             builder
                     .isChecked(false)
-                    .lastChecked("00-00-00 AM 00:00");
+                    .lastChecked("00-01-01 AM 00:00");
         else
             builder
                     .isChecked(true)

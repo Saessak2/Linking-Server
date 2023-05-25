@@ -30,8 +30,14 @@ public class ControllerAdvice {
         return ResponseHandler.generateResponse(exception.getHeaderName() + " is missing", HttpStatus.BAD_REQUEST, null);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity badRequestException(BadRequestException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Object> noSuchElementException(NoSuchElementException exception) {
+
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
     }
 
