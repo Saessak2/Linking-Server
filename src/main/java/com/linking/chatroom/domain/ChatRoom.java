@@ -2,10 +2,8 @@ package com.linking.chatroom.domain;
 
 import com.linking.project.domain.Project;
 import lombok.*;
-import org.springframework.web.socket.WebSocketSession;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Builder

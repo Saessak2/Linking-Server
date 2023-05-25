@@ -5,12 +5,11 @@ import com.linking.chatroom.domain.ChattingSession;
 import com.linking.chatroom.repository.ChatRoomRepository;
 import com.linking.chatroom.service.ChatRoomManagerService;
 import com.linking.chatroom.domain.ChatRoom;
-import com.linking.chatroom.repository.ChatRoomMapper;
-import com.linking.chatroom.service.ChatRoomService;
 import com.linking.chat.dto.ChatReq;
 import com.linking.chat.service.ChatService;
 import com.linking.global.exception.BadRequestException;
 import com.linking.project.domain.Project;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -35,12 +34,13 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
     private final String es = "-------------------------------------------------------------------------------------";
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session){
         log.info("[ CHATTING ] [ CONNECTED SESSION {} ] {}", session.getId(), es);
+        System.out.println(session);
     }
 
     @Override
-    public void handleMessage(@Nonnull WebSocketSession session, @Nonnull WebSocketMessage<?> webSocketMessage) throws Exception {
+    public void handleMessage(@Nonnull WebSocketSession session, WebSocketMessage<?> webSocketMessage) throws Exception {
         if(webSocketMessage instanceof TextMessage)
             handleTextMessage(session, (TextMessage) webSocketMessage);
         else if(webSocketMessage instanceof BinaryMessage)
@@ -59,7 +59,7 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
         switch(chatReq.getReqType()) {
             case register:
                 chatRoomManagerService.registerChattingSession(chatReq.getProjectId(), chatRoom,
-                        new ChattingSession(chatReq.getUserId(), chatReq.getProjectId(), false, session));
+                        new ChattingSession(new User(chatReq.getUserId()), chatReq.getProjectId(), false, session));
                 log.info("[ CHATROOM {}, USER {} ] REGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
                 break;
 
@@ -69,8 +69,7 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
                 break;
 
             case text:
-                chatRoomManagerService.publishMessage(chatReq.getProjectId(), chatRoom,
-                        new TextMessage(objectMapper.writeValueAsString(chatService.saveChat(chatRoom, chatReq))));
+                chatRoomManagerService.publishMessage(chatReq.getProjectId(), chatRoom, chatService.saveChat(chatRoom, chatReq));
                 log.info("[ CHATROOM {}, USER {} ] MESSAGE SENT {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
                 break;
 

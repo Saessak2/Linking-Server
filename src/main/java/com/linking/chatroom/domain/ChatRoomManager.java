@@ -1,5 +1,7 @@
 package com.linking.chatroom.domain;
 
+import com.linking.user.domain.User;
+import com.linking.chat.dto.ChatFocusingUserRes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -44,10 +46,17 @@ public class ChatRoomManager {
             }
     }
 
-    public List<Long> getFocusingUsers(){
-        return chattingSessionSet.stream()
-                .filter(ChattingSession::getIsFocusing)
-                .map(ChattingSession::getUserId).collect(Collectors.toList());
+    // 중복 제거
+    public List<ChatFocusingUserRes> getFocusingUsers(){
+        List<ChattingSession> userList =  chattingSessionSet.stream()
+                .filter(ChattingSession::getIsFocusing).collect(Collectors.toList());
+        List<User> userSet = userList.stream().map(m -> m.getUser()).collect(Collectors.toList());
+        Set<User> set = new HashSet<>(userSet);
+        List<ChatFocusingUserRes> usres = new ArrayList<>();
+        for(User user : set){
+            usres.add(new ChatFocusingUserRes(user.getUserId(), user.getFullName()));
+        }
+        return usres;
     }
 
     public void setChattingSessionFocusState(WebSocketSession session, boolean isFocusing){
