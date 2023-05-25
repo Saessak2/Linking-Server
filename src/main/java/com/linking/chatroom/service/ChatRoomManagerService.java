@@ -7,6 +7,7 @@ import com.linking.chat_join.persistence.ChatJoinRepository;
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.chatroom.domain.ChatRoomManager;
 import com.linking.chatroom.domain.ChattingSession;
+import com.linking.chatroom_badge.domain.ChatRoomBadge;
 import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
 import com.linking.participant.domain.Participant;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,18 @@ public class ChatRoomManagerService {
         if(!isExist)
             chatRoomManagers.add(chatRoomManager);
         chatRoomManager.getChattingSessionList().add(chattingSession);
+
+        ChatRoomBadge chatRoomBadge = chatRoomBadgeRepository.findChatRoomBadgeByParticipant(chattingSession.getParticipant()).orElseThrow(NoSuchElementException::new);
+        Map<String, Object> map = new HashMap<>();
+        map.put("resType", "badgeAlarm");
+        map.put("data", chatRoomBadge.getUnreadCount());
+
+        try {
+            if(chattingSession.getWebSocketSession().isOpen())
+                chattingSession.getWebSocketSession().sendMessage(new TextMessage(objectMapper.writeValueAsString(map)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void changeChattingSessionFocusState(Long projectId, ChatRoom chatRoom, WebSocketSession session, boolean isFocusing) throws JsonProcessingException {
@@ -52,7 +65,7 @@ public class ChatRoomManagerService {
             }
         }
         System.out.println(session.getId());
-        chatRoomManager.setChattingSessionFocusState(session, isFocusing);
+        chatRoomManager.setChattingSessionFocusState(objectMapper, chatRoomBadgeRepository, session, isFocusing);
         publishFocusingUserList(chatRoomManager);
     }
 
@@ -68,7 +81,7 @@ public class ChatRoomManagerService {
             }
         }
         List<Participant> partList = chatJoinRepository.findByChatroom(chatRoom);
-        chatRoomManager.sendTextMessageToSessions(chatRoomBadgeRepository, partList, new TextMessage(objectMapper.writeValueAsString(resMap)));
+        chatRoomManager.sendTextMessageToSessions(objectMapper, chatRoomBadgeRepository, partList, new TextMessage(objectMapper.writeValueAsString(resMap)));
     }
 
 

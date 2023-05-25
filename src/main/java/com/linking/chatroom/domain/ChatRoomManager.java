@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,29 +44,31 @@ public class ChatRoomManager {
         });
     }
 
-    public void sendTextMessageToSessions(ChatRoomBadgeRepository chatRoomBadgeRepository, List<Participant> participantList, TextMessage textMessage) throws RuntimeException {
+    public void sendTextMessageToSessions(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, List<Participant> participantList, TextMessage textMessage) throws RuntimeException {
         List<ChattingSession> notFocusing = chattingSessionList.stream().filter(c -> !c.getIsFocusing() && c.getWebSocketSession().isOpen() ).collect(Collectors.toList());
         List<Participant> unregpartList = new ArrayList<>();
-        List<Participant> userList = chattingSessionList.stream().map(m -> m.getParticipant()).collect(Collectors.toList());
 
         List<Participant> pL = notFocusing.stream().map(p->p.getParticipant()).collect(Collectors.toList());;
         List<ChatRoomBadge> chatRoomBadges = chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(unregpartList);
         chatRoomBadges.addAll(chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(pL));
 
-        for(ChatRoomBadge cd : chatRoomBadges)
+        for(ChatRoomBadge cd : chatRoomBadges) {
             cd.plusCount();
+            chatRoomBadgeRepository.save(cd);
+        }
 
-        notFocusing.forEach(cs -> {
+        for(ChattingSession cs: notFocusing) {
             try {
-                cs.getWebSocketSession().sendMessage(new TextMessage(String.valueOf(
-                        chatRoomBadges.stream().findAny()
-                                .filter(c -> c.getParticipant().equals(cs.getParticipant())).get().getUnreadCount()))
-                );
+                int num =  chatRoomBadges.stream().findAny()
+                        .filter(c -> c.getParticipant().getParticipantId().equals(cs.getParticipant().getParticipantId())).get().getUnreadCount();
+                Map<String, Object> map = new HashMap<>();
+                map.put("resType", "badgeAlarm");
+                map.put("data", num);
+                cs.getWebSocketSession().sendMessage(new TextMessage(objectMapper.writeValueAsString(map)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });
-
+        }
 
         chattingSessionList.forEach(cs -> {
             try {
@@ -97,13 +100,19 @@ public class ChatRoomManager {
         return usres;
     }
 
-    public void setChattingSessionFocusState(WebSocketSession session, boolean isFocusing){
+    public void setChattingSessionFocusState(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, WebSocketSession session, boolean isFocusing){
         for(ChattingSession cs : chattingSessionList){
             if(cs.getWebSocketSession().getId().equals(session.getId())) {
                 cs.setIsFocusing(isFocusing);
-                break;
+                if(isFocusing) {
+                    ChatRoomBadge chatRoomBadge = chatRoomBadgeRepository.findChatRoomBadgeByParticipant(cs.getParticipant()).orElseThrow(NoSuchElementException::new);
+                    chatRoomBadge.resetCnt();
+                    chatRoomBadgeRepository.save(chatRoomBadge);
+                }
             }
+                break;
         }
+
     }
 
 }
