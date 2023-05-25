@@ -4,9 +4,7 @@ import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
-import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.UserCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,20 +22,20 @@ public class BlockController {
     @PostMapping
     public ResponseEntity<Object> postBlock(
             @RequestBody @Valid BlockCreateReq req,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
-        BlockRes blockRes = blockService.createBlock(req, userCheck.getUserId());
+        BlockRes blockRes = blockService.createBlock(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes.getBlockId());
     }
 
     @PutMapping("/order")
     public ResponseEntity<Object> putBlockOrder(
             @RequestBody @Valid BlockOrderReq req,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
-        boolean res = blockService.updateBlockOrder(req, userCheck.getUserId());
+        boolean res = blockService.updateBlockOrder(req, userId);
         return ResponseHandler.generateOkResponse(res);
     }
 
@@ -45,10 +43,10 @@ public class BlockController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBlock(
             @PathVariable("id") Long blockId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
-        blockService.deleteBlock(blockId, userCheck.getUserId());
+        blockService.deleteBlock(blockId, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
     }
 }

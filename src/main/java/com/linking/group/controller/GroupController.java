@@ -4,10 +4,6 @@ import com.linking.global.common.ResponseHandler;
 import com.linking.global.sse.GroupSseHandler;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
-import com.linking.global.auth.Login;
-import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.UserCheck;
-import com.linking.group.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,18 +28,18 @@ public class GroupController {
     @GetMapping("/list")
     public ResponseEntity<List<GroupRes>> getGroups(
             @RequestParam("projectId") Long projectId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ){
-        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userCheck.getUserId());
+        List<GroupRes> allGroups = groupService.findAllGroups(projectId, userId);
         return ResponseHandler.generateOkResponse(allGroups);
     }
 
     @GetMapping(path = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribeGroup(
             @RequestParam("projectId") Long projectId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ){
-        SseEmitter sseEmitter = groupSseHandler.connect(projectId, userCheck.getUserId());
+        SseEmitter sseEmitter = groupSseHandler.connect(projectId, userId);
         try {
             sseEmitter.send(SseEmitter.event().name("connect").data("connected!"));
         } catch (IOException e) {
@@ -55,29 +51,29 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<Object> postGroup(
             @RequestBody @Valid GroupCreateReq req,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ){
-        GroupRes res = groupService.createGroup(req, userCheck.getUserId());
+        GroupRes res = groupService.createGroup(req, userId);
         return ResponseHandler.generateCreatedResponse(res);
     }
 
     @PutMapping
     public ResponseEntity<Object> putGroupName(
             @RequestBody @Valid GroupNameReq req,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
-        Boolean res = groupService.updateGroupName(req, userCheck.getUserId());
+        Boolean res = groupService.updateGroupName(req, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteGroup(
             @PathVariable("id") Long groupId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
-        groupService.deleteGroup(groupId, userCheck.getUserId());
+        groupService.deleteGroup(groupId, userId);
 
         return ResponseHandler.generateNoContentResponse();
     }
@@ -85,7 +81,7 @@ public class GroupController {
     @PutMapping("/order")
     public ResponseEntity<Object> putDocumentOrder(
             @RequestBody @Valid List<GroupOrderReq> req,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
 
         boolean res = groupService.updateDocumentsOrder(req);

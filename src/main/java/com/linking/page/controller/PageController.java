@@ -2,9 +2,7 @@ package com.linking.page.controller;
 
 import com.linking.page.service.PageService;
 import com.linking.page_check.service.PageCheckService;
-import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.auth.UserCheck;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
@@ -33,10 +31,10 @@ public class PageController extends TextWebSocketHandler {
     public ResponseEntity<PageDetailedRes> getPage(
             @RequestHeader(value = "projectId") Long projectId,
             @PathVariable("id") Long pageId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
         log.info("getPage - async test" + Thread.currentThread());
-        pageCheckService.updatePageChecked(pageId, projectId, userCheck.getUserId(), "enter");
+        pageCheckService.updatePageChecked(pageId, projectId, userId, "enter");
         PageDetailedRes res = pageService.getPage(pageId, pageSseHandler.enteringUserIds(pageId));
         return ResponseHandler.generateOkResponse(res);
     }
@@ -44,17 +42,17 @@ public class PageController extends TextWebSocketHandler {
     @GetMapping("/subscribe/{id}")
     public ResponseEntity<SseEmitter> subscribePage(
             @PathVariable("id") Long pageId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
         log.info("subscribe Page - async test" + Thread.currentThread());
 
-        SseEmitter sseEmitter = pageSseHandler.connect(pageId, userCheck.getUserId());
+        SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
         try {
             sseEmitter.send(SseEmitter.event()
                     .name("connect")
                     .data("connected!")
             );
-            log.info("** send connect event userID = {}", userCheck.getUserId());
+            log.info("** send connect event userID = {}", userId);
         } catch (IOException e) {
             log.error("cannot send event");
         }
@@ -64,18 +62,18 @@ public class PageController extends TextWebSocketHandler {
     @PostMapping
     public ResponseEntity<Object> postPage(
             @RequestBody @Valid PageCreateReq pageCreateReq,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
-        PageRes res = pageService.createPage(pageCreateReq, userCheck.getUserId());
+        PageRes res = pageService.createPage(pageCreateReq, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, res);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletePage(
             @PathVariable("id") Long pageId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
-        pageService.deletePage(pageId, userCheck.getUserId());
+        pageService.deletePage(pageId, userId);
         pageSseHandler.removeEmittersByPage(pageId);
         return ResponseHandler.generateNoContentResponse();
     }
@@ -84,10 +82,10 @@ public class PageController extends TextWebSocketHandler {
     public void unsubscribePage(
             @RequestHeader(value = "projectId") Long projectId,
             @PathVariable("id") Long pageId,
-            @Login UserCheck userCheck
+            @RequestHeader Long userId
     ) {
-        pageSseHandler.onClose(userCheck.getUserId(), pageId);
-        pageCheckService.updatePageChecked(pageId, projectId, userCheck.getUserId(), "leave");
+        pageSseHandler.onClose(userId, pageId);
+        pageCheckService.updatePageChecked(pageId, projectId, userId, "leave");
     }
 }
 

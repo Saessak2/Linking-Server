@@ -11,7 +11,6 @@ import java.util.TimeZone;
 
 @Slf4j
 @SpringBootApplication
-//@EnableJpaRepositories(basePackages = {"com.linking.annotation.persistence", "com.linking.block.persistence"})
 public class LinkingApplication {
 
 	public static void main(String[] args) {
