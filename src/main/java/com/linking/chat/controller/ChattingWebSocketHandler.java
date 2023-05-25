@@ -8,6 +8,8 @@ import com.linking.chatroom.domain.ChatRoom;
 import com.linking.chat.dto.ChatReq;
 import com.linking.chat.service.ChatService;
 import com.linking.global.exception.BadRequestException;
+import com.linking.participant.domain.Participant;
+import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
     private final ChatService chatService;
     private final ChatRoomManagerService chatRoomManagerService;
     private final ChatRoomRepository chatRoomRepository;
+
+    private final ParticipantRepository participantRepository;
 
     private final String es = "-------------------------------------------------------------------------------------";
 
@@ -55,11 +59,12 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(new Project(chatReq.getProjectId()))
                 .orElseThrow(NoSuchElementException::new);
         log.info("[ CHATROOM {}, USER {} ] [ MESSAGE {}#{} ] RECEIVED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), chatReq.getSentDatetime(), chatReq.getContent(), es);
+        Participant participant = participantRepository.findByUserAndProjectId(chatReq.getUserId(), chatReq.getProjectId()).orElseThrow(NoSuchElementException::new);
 
         switch(chatReq.getReqType()) {
             case register:
                 chatRoomManagerService.registerChattingSession(chatReq.getProjectId(), chatRoom,
-                        new ChattingSession(new User(chatReq.getUserId()), chatReq.getProjectId(), false, session));
+                        new ChattingSession(chatReq.getProjectId(), participant, false, session));
                 log.info("[ CHATROOM {}, USER {} ] REGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
                 break;
 

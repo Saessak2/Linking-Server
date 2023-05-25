@@ -3,9 +3,12 @@ package com.linking.chatroom.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.chat.dto.ChatRes;
+import com.linking.chat_join.persistence.ChatJoinRepository;
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.chatroom.domain.ChatRoomManager;
 import com.linking.chatroom.domain.ChattingSession;
+import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
+import com.linking.participant.domain.Participant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
@@ -21,6 +24,9 @@ public class ChatRoomManagerService {
     private final List<ChatRoomManager> chatRoomManagers = new ArrayList<>();
     private final ObjectMapper objectMapper;
 
+    private final ChatJoinRepository chatJoinRepository;
+    private final ChatRoomBadgeRepository chatRoomBadgeRepository;
+
     public void registerChattingSession(Long projectId, ChatRoom chatRoom, ChattingSession chattingSession) {
         boolean isExist = false;
         ChatRoomManager chatRoomManager = new ChatRoomManager(projectId, chatRoom);
@@ -34,7 +40,7 @@ public class ChatRoomManagerService {
         }
         if(!isExist)
             chatRoomManagers.add(chatRoomManager);
-        chatRoomManager.getChattingSessionSet().add(chattingSession);
+        chatRoomManager.getChattingSessionList().add(chattingSession);
     }
 
     public void changeChattingSessionFocusState(Long projectId, ChatRoom chatRoom, WebSocketSession session, boolean isFocusing) throws JsonProcessingException {
@@ -50,17 +56,6 @@ public class ChatRoomManagerService {
         publishFocusingUserList(chatRoomManager);
     }
 
-    public void publishMessage(Long projectId, ChatRoom chatRoom, TextMessage textMessage){
-        ChatRoomManager chatRoomManager = new ChatRoomManager(projectId, chatRoom);
-        for(ChatRoomManager crm : chatRoomManagers){
-            if(chatRoomManager.getProjectId().equals(projectId)){
-                chatRoomManager = crm;
-                break;
-            }
-        }
-        chatRoomManager.sendTextMessageToSessions(textMessage);
-    }
-
     public void publishMessage(Long projectId, ChatRoom chatRoom, ChatRes chatRes) throws JsonProcessingException {
         Map<String, Object> resMap = new HashMap<>();
         resMap.put("resType", "textMessage");
@@ -72,7 +67,8 @@ public class ChatRoomManagerService {
                 break;
             }
         }
-        chatRoomManager.sendTextMessageToSessions(new TextMessage(objectMapper.writeValueAsString(resMap)));
+        List<Participant> partList = chatJoinRepository.findByChatroom(chatRoom);
+        chatRoomManager.sendTextMessageToSessions(chatRoomBadgeRepository, partList, new TextMessage(objectMapper.writeValueAsString(resMap)));
     }
 
 
@@ -92,7 +88,7 @@ public class ChatRoomManagerService {
         Map<String, Object> resMap = new HashMap<>();
         resMap.put("resType", "userList");
         resMap.put("data", chatRoomManager.getFocusingUsers());
-        chatRoomManager.sendTextMessageToSessions(new TextMessage(objectMapper.writeValueAsString(resMap)));
+        chatRoomManager.sendFocusingUsers(new TextMessage(objectMapper.writeValueAsString(resMap)));
     }
 
 }
