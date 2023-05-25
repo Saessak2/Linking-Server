@@ -3,7 +3,6 @@ package com.linking.user.service;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
-import com.linking.domain.user.dto.*;
 import com.linking.user.dto.*;
 import com.linking.user.persistence.UserMapper;
 import com.linking.user.persistence.UserRepository;

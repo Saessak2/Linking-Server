@@ -3,7 +3,6 @@ package com.linking.block.service;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
-import com.linking.domain.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;

@@ -7,7 +7,6 @@ import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
-import com.linking.domain.todo.dto.*;
 import com.linking.user.domain.User;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.*;
