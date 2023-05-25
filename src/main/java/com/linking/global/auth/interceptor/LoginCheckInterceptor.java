@@ -17,8 +17,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         String requestURI = request.getRequestURI();
         log.info("LoginCheckInterceptor => {}", requestURI);
-        if (requestURI.equals("/auth/login"))
-            return true;
 
         HttpSession session = request.getSession(false);
 
