@@ -2,8 +2,8 @@ package com.linking.firebase_token.controller;
 
 import com.linking.firebase_token.dto.TokenReq;
 import com.linking.firebase_token.service.FirebaseTokenService;
-import com.linking.global.common.Login;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.Login;
+import com.linking.global.auth.UserCheck;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

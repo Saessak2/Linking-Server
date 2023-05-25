@@ -1,4 +1,4 @@
-package com.linking.global.common;
+package com.linking.global.auth;
 
 import lombok.*;
 

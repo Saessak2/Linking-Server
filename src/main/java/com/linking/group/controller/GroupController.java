@@ -2,9 +2,9 @@ package com.linking.group.controller;
 
 import com.linking.domain.group.dto.*;
 import com.linking.group.service.GroupService;
-import com.linking.global.common.Login;
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.UserCheck;
 import com.linking.group.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

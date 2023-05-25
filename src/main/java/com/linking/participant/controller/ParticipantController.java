@@ -2,9 +2,9 @@ package com.linking.participant.controller;
 
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantSimplifiedRes;
-import com.linking.global.common.Login;
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.UserCheck;
 import com.linking.participant.dto.ParticipantDeleteReq;
 import com.linking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;

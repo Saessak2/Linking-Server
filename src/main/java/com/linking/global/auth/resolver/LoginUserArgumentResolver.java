@@ -1,8 +1,8 @@
 package com.linking.global.auth.resolver;
 
-import com.linking.global.common.Login;
-import com.linking.global.common.SessionConst;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.Login;
+import com.linking.global.auth.SessionConst;
+import com.linking.global.auth.UserCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;

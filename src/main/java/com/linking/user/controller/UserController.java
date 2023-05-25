@@ -1,8 +1,8 @@
 package com.linking.user.controller;
 
-import com.linking.global.common.Login;
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.UserCheck;
 import com.linking.user.dto.UserEmailReq;
 import com.linking.user.dto.UserEmailRes;
 import com.linking.user.service.UserService;

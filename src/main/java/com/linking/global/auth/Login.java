@@ -1,4 +1,4 @@
-package com.linking.global.common;
+package com.linking.global.auth;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

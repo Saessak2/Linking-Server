@@ -2,9 +2,9 @@ package com.linking.page.controller;
 
 import com.linking.page.service.PageService;
 import com.linking.page_check.service.PageCheckService;
-import com.linking.global.common.Login;
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.UserCheck;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;

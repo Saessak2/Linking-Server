@@ -1,8 +1,8 @@
 package com.linking.push_settings.controller;
 
-import com.linking.global.common.Login;
+import com.linking.global.auth.Login;
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.common.UserCheck;
+import com.linking.global.auth.UserCheck;
 import com.linking.push_settings.dto.PushSettingsUpdateReq;
 import com.linking.push_settings.service.PushSettingsService;
 import lombok.RequiredArgsConstructor;
