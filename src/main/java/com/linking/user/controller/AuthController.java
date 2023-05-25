@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -62,6 +64,7 @@ public class AuthController {
             HttpSession session,
             @RequestBody @Valid UserSignInReq req
     ) {
+
         log.info("login controller 호출");
         UserDetailedRes res = userService.getUserWithEmailAndPw(req);
         session.setAttribute(SessionConst.LOGIN_USER, new UserCheck(res.getUserId()));
