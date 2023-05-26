@@ -1,7 +1,7 @@
 package com.linking.project.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.sse.GroupSseHandler;
+import com.linking.sse.ssehandler.GroupSseHandler;
 import com.linking.participant.service.ParticipantService;
 import com.linking.project.dto.ProjectContainsPartsRes;
 import com.linking.project.dto.ProjectUpdateReq;

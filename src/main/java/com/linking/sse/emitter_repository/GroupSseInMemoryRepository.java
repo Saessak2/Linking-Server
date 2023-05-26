@@ -1,7 +1,6 @@
-package com.linking.global.sse;
+package com.linking.sse.emitter_repository;
 
 import com.linking.global.common.CustomEmitter;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -11,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class GroupSseInMemoryRepository implements IGroupSseRepository{
+public class GroupSseInMemoryRepository implements IGroupSseRepository {
 
     private final Map<Long, Set<CustomEmitter>> groupSubscriber = new ConcurrentHashMap<>();
 

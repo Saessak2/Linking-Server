@@ -1,6 +1,8 @@
-package com.linking.global.sse;
+package com.linking.sse.ssehandler;
 
 import com.linking.global.common.CustomEmitter;
+import com.linking.sse.event.GroupEvent;
+import com.linking.sse.emitter_repository.IGroupSseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -10,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component

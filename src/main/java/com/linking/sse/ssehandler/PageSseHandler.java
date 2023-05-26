@@ -1,4 +1,4 @@
-package com.linking.page.controller;
+package com.linking.sse.ssehandler;
 
 import com.linking.global.common.CustomEmitter;
 import lombok.extern.slf4j.Slf4j;

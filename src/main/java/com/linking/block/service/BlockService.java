@@ -5,7 +5,7 @@ import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.BadRequestException;
-import com.linking.page.controller.PageEventHandler;
+import com.linking.sse.ssehandler.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service

@@ -1,4 +1,4 @@
-package com.linking.page.controller;
+package com.linking.sse.ssehandler;
 
 import com.linking.block.dto.BlockEventRes;
 import com.linking.annotation.dto.AnnotationIdRes;
@@ -6,6 +6,7 @@ import com.linking.annotation.dto.AnnotationRes;
 import com.linking.annotation.dto.AnnotationUpdateRes;
 import com.linking.block.dto.BlockIdRes;
 import com.linking.page_check.dto.PageCheckUpdateRes;
+import com.linking.sse.ssehandler.PageSseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

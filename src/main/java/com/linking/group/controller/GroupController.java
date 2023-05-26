@@ -1,7 +1,7 @@
 package com.linking.group.controller;
 
 import com.linking.global.common.ResponseHandler;
-import com.linking.global.sse.GroupSseHandler;
+import com.linking.sse.ssehandler.GroupSseHandler;
 import com.linking.group.dto.*;
 import com.linking.group.service.GroupService;
 import lombok.RequiredArgsConstructor;

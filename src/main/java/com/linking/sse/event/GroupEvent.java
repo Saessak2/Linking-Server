@@ -1,4 +1,4 @@
-package com.linking.global.sse;
+package com.linking.sse.event;
 
 import lombok.*;
 

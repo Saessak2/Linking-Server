@@ -8,7 +8,7 @@ import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
-import com.linking.page.controller.PageEventHandler;
+import com.linking.sse.ssehandler.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page_check.domain.PageCheck;
 import lombok.RequiredArgsConstructor;

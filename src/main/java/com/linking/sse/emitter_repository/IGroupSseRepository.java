@@ -1,4 +1,4 @@
-package com.linking.global.sse;
+package com.linking.sse.emitter_repository;
 
 import com.linking.global.common.CustomEmitter;
 

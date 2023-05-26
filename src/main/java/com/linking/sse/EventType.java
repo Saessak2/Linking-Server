@@ -1,7 +1,8 @@
-package com.linking.global.sse;
+package com.linking.sse;
 
 public interface EventType {
 
+    // 그룹 리스트 sse
     String POST_GROUP = "postGroup";
     String PUT_GROUP_NAME = "putGroupName";
     String DELETE_GROUP = "deleteGroup";
