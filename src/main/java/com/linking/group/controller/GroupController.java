@@ -87,4 +87,12 @@ public class GroupController {
         boolean res = groupService.updateDocumentsOrder(req);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
     }
+
+    @GetMapping("/blockpages/{projectId}")
+    public ResponseEntity findBlockPages(
+            @PathVariable Long projectId
+    ) {
+        List<GroupRes> res = groupService.getBlockPages(projectId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, res);
+    }
 }
