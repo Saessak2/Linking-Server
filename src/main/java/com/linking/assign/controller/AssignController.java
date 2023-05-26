@@ -7,6 +7,7 @@ import com.linking.assign.dto.AssignStatusUpdateReq;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -30,6 +31,12 @@ public class AssignController {
         if(assignRes.isEmpty())
             return ResponseHandler.generateOkResponse(false);
         return ResponseHandler.generateOkResponse(true);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @PostMapping("/assigns/status/reset")
+    public void resetAssignStatus(){
+        assignService.setAssignStatus();
     }
 
     @PostMapping
