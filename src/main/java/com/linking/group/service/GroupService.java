@@ -187,9 +187,11 @@ public class GroupService {
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();
 
+            boolean flag = false;
             if (!pageList.isEmpty()) {
                 for (Page page : pageList) {
                     if (page.getTemplate() == Template.BLOCK) {
+                        flag = true;
                         pageResList.add(
                                 PageRes.builder()
                                         .pageId(page.getId())
@@ -197,13 +199,14 @@ public class GroupService {
                                         .build());
                     }
                 }
+                if (flag) {
+                    groupResList.add(GroupRes.builder()
+                            .groupId(group.getId())
+                            .name(group.getName())
+                            .pageResList(pageResList)
+                            .build());
+                }
             }
-            groupResList.add(GroupRes.builder()
-                    .groupId(group.getId())
-                    .name(group.getName())
-                    .pageResList(pageResList)
-                    .build());
-
         }
         return groupResList;
     }
