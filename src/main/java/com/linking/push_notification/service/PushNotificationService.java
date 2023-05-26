@@ -54,8 +54,14 @@ public class PushNotificationService {
                     .isChecked(not.isChecked());
             if (not.getTargetId() != null) {
                 builder
-                        .targetId(not.getTargetId())
-                        .assistantId(pageRepository.getGroupIdByPageId(not.getTargetId()));
+                        .targetId(not.getTargetId());
+                Long groupId = pageRepository.getGroupIdByPageId(not.getTargetId());
+                builder
+                        .assistantId(groupId);
+                if (groupId == null) {
+                    builder
+                            .assistantId(-1L);
+                }
             } else {
                 builder
                         .targetId(-1L)
