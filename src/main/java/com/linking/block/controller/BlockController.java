@@ -1,5 +1,6 @@
 package com.linking.block.controller;
 
+import com.linking.block.dto.BlockCloneReq;
 import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockOrderReq;
 import com.linking.block.dto.BlockRes;
@@ -48,5 +49,14 @@ public class BlockController {
 
         blockService.deleteBlock(blockId, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_204, HttpStatus.NO_CONTENT, null);
+    }
+
+    @PostMapping("/clone")
+    public ResponseEntity cloneBlock(
+            @RequestBody BlockCloneReq blockCloneReq,
+            @RequestHeader Long userId
+    ) {
+        Long blockId = blockService.cloneBlock(userId, blockCloneReq);
+        return ResponseHandler.generateOkResponse(blockId);
     }
 }

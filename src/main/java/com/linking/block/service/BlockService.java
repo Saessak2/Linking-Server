@@ -4,6 +4,7 @@ import com.linking.block.persistence.BlockMapper;
 import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
+import com.linking.global.exception.BadRequestException;
 import com.linking.page.controller.PageEventHandler;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +85,41 @@ public class BlockService {
         for (Block b : blockList) b.updateOrder(order++);
 
         pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
+    }
+
+    public Long cloneBlock(Long userId, BlockCloneReq blockCloneReq) {
+
+        if (blockCloneReq.getCloneType().equals("THIS")) {
+
+
+        } else if (blockCloneReq.getCloneType().equals("OTHER")) {
+
+        } else {
+            throw new BadRequestException("cloneType does not match");
+        }
+        return null;
+    }
+
+    private Block saveClone(BlockCloneReq blockCloneReq) {
+
+        Page page = pageRepository.findById(blockCloneReq.getPageId())
+                .orElseThrow(NoSuchElementException::new);
+
+        int order = 0;
+        for (Block block : page.getBlockList()) {
+            if (order <= block.getBlockOrder())
+                order = block.getBlockOrder() + 1;
+        }
+
+        Block block = Block.builder()
+                .title(blockCloneReq.getTitle())
+                .content(blockCloneReq.getContent())
+                .blockOrder(order)
+                .build();
+        block.setPage(page);
+        blockRepository.save(block);
+
+        return block;
     }
 }
 
