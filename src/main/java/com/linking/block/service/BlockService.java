@@ -87,23 +87,28 @@ public class BlockService {
         pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
     }
 
+    @Transactional
     public Long cloneBlock(Long userId, BlockCloneReq blockCloneReq) {
 
         if (blockCloneReq.getCloneType().equals("THIS")) {
-
+            Block block = saveClone(blockCloneReq);
+            return block.getId();
 
         } else if (blockCloneReq.getCloneType().equals("OTHER")) {
+            Block block = saveClone(blockCloneReq);
+            return block.getId();
 
         } else {
             throw new BadRequestException("cloneType does not match");
         }
-        return null;
     }
 
     private Block saveClone(BlockCloneReq blockCloneReq) {
 
         Page page = pageRepository.findById(blockCloneReq.getPageId())
                 .orElseThrow(NoSuchElementException::new);
+        if (page.getTemplate() == Template.BLANK)
+            throw new BadRequestException("Blank page에는 블럭을 추가할 수 없습니다");
 
         int order = 0;
         for (Block block : page.getBlockList()) {
