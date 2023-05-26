@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "block")
 @Getter
+@Table(name = "block")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Block {
 
@@ -35,21 +35,17 @@ public class Block {
     @OrderBy("createdDatetime asc")
     private List<Annotation> annotationList;
 
-    @Builder
-    public Block(int blockOrder, String title, String content) {
-        this.blockOrder = blockOrder;
+    public Block(String title, String content, Page page) {
+        this.blockOrder = order();
         this.title = title;
         this.content = content;
+        if (title == null) title = "untitled";
+        if (content == null) content = "";
+        setPage(page);
+        this.annotationList = new ArrayList<>();
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.title = this.title == null ? "untitled" : this.title;
-        this.content = this.content == null ? "" : this.content;
-        this.annotationList = this.annotationList == null ? new ArrayList<>() : this.annotationList;
-    }
-
-    public void setPage(Page page) {
+    private void setPage(Page page) {
         if (this.page != null)
             this.page.getBlockList().remove(this);
         this.page = page;
@@ -60,5 +56,14 @@ public class Block {
 
     public void updateOrder(int order) {
         this.blockOrder = order;
+    }
+
+    private int order() {
+        int order = 0;
+        for (Block block : page.getBlockList()) {
+            if (order <= block.getBlockOrder())
+                order = block.getBlockOrder() + 1;
+        }
+        return order;
     }
 }

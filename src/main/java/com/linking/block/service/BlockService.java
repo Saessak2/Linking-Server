@@ -43,22 +43,7 @@ public class BlockService {
             throw new IllegalAccessException("cannot add block in Blank template");
         }
 
-        //todo block order 계산해서 넣기
-        List<Block> blockList = page.getBlockList();
-        int order = 0;
-        if (!blockList.isEmpty()) {
-            for (Block block : blockList) {
-                if (order <= block.getBlockOrder()) {
-                    order = block.getBlockOrder() + 1;
-                }
-            }
-        }
-
-        Block block = Block.builder()
-                .title(req.getTitle())
-                .blockOrder(order)
-                .build();
-        block.setPage(page);
+        Block block = new Block(req.getTitle(), null, page);
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
         // 이벤트 전송
@@ -104,42 +89,24 @@ public class BlockService {
     @Transactional
     public Long cloneBlock(Long userId, BlockCloneReq blockCloneReq) {
 
-        if (blockCloneReq.getCloneType().equals("THIS")) {
-            Block block = saveClone(blockCloneReq);
-            return block.getId();
-
-        } else if (blockCloneReq.getCloneType().equals("OTHER")) {
-            Block block = saveClone(blockCloneReq);
-            return block.getId();
-
-        } else {
+        String cloneType = blockCloneReq.getCloneType();
+        if (!(cloneType.equals("THIS") || cloneType.equals("OTHER")))
             throw new BadRequestException("cloneType does not match");
-        }
-    }
-
-    private Block saveClone(BlockCloneReq blockCloneReq) {
 
         Page page = pageRepository.findById(blockCloneReq.getPageId())
                 .orElseThrow(NoSuchElementException::new);
         if (page.getTemplate() == Template.BLANK)
             throw new BadRequestException("Blank page에는 블럭을 추가할 수 없습니다");
 
-        int order = 0;
-        // todo blocklist null 체크
-        for (Block block : page.getBlockList()) {
-            if (order <= block.getBlockOrder())
-                order = block.getBlockOrder() + 1;
-        }
-
-        Block block = Block.builder()
-                .title(blockCloneReq.getTitle())
-                .content(blockCloneReq.getContent())
-                .blockOrder(order)
-                .build();
-        block.setPage(page);
+        Block block = new Block(blockCloneReq.getTitle(), blockCloneReq.getContent(), page);
         blockRepository.save(block);
 
-        return block;
+        switch (cloneType) {
+            case "THIS":
+            case "OTHER":
+
+        }
+
     }
 }
 
