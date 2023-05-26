@@ -1,9 +1,6 @@
 package com.linking.block.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class BlockCreateReq {
 
-    @NotNull
+    @Setter
     private int order;
 
     @NotNull

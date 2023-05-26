@@ -43,7 +43,21 @@ public class BlockService {
             throw new IllegalAccessException("cannot add block in Blank template");
         }
 
-        Block block = blockMapper.toEntity(req);
+        //todo block order 계산해서 넣기
+        List<Block> blockList = page.getBlockList();
+        int order = 0;
+        if (!blockList.isEmpty()) {
+            for (Block block : blockList) {
+                if (order <= block.getBlockOrder()) {
+                    order = block.getBlockOrder() + 1;
+                }
+            }
+        }
+
+        Block block = Block.builder()
+                .title(req.getTitle())
+                .blockOrder(order)
+                .build();
         block.setPage(page);
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
@@ -111,6 +125,7 @@ public class BlockService {
             throw new BadRequestException("Blank page에는 블럭을 추가할 수 없습니다");
 
         int order = 0;
+        // todo blocklist null 체크
         for (Block block : page.getBlockList()) {
             if (order <= block.getBlockOrder())
                 order = block.getBlockOrder() + 1;

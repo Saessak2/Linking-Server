@@ -17,15 +17,15 @@ import java.util.List;
 )
 public interface BlockMapper {
 
-    default Block toEntity(BlockCreateReq source) {
-
-        Block.BlockBuilder builder = Block.builder();
-        builder
-                .title(source.getTitle())
-                .blockOrder(source.getOrder());
-
-        return builder.build();
-    }
+//    default Block toEntity(BlockCreateReq source) {
+//
+//        Block.BlockBuilder builder = Block.builder();
+//        builder
+//                .title(source.getTitle())
+//                .blockOrder(source.getOrder());
+//
+//        return builder.build();
+//    }
 
     default BlockRes toDto(Block source) {
 
