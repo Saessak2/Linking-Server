@@ -20,11 +20,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class BlockService {
+
     private final PageEventHandler pageEventHandler;
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
@@ -96,7 +97,7 @@ public class BlockService {
         Page page = pageRepository.findById(blockCloneReq.getPageId())
                 .orElseThrow(NoSuchElementException::new);
         if (page.getTemplate() == Template.BLANK)
-            throw new BadRequestException("Blank page에는 블럭을 추가할 수 없습니다");
+            throw new BadRequestException("cannot add block in Blank Page");
 
         Block block = new Block(blockCloneReq.getTitle(), blockCloneReq.getContent(), page);
         blockRepository.save(block);
@@ -104,9 +105,8 @@ public class BlockService {
         switch (cloneType) {
             case "THIS":
             case "OTHER":
-
         }
-
+        return block.getId();
     }
 }
 
