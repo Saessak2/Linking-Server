@@ -20,4 +20,6 @@ public class BlockCreateReq {
     private Long pageId;
 
     private String title;
+
+    private String content;
 }

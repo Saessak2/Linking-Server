@@ -29,5 +29,4 @@ public class Participant {
 
     @Column(nullable = false, length = 40)
     private String userName;
-
 }

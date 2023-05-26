@@ -3,6 +3,8 @@ package com.linking.page.persistence;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Set;
+
 @Component
 public interface IPageSocketRepository {
 
@@ -11,5 +13,5 @@ public interface IPageSocketRepository {
      */
     int save(Long pageId, WebSocketSession session);
 
-
+    Set<WebSocketSession> findByPageId(Long pageId);
 }

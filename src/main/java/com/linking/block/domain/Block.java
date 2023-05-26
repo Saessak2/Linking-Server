@@ -36,9 +36,10 @@ public class Block {
     private List<Annotation> annotationList;
 
     @Builder
-    public Block(int blockOrder, String title) {
+    public Block(int blockOrder, String title, String content) {
         this.blockOrder = blockOrder;
         this.title = title;
+        this.content = content;
     }
 
     @PrePersist

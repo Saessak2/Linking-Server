@@ -9,7 +9,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 @Slf4j
@@ -18,34 +17,18 @@ public class PageHandShakeInterceptor extends HttpSessionHandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
-//        log.info("PageHandShakeInterceptor.beforeHandshake");
-//
-//        ServletServerHttpRequest serverRequest = (ServletServerHttpRequest) request;
-//        HttpServletRequest servletRequest = serverRequest.getServletRequest();
-//        HttpSession session = servletRequest.getSession(isCreateSession());
-//
-//        if (session == null) {
-//            log.info("미인증 사용자 요청");
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED); // unauthenticated
-//            return false;
-//        }
-//
-//        UserCheck userCheck = (UserCheck) session.getAttribute(SessionConst.LOGIN_USER);
-//
-//        try {
-//            Long projectId = Long.valueOf(servletRequest.getParameter("projectId"));
-//            Long pageId =  Long.valueOf(servletRequest.getParameter("pageId"));
-//
-//            attributes.put("projectId", projectId);
-//            attributes.put("pageId", pageId);
-//            attributes.put("userId", userCheck.getUserId());
-//
-//        } catch (RuntimeException e) {
-//            response.setStatusCode(HttpStatus.BAD_REQUEST);
-//            return false;
-//        }
+        ServletServerHttpRequest serverRequest = (ServletServerHttpRequest) request;
+        HttpServletRequest servletRequest = serverRequest.getServletRequest();
+
+        try {
+            attributes.put("projectId", Long.valueOf(servletRequest.getParameter("projectId")));
+            attributes.put("pageId", Long.valueOf(servletRequest.getParameter("pageId")));
+            attributes.put("userId", Long.valueOf(servletRequest.getParameter("userId")));
+
+        } catch (RuntimeException e) {
+            response.setStatusCode(HttpStatus.BAD_REQUEST);
+            return false;
+        }
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
-
-
 }

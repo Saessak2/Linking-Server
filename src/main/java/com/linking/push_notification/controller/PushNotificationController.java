@@ -22,7 +22,7 @@ public class PushNotificationController {
 
     @GetMapping("/{userId}")
     public ResponseEntity getAllNotifications(
-            @RequestHeader Long userId
+            @PathVariable Long userId
     ) {
 
         List<PushNotificationRes> res = pushNotificationService.findAllPushNotificationsByUser(userId);
