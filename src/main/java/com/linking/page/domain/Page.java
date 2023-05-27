@@ -25,6 +25,7 @@ public class Page {
 
     private int pageOrder;
 
+    @Setter
     private String title;
 
     @Enumerated(value = EnumType.STRING)

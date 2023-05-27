@@ -9,6 +9,7 @@ import com.linking.block.domain.Block;
 import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
+import com.linking.page.dto.PageTitleReq;
 import com.linking.sse.EventType;
 import com.linking.sse.event.GroupEvent;
 import com.linking.group.domain.Group;
@@ -31,13 +32,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PageService {
 
     private final ApplicationEventPublisher publisher;
@@ -187,6 +189,46 @@ public class PageService {
 
         pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+        return true;
+    }
+
+    @Transactional
+    public boolean updatePageTitle(PageTitleReq req, Long userId) {
+
+        Page page = pageRepository.findById(req.getPageId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+
+        if (page.getTitle().equals(req)) return true;
+
+        page.setTitle(req.getTitle());
+
+        // 페이지 sse에 이벤트 전송 - 본인 포함해서 보내야함.
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.PUT_PAGE_TITLE)
+                        .pageId(page.getId())
+                        .userId(-1L)
+                        .data(PageRes.builder()
+                                .pageId(page.getId())
+                                .title(page.getTitle())
+                                .build())
+                        .build()
+        );
+
+        // 그룹 sse에 이벤트 전송
+        publisher.publishEvent(
+                GroupEvent.builder()
+                        .eventName(EventType.PUT_PAGE_TITLE)
+                        .projectId(req.getProjectId())
+                        .userId(userId)
+                        .data(PageRes.builder()
+                                .groupId(req.getGroupId())
+                                .pageId(page.getId())
+                                .title(page.getTitle())
+                                .build())
+                        .build()
+        );
+
         return true;
     }
 }

@@ -22,4 +22,5 @@ public interface EventType {
 
     // 그룹, 페이지 공통
     String DELETE_PAGE = "deletePage";
+    String PUT_PAGE_TITLE = "putPageTitle";
 }

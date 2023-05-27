@@ -1,6 +1,7 @@
 package com.linking.page.controller;
 
 import com.linking.global.exception.BadRequestException;
+import com.linking.page.dto.PageTitleReq;
 import com.linking.page.service.PageService;
 import com.linking.page_check.service.PageCheckService;
 import com.linking.global.common.ResponseHandler;
@@ -88,5 +89,16 @@ public class PageController extends TextWebSocketHandler {
         pageSseHandler.onClose(userId, pageId);
         pageCheckService.updatePageChecked(pageId, projectId, userId, "leave");
     }
+
+    @PutMapping
+    public ResponseEntity<Object> putPageTitle(
+            @RequestBody PageTitleReq pageTitleReq,
+            @RequestHeader Long userId
+    ) {
+        boolean res = pageService.updatePageTitle(pageTitleReq, userId);
+        return ResponseHandler.generateOkResponse(res);
+    }
+
+
 }
 
