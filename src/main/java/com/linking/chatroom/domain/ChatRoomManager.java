@@ -4,18 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.chat.dto.ResType;
 import com.linking.chatroom_badge.domain.ChatRoomBadge;
 import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
+import com.linking.global.common.ChattingSession;
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
 import com.linking.chat.dto.ChatFocusingUserRes;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,8 +24,8 @@ public class ChatRoomManager {
     private final ChatRoom chatRoom;
     private final List<ChattingSession> chattingSessionList;
 
-    public ChatRoomManager(Long projectId, ChatRoom chatRoom){
-        this.projectId = projectId;
+    public ChatRoomManager(ChatRoom chatRoom){
+        this.projectId = chatRoom.getProject().getProjectId();
         this.chatRoom = chatRoom;
         chattingSessionList = new ArrayList<>();
     }
@@ -49,7 +45,7 @@ public class ChatRoomManager {
         List<ChattingSession> notFocusing = chattingSessionList.stream().filter(c -> !c.getIsFocusing() && c.getWebSocketSession().isOpen() ).collect(Collectors.toList());
         List<Participant> unregpartList = new ArrayList<>();
 
-        List<Participant> pL = notFocusing.stream().map(p->p.getParticipant()).collect(Collectors.toList());
+        List<Participant> pL = notFocusing.stream().map(ChattingSession::getParticipant).collect(Collectors.toList());
         List<ChatRoomBadge> chatRoomBadges = chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(unregpartList);
         chatRoomBadges.addAll(chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(pL));
 

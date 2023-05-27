@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ChatRoomBadgeRepository extends JpaRepository<ChatRoomBadge, Long> {
 
-    @Query(value = "SELECT crb FROM ChatRoomBadge crb WHERE crb.participant IN :participantList")
+    @Query(value = "SELECT c FROM ChatRoomBadge c WHERE c.participant IN :participantList")
     List<ChatRoomBadge> findChatRoomBadgesByParticipantContaining(@Param("participantList") List<Participant> participantList);
 
     Optional<ChatRoomBadge> findChatRoomBadgeByParticipant(@Param("participant") Participant participant);

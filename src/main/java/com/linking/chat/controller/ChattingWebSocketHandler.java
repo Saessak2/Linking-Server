@@ -1,7 +1,6 @@
 package com.linking.chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linking.chatroom.domain.ChattingSession;
 import com.linking.chatroom.repository.ChatRoomRepository;
 import com.linking.chatroom.service.ChatRoomManagerService;
 import com.linking.chatroom.domain.ChatRoom;
@@ -27,6 +26,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
 
+    private final String hr = "--------------------------------------------------";
     private final ObjectMapper objectMapper;
 
     private final ChatService chatService;
@@ -35,60 +35,63 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
 
     private final ParticipantRepository participantRepository;
 
-    private final String es = "-------------------------------------------------------------------------------------";
-
     @Override
-    public void afterConnectionEstablished(WebSocketSession session){
-        log.info("[ CHATTING ] [ CONNECTED SESSION {} ] {}", session.getId(), es);
-        System.out.println(session);
+    public void afterConnectionEstablished(WebSocketSession session) {
+        log.info("[ CHATTING ] [ SESSION {} ] CONNECTED {}", session.getId(), hr);
     }
 
     @Override
-    public void handleMessage(@Nonnull WebSocketSession session, WebSocketMessage<?> webSocketMessage) throws Exception {
+    public void handleMessage(@Nonnull WebSocketSession session, @Nonnull WebSocketMessage<?> webSocketMessage) throws Exception {
+        log.info("[ CHATTING ] [ SESSION {} ] RAW MESSAGE RECEIVED {}", session.getId(), hr);
         if(webSocketMessage instanceof TextMessage)
             handleTextMessage(session, (TextMessage) webSocketMessage);
         else if(webSocketMessage instanceof BinaryMessage)
             handleBinaryMessage(session, (BinaryMessage) webSocketMessage);
-        else
-            log.error("[ CHATTING ] CAN NOT PARSE RECEIVED MESSAGE {}", es);
+        else {
+            log.error("[ CHATTING ] UNREADABLE MESSAGE {}", hr);
+            throw new IllegalStateException();
+        }
     }
 
     @Override
     protected void handleTextMessage(@Nonnull WebSocketSession session, TextMessage textMessage) throws IOException {
         ChatReq chatReq = objectMapper.readValue(textMessage.getPayload(), ChatReq.class);
-        ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(new Project(chatReq.getProjectId()))
-                .orElseThrow(NoSuchElementException::new);
-        log.info("[ CHATROOM {}, USER {} ] [ MESSAGE {}#{} ] RECEIVED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), chatReq.getSentDatetime(), chatReq.getContent(), es);
-        Participant participant = participantRepository.findByUserAndProjectId(chatReq.getUserId(), chatReq.getProjectId()).orElseThrow(NoSuchElementException::new);
+        ChatRoom chatRoom = chatRoomRepository
+                                .findChatRoomByProject(new Project(chatReq.getProjectId()))
+                                .orElseThrow(NoSuchElementException::new);
+        Participant participant = participantRepository
+                                    .findByUserAndProject(new User(chatReq.getUserId()), chatRoom.getProject())
+                                    .orElseThrow(NoSuchElementException::new);
+        log.info("[ CHATTING ] [ ROOM {}, USER {} ] MESSAGE {} RECEIVED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), chatReq.getContent(), hr);
 
         switch(chatReq.getReqType()) {
             case register:
-                chatRoomManagerService.registerChattingSession(chatReq.getProjectId(), chatRoom,
-                        new ChattingSession(chatReq.getProjectId(), participant, false, session));
-                log.info("[ CHATROOM {}, USER {} ] REGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
+                chatRoomManagerService.registerChattingSessionOnChatRoom(chatRoom, participant, session);
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] REGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
             case open:
-                chatRoomManagerService.changeChattingSessionFocusState(chatReq.getProjectId(), chatRoom, session, true);
-                log.info("[ CHATROOM {}, USER {} ] OPENED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
+                chatRoomManagerService.openChatRoom(chatReq.getProjectId(), chatRoom, session, true);
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] OPENED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
             case text:
-                chatRoomManagerService.publishMessage(chatReq.getProjectId(), chatRoom, chatService.saveChat(chatRoom, chatReq));
-                log.info("[ CHATROOM {}, USER {} ] MESSAGE SENT {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
+                chatRoomManagerService.publishTextMessage(chatReq.getProjectId(), chatRoom, chatService.saveChat(chatRoom, chatReq));
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] MESSAGE SENT {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
             case close:
-                log.info("[ CHATROOM {}, USER {} ] CLOSED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
-                chatRoomManagerService.changeChattingSessionFocusState(chatReq.getProjectId(), chatRoom, session, false);
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] CLOSED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
+                chatRoomManagerService.closeChatRoom(chatReq.getProjectId(), chatRoom, session, false);
                 break;
 
             case unregister:
-                log.info("[ CHATROOM {}, USER {} ] UNREGISTER {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
-                chatRoomManagerService.unregister(chatReq.getProjectId(), chatRoom, session);
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] UNREGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
+                chatRoomManagerService.unregisterChattingSessionOnChatRoom(chatReq.getProjectId(), chatRoom, session);
+                break;
 
             case disconnect:
-                log.info("[ CHATROOM {}, USER {} ] DISCONNECTED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
+                log.info("[ CHATTING ] [ ROOM {}, USER {} ] DISCONNECTED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 chatRoomManagerService.disconnectSession(chatReq.getProjectId(), chatRoom, session);
                 break;
 

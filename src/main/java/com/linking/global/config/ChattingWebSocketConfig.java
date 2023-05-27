@@ -1,5 +1,6 @@
-package com.linking.chat.controller;
+package com.linking.global.config;
 
+import com.linking.chat.controller.ChattingWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

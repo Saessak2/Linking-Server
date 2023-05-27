@@ -29,6 +29,8 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     List<Participant> findByUser(@Param("user") User user);
 
+    Optional<Participant> findByUserAndProject(@Param("user") User user, @Param("project") Project project);
+
     /**
      * 작성자 이은빈
      */

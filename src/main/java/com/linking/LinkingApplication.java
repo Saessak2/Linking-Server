@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.TimeZone;
 
 @Slf4j
-@EnableScheduling
 @SpringBootApplication
 public class LinkingApplication {
 
@@ -22,7 +21,7 @@ public class LinkingApplication {
 	@PostConstruct
 	public void setTimeZone() {
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
-		log.info("LocalDateTime.now()={}", LocalDateTime.now());
+		log.info("LocalDateTime.now() = {}", LocalDateTime.now());
 	}
 
 }

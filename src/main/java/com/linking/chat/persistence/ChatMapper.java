@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Component
 @Mapper(
@@ -21,22 +21,7 @@ import java.util.Locale;
 )
 public interface ChatMapper {
 
-    List<ChatRes> toRes(List<Chat> chatList);
-
-    default ChatRes toRes(Chat chat){
-        if(chat == null)
-            return null;
-
-        ChatRes.ChatResBuilder chatResBuilder = ChatRes.builder();
-        return chatResBuilder
-                .firstName(chat.getParticipant().getUser().getFirstName())
-                .userName(chat.getParticipant().getUserName())
-                .content(chat.getContent())
-                .sentDatetime(chat.getSentDatetime().format(DateTimeFormatter.ofPattern("yyyy. M. d. a h:m").withLocale(Locale.KOREAN)))
-                .build();
-    }
-
-    default Chat toMessage(ChatReq chatReq, Participant participant, ChatRoom chatRoom){
+    default Chat toEntity(ChatReq chatReq, Participant participant, ChatRoom chatRoom, DateTimeFormatter formatter){
         if(chatReq == null || participant == null)
             return null;
 
@@ -45,10 +30,28 @@ public interface ChatMapper {
                 .participant(participant)
                 .chatroom(chatRoom)
                 .content(chatReq.getContent())
-                .sentDatetime(LocalDateTime.parse(chatReq.getSentDatetime(),
-                        DateTimeFormatter.ofPattern("yyyy. M. d. a h:m:s").withLocale(Locale.KOREAN)))
+                .sentDatetime(LocalDateTime.parse(chatReq.getSentDatetime(), formatter))
                 .build();
 
+    }
+
+    default ChatRes toRes(Chat chat, DateTimeFormatter formatter){
+        if(chat == null)
+            return null;
+
+        ChatRes.ChatResBuilder chatResBuilder = ChatRes.builder();
+        return chatResBuilder
+                .firstName(chat.getParticipant().getUser().getFirstName())
+                .userName(chat.getParticipant().getUserName())
+                .content(chat.getContent())
+                .sentDatetime(chat.getSentDatetime().format(formatter))
+                .build();
+    }
+
+    default List<ChatRes> toRes(List<Chat> chatList, DateTimeFormatter formatter){
+        if(chatList == null)
+            return null;
+        return chatList.stream().map(c -> toRes(c, formatter)).collect(Collectors.toList());
     }
 
 }
