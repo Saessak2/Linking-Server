@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomFocusingParticipantRes {
 
-    private Long userId;//tobedeleted
     private String userName;
 
 }

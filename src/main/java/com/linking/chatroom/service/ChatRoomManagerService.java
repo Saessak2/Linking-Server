@@ -69,7 +69,7 @@ public class ChatRoomManagerService {
                         .orElseThrow(NoSuchElementException::new);
         List<Participant> participantList = chatJoinRepository.findByChatroom(chatRoom);
 
-        chatRoomManager.sendTextMessageToSessions(objectMapper, chatRoomBadgeRepository, participantList, new TextMessage(objectMapper.writeValueAsString(getResponseMap(ResType.textMessage, chatRes))));
+        chatRoomManager.sendTextMessageToSessions(objectMapper, chatRoomBadgeRepository, new TextMessage(objectMapper.writeValueAsString(getResponseMap(ResType.textMessage, chatRes))));
     }
 
     public void closeChatRoom(ChatRoom chatRoom, WebSocketSession session) throws JsonProcessingException {

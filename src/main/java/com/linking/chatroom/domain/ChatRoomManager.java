@@ -6,7 +6,7 @@ import com.linking.chatroom_badge.domain.ChatRoomBadge;
 import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
 import com.linking.global.common.ChattingSession;
 import com.linking.participant.domain.Participant;
-import com.linking.chat.dto.ChatFocusingUserRes;
+import com.linking.participant.dto.ChatRoomFocusingParticipantRes;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.socket.TextMessage;
@@ -41,7 +41,7 @@ public class ChatRoomManager {
         });
     }
 
-    public void sendTextMessageToSessions(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, List<Participant> participantList, TextMessage textMessage) throws RuntimeException {
+    public void sendTextMessageToSessions(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, TextMessage textMessage) throws RuntimeException {
         List<ChattingSession> notFocusing = chattingSessionList.stream().filter(c -> !c.getIsFocusing() && c.getWebSocketSession().isOpen() ).collect(Collectors.toList());
         List<Participant> unregpartList = new ArrayList<>();
 
@@ -86,13 +86,13 @@ public class ChatRoomManager {
     }
 
     // 중복 제거
-    public List<ChatFocusingUserRes> getFocusingUsers(){
+    public List<ChatRoomFocusingParticipantRes> getFocusingUsers(){
         List<ChattingSession> userList =  chattingSessionList.stream()
                 .filter(ChattingSession::getIsFocusing).collect(Collectors.toList());
-        List<Participant> userSet = userList.stream().map(m -> m.getParticipant()).collect(Collectors.toList());
-        List<ChatFocusingUserRes> usres = new ArrayList<>();
+        List<Participant> userSet = userList.stream().map(ChattingSession::getParticipant).collect(Collectors.toList());
+        List<ChatRoomFocusingParticipantRes> usres = new ArrayList<>();
         for(Participant participant : userSet){
-            usres.add(new ChatFocusingUserRes(participant.getUser().getUserId(), participant.getUserName()));
+            usres.add(new ChatRoomFocusingParticipantRes(participant.getUserName()));
         }
         return usres;
     }
