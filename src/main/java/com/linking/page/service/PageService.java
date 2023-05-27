@@ -1,6 +1,5 @@
 package com.linking.page.service;
 
-import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.block.dto.BlockDetailRes;
 import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
@@ -54,6 +53,7 @@ public class PageService {
     private final AnnotationMapper annotationMapper;
     private final PageWebSocketService pageWebSocketService;
 
+    @Transactional
     public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
         log.info("getPage async test" + Thread.currentThread());
 
@@ -71,7 +71,7 @@ public class PageService {
             List<BlockDetailRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
-        return null; // TODO template이 blank, block이 아닌 다른 경우는 없긴 할거 같은데 예외처리 해야겠지,,?
+        return null;
     }
 
     private List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Set<Long> enteringUserIds) {
@@ -121,6 +121,9 @@ public class PageService {
         page.setGroup(group);
         // 페이지 저장을 해야 id를 얻을 수 있음
         pageRepository.save(page);
+
+        // todo page content를 PageContentSnapshot에 저장.
+        pageWebSocketService.pageContentSnapshotInit(page.getId(), page.getContent());
 
         // 팀원 마다 pageCheck create
         List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());

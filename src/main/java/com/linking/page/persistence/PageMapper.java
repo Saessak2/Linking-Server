@@ -51,6 +51,7 @@ public interface PageMapper {
         BlankPageDetailRes builder = BlankPageDetailRes.builder()
                 .pageId(source.getId())
                 .title(source.getTitle())
+                .content(source.getContent())
                 .groupId(source.getGroup().getId())
                 .pageCheckResList(pageCheckResList)
                 .build();

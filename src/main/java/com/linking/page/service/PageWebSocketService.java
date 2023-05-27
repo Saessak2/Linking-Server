@@ -53,11 +53,9 @@ public class PageWebSocketService {
         }
     }
 
-    // todo 페이지 생성할떄도 저장 해야함.
-
     // 페이지 content snapshot 초기화
     @PostConstruct
-    public void PageContentSnapshotInit() {
+    public void pageContentSnapshotInit() {
 
         List<Page> blankPages = pageRepository.findByTemplate(Template.BLANK);
         if (!blankPages.isEmpty()) {
@@ -68,7 +66,14 @@ public class PageWebSocketService {
         log.info("pageContentSnapshot size = {}", pageContentSnapshotRepoImpl.mapSize());
     }
 
+    public void pageContentSnapshotInit(Long pageId, String content) {
+        pageContentSnapshotRepoImpl.put(pageId, content);
+    }
+
+
     public String findSnapshotByPageId(Long pageId) {
         return pageContentSnapshotRepoImpl.peek(pageId);
     }
+
+
 }

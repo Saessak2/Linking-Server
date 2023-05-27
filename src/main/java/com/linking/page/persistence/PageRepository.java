@@ -1,6 +1,7 @@
 package com.linking.page.persistence;
 
 import com.linking.page.domain.Page;
+import com.linking.page.domain.Template;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
 
     @Query("SELECT p.group.id FROM Page p WHERE p.id = :pageId")
     Long getGroupIdByPageId(@Param("pageId") Long pageId);
+
+    @Query(value = "SELECT p FROM Page p where p.template = :template")
+    List<Page> findByTemplate(@Param("template") Template template);
 }

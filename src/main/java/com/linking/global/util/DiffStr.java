@@ -7,19 +7,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DiffStr {
 
-    private String type;
+    private int type;
     private int diffStartIndex;
     private int diffEndIndex;
     private String subStr;
 
-    public DiffStr(String type, int diffStartIndex, int diffEndIndex, String subStr) {
+    public DiffStr(int type, int diffStartIndex, int diffEndIndex, String subStr) {
         this.type = type;
         this.diffStartIndex = diffStartIndex;
         this.diffEndIndex = diffEndIndex;
         this.subStr = subStr;
     }
 
-    public DiffStr(String type, int diffStartIndex, String subStr) {
+    public DiffStr(int type, int diffStartIndex, String subStr) {
         this.type = type;
         this.diffStartIndex = diffStartIndex;
         this.diffEndIndex = -1;

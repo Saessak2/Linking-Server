@@ -3,35 +3,51 @@ package com.linking.page.persistence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.Deque;
+import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
 @Repository
-public class PageContentSnapshotRepoImpl {
+public class PageContentSnapshotRepoImpl{
 
-    private final Deque<String> document = new ConcurrentLinkedDeque<>();
+    /**
+     * key : pageId
+     */
+    private final Map<Long, Queue<String>> document = new ConcurrentHashMap<>();
 
-    public int add(String docs) {
-        log.info("add ------ {}", Thread.currentThread().getName());
+    public void put(Long pageId, String doc) {
+        Queue queue = new ConcurrentLinkedQueue();
+        queue.add(doc);
+        document.put(pageId, queue);
+    }
 
-
-        document.add(docs);
+    public int mapSize() {
         return document.size();
     }
 
-    public String pollAndClear() {
-
-        log.info("pollAndClear ---- {}", Thread.currentThread().getName());
-
-        String result = document.removeLast();
-        clear();
-        return result;
+    public int add(Long pageId, String docs) {
+        log.info("add ------ {}", Thread.currentThread().getName());
+        Queue<String> strings = document.get(pageId);
+        strings.add(docs);
+        return document.size();
     }
 
-    public Queue<String> getDocs() {
-        return document;
+    public String poll(Long pageId) {
+        log.info("poll ---- {}", Thread.currentThread().getName());
+        Queue<String> strings = document.get(pageId);
+        if (strings.size() == 1)
+            return strings.peek();
+        return strings.poll();
+    }
+
+    public String peek(Long pageId) {
+        return document.get(pageId).peek();
+    }
+
+    public int sizeByPage(Long pageId) {
+        return document.get(pageId).size();
     }
 
     public void clear() {

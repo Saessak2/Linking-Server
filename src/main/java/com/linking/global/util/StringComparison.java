@@ -2,19 +2,19 @@ package com.linking.global.util;
 
 public class StringComparison {
 
-    private static final String UPDATE = "UPDATE";
-    private static final String INSERT = "INSERT";
+    private static final int UPDATE = 1;
+    private static final int INSERT = 0;
 
-    public static void compareString(String str1, String str2) {
+    public static DiffStr compareString(String str1, String str2) {
 
         if (str1.length() < str2.length()) {
-            str2isLonger(str1, str2);
+            return str2isLonger(str1, str2);
 
         } else if (str1.length() > str2.length()) {
-            str1isLonger(str1, str2);
+            return str1isLonger(str1, str2);
 
         } else {
-            equalLength(str1, str2);
+            return equalLength(str1, str2);
         }
     }
 
@@ -112,7 +112,7 @@ public class StringComparison {
         }
 
         if (diffStartIndex == -1) {
-//            System.out.println("Not Modified");
+            return null;
         } else {
             modifiedSubStr = str2.substring(diffStartIndex, diffEndIndex + 1);
 //            System.out.println("diffStartIndex = " + diffStartIndex);

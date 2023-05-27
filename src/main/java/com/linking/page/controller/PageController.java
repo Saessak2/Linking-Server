@@ -19,7 +19,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/pages")
