@@ -51,7 +51,6 @@ public class GroupSseHandler {
             sendEventExceptUserIdList(event, emittersByProject);
         else
             sendEventExceptPublisher(event, emittersByProject);
-
     }
 
     private void sendEventExceptPublisher(GroupEvent event, Set<CustomEmitter> emitters) {
@@ -71,7 +70,6 @@ public class GroupSseHandler {
 
             }
         });
-
     }
 
     private void sendEventExceptUserIdList(GroupEvent event, Set<CustomEmitter> emitters) {
