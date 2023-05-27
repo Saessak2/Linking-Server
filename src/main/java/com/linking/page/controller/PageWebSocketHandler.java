@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.global.util.JsonMapper;
 import com.linking.page.dto.TextInputMessage;
+import com.linking.page.dto.TextSendEvent;
 import com.linking.page.persistence.IPageSocketRepository;
 import com.linking.page.service.PageEditingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -46,9 +48,10 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
+        TextInputMessage textInputMessage = null;
         try {
-            TextInputMessage textInputMessage = objectMapper.readValue(message.getPayload(), TextInputMessage.class);
+            textInputMessage = objectMapper.readValue(message.getPayload(), TextInputMessage.class);
+
         } catch (JsonParseException exception) {
             log.error("TextInputMessage.class 형식에 맞지 않습니다. => {}", exception.getMessage());
         }
@@ -60,23 +63,34 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         attributes.put("userId", session.getAttributes().get("userId"));
         attributes.put("sessionId", session.getId());
 
-//        pageEditingService.inputText(attributes, textInputMessage);
-
-
-        Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId((Long) session.getAttributes().get("pageId"));
-
-        if (sessions == null) return;
-
-        sessions.forEach(ws -> {
-            try {
-                if ((ws.getId() != session.getId()) && ws.isOpen())
-                    ws.sendMessage(new TextMessage(JsonMapper.toJsonString(message.getPayload())));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        pageEditingService.inputText(attributes, textInputMessage);
     }
 
+    @EventListener
+    public void sendEvent(TextSendEvent event) {
+        log.info("send textOutput Message");
+
+        try {
+            Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId(event.getPageId());
+            if (sessions != null && !sessions.isEmpty()) {
+
+                sessions.forEach(session -> {
+                    if (session.getId() != event.getSessionId()) {
+                        if (session.isOpen()) {
+                            try {
+                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(event.getTextOutputMessage())));
+                            } catch (IOException e) {
+                                log.error("IOException in TextSendEvent -> {}", e.getMessage());
+                            }
+                        }
+                    }
+                });
+                log.info("complete sendPageEvent");
+            }
+        } catch (RuntimeException e) {
+            log.error("{} in TextSendEvent -> {}", e.getClass(), e.getMessage());
+        }
+    }
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {

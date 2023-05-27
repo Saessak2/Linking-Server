@@ -1,17 +1,15 @@
 package com.linking.page.service;
 
-import com.linking.page.domain.TextInput;
 import com.linking.page.dto.TextInputMessage;
-import com.linking.page.persistence.ISnapshotInMemoryRepository;
-import com.linking.page.persistence.ITexInputtInMemoryRepository;
-import com.linking.page.persistence.PageContentInputRepoImpl;
+import com.linking.page.dto.TextOutputMessage;
+import com.linking.page.dto.TextSendEvent;
 import com.linking.page.persistence.PageContentSnapshotRepoImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Queue;
 
 @Slf4j
 @Service
@@ -24,8 +22,11 @@ public class PageEditingService {
 
 //    private final PageContentInputRepoImpl pageContentInputRepoImpl;
     private final PageContentSnapshotRepoImpl pageContentSnapshotRepoImpl;
+    private final ApplicationEventPublisher publisher;
 
     public void inputText(Map<String, Object> attributes, TextInputMessage textInputMessage) {
+
+        log.info("inputText -------- {}", Thread.currentThread().getName());
 
         int editorType = textInputMessage.getEditorType();
 
@@ -35,17 +36,23 @@ public class PageEditingService {
 //            Queue<TextInput> queue = pageContentInputRepoImpl.save((Long) attributes.get("pageId"), textInput);
 
             // todo snapshot 을 저장한다.
-            pageContentSnapshotRepoImpl.save(textInputMessage.getDocs());
+            pageContentSnapshotRepoImpl.add(textInputMessage.getDocs());
 
-            // todo message.getDocs의 docs를 비교하여 변경된 첫번째 인덱스를 구하고 변경된 문자열 또는 삭제여부를 구한다.
-            String docs = pageContentSnapshotRepoImpl.poll();
-            if (docs == null) return;
-            compareString(docs, textInputMessage.getDocs());
+            TextSendEvent event = TextSendEvent.builder()
+                    .sessionId((String) attributes.get("sessionId"))
+                    .pageId((Long) attributes.get("pageId"))
+                    .textOutputMessage(
+                            TextOutputMessage.builder()
+                                    .editorType(PAGE_CONTENT)
+                                    .pageId((Long) attributes.get("pageId"))
+                                    .blockId(-1L)
+                                    .docs(pageContentSnapshotRepoImpl.pollAndClear())
+                                    .build()
+                    )
+                    .build();
 
-            // todo 다른 참여자에게 index, inputType, 문자열(insert경우)을 전송한다.
+            publisher.publishEvent(event);
 
-            // todo shapshot을 db에 일정 주기 마다 저장한다.
-            // todo 페이지 조회 요청이 온 경우 즉시 shapshot 을 db에 저장후 페이지 조회 로직을 실행한다.
 
         } else if (editorType == BLOCK_TITLE) {
 
@@ -60,24 +67,5 @@ public class PageEditingService {
 //
 //    }
 
-    private void compareString(String oldStr, String newStr) {
-        int index = 0;
-        String changedString = "";
-        String operation = "";
 
-        for (int i = 0; i < oldStr.length(); i++) {
-            if (oldStr.charAt(i) != newStr.charAt(i)) {
-                index = i;
-                changedString = newStr.charAt(i) + "";
-                operation = "삽입";
-                break;
-            }
-        }
-
-        if (index == oldStr.length()) {
-            operation = "삭제";
-        }
-
-        System.out.println("{" + index + ", " + changedString + ", " + operation + "}");
-    }
 }

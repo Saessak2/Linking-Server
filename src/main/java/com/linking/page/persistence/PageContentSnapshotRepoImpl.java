@@ -1,24 +1,33 @@
 package com.linking.page.persistence;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Deque;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
+@Slf4j
 @Repository
 public class PageContentSnapshotRepoImpl {
 
-    private final Queue<String> document = new ConcurrentLinkedQueue<>();
+    private final Deque<String> document = new ConcurrentLinkedDeque<>();
+
+    public int add(String docs) {
+        log.info("add ------ {}", Thread.currentThread().getName());
 
 
-    public void save(String docs) {
         document.add(docs);
+        return document.size();
     }
 
-    public String poll() {
-        return document.poll();
+    public String pollAndClear() {
+
+        log.info("pollAndClear ---- {}", Thread.currentThread().getName());
+
+        String result = document.removeLast();
+        clear();
+        return result;
     }
 
     public Queue<String> getDocs() {

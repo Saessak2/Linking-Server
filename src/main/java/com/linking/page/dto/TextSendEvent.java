@@ -6,10 +6,9 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TextOutputMessage {
+public class TextSendEvent {
 
+    private String sessionId;
     private Long pageId;
-    private Long blockId; // blockId or -1
-    private Integer editorType; // 0, 1, 2
-    private String docs;
+    private TextOutputMessage textOutputMessage;
 }
