@@ -1,6 +1,5 @@
 package com.linking.page.controller;
 
-import com.linking.global.exception.BadRequestException;
 import com.linking.page.dto.PageTitleReq;
 import com.linking.page.service.PageService;
 import com.linking.page_check.service.PageCheckService;
@@ -8,7 +7,7 @@ import com.linking.global.common.ResponseHandler;
 import com.linking.page.dto.PageCreateReq;
 import com.linking.page.dto.PageDetailedRes;
 import com.linking.page.dto.PageRes;
-import com.linking.sse.ssehandler.PageSseHandler;
+import com.linking.sse.page.handler.PageSseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

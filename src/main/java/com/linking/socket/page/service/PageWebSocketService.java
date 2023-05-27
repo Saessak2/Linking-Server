@@ -3,7 +3,7 @@ package com.linking.socket.page.service;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
-import com.linking.socket.page.TextInputMessage;
+import com.linking.socket.page.PageSocketMessageReq;
 import com.linking.socket.page.persistence.PageContentSnapshotRepoImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +26,18 @@ public class PageWebSocketService {
     private final PageRepository pageRepository;
     private final ComparisonService comparisonService;
 
-    public void inputText(Map<String, Object> attributes, TextInputMessage textInputMessage) {
+    public void inputText(Map<String, Object> attributes, PageSocketMessageReq pageSocketMessageReq) {
 
         log.info("inputText -------- {}", Thread.currentThread().getName());
 
-        int editorType = textInputMessage.getEditorType();
+        int editorType = pageSocketMessageReq.getEditorType();
         Long pageId = (Long) attributes.get("pageId");
         String sessionId = (String) attributes.get("sessionId");
 
         if (editorType == PAGE_CONTENT) {
 
-            pageContentSnapshotRepoImpl.add(pageId, textInputMessage.getDocs());
-            comparisonService.compare(sessionId, pageId, textInputMessage);
+            pageContentSnapshotRepoImpl.add(pageId, pageSocketMessageReq.getDocs());
+            comparisonService.compare(sessionId, pageId, pageSocketMessageReq);
 
         } else if (editorType == BLOCK_TITLE) {
 

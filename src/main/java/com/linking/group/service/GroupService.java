@@ -9,7 +9,7 @@ import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.sse.EventType;
-import com.linking.sse.event.GroupEvent;
+import com.linking.sse.group.GroupEvent;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.page.domain.Page;

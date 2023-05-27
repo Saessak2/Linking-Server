@@ -2,8 +2,8 @@ package com.linking.socket.page.service;
 
 import com.linking.page.domain.DiffStr;
 import com.linking.global.util.StringComparison;
-import com.linking.socket.page.TextInputMessage;
-import com.linking.socket.page.TextOutputMessage;
+import com.linking.socket.page.PageSocketMessageReq;
+import com.linking.socket.page.PageSocketMessageRes;
 import com.linking.socket.page.TextSendEvent;
 import com.linking.socket.page.persistence.PageContentSnapshotRepoImpl;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class ComparisonService {
     private final ApplicationEventPublisher publisher;
 
     @Async("eventCallExecutor")
-    public void compare(String sessionId, Long pageId, TextInputMessage message) {
+    public void compare(String sessionId, Long pageId, PageSocketMessageReq message) {
 
         String oldStr = pageContentSnapshotRepoImpl.poll(pageId);
         String newStr = message.getDocs();
@@ -39,8 +39,8 @@ public class ComparisonService {
         TextSendEvent event = TextSendEvent.builder()
                 .sessionId(sessionId)
                 .pageId(pageId)
-                .textOutputMessage(
-                        TextOutputMessage.builder()
+                .pageSocketMessageRes(
+                        PageSocketMessageRes.builder()
                                 .editorType(0)
                                 .pageId(pageId)
                                 .blockId(-1L)

@@ -1,12 +1,10 @@
-package com.linking.sse.ssehandler;
+package com.linking.sse.group.handler;
 
 import com.linking.sse.domain.CustomEmitter;
-import com.linking.sse.event.GroupEvent;
-import com.linking.sse.persistence.GroupEmitterInMemoryRepoImpl;
-import com.linking.sse.persistence.IEmitterRepository;
+import com.linking.sse.group.GroupEvent;
+import com.linking.sse.group.persistence.GroupEmitterInMemoryRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -22,7 +20,7 @@ public class GroupSseHandler {
 
     private static final Long TIMEOUT = 600 * 1000L; // 10분
 
-    private final GroupEmitterInMemoryRepoImpl emitterRepository;
+    private final GroupEmitterInMemoryRepo emitterRepository;
 
     public SseEmitter connect(Long projectId, Long userId) {
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.global.util.JsonMapper;
 import com.linking.socket.page.persistence.IPageSocketRepository;
 import com.linking.socket.page.service.PageWebSocketService;
-import com.linking.socket.page.TextInputMessage;
+import com.linking.socket.page.PageSocketMessageReq;
 import com.linking.socket.page.TextSendEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +48,9 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        TextInputMessage textInputMessage = null;
+        PageSocketMessageReq pageSocketMessageReq = null;
         try {
-            textInputMessage = objectMapper.readValue(message.getPayload(), TextInputMessage.class);
+            pageSocketMessageReq = objectMapper.readValue(message.getPayload(), PageSocketMessageReq.class);
 
         } catch (JsonParseException exception) {
             log.error("TextInputMessage.class 형식에 맞지 않습니다. => {}", exception.getMessage());
@@ -63,7 +63,7 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         attributes.put("userId", session.getAttributes().get("userId"));
         attributes.put("sessionId", session.getId());
 
-        pageWebSocketService.inputText(attributes, textInputMessage);
+        pageWebSocketService.inputText(attributes, pageSocketMessageReq);
     }
 
     @EventListener
@@ -78,7 +78,7 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
                     if (session.getId() != event.getSessionId()) {
                         if (session.isOpen()) {
                             try {
-                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(event.getTextOutputMessage())));
+                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(event.getPageSocketMessageRes())));
                             } catch (IOException e) {
                                 log.error("IOException in TextSendEvent -> {}", e.getMessage());
                             }

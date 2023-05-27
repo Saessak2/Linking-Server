@@ -1,4 +1,4 @@
-package com.linking.sse.persistence;
+package com.linking.sse.page.persistence;
 
 import com.linking.sse.domain.CustomEmitter;
 import org.springframework.stereotype.Repository;
@@ -10,25 +10,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class GroupEmitterInMemoryRepoImpl implements IEmitterRepository {
+public class PageEmitterInMemoryRepo {
 
     /**
-     * key : projectId
+     * key : pageId
      */
-    private final Map<Long, Set<CustomEmitter>> groupSubscriber = new ConcurrentHashMap<>();
+    private final Map<Long, Set<CustomEmitter>> pageSubscriber = new ConcurrentHashMap<>();
 
-    @Override
     public Set<CustomEmitter> findEmittersByKey(Long key) {
 
-        System.out.println("GroupEmitterInMemoryRepoImpl.findEmittersByKey");
+        System.out.println("PageEmitterInMemoryRepoImpl.findEmittersByKey");
 
-        Set<CustomEmitter> emitters = this.groupSubscriber.get(key);
+        Set<CustomEmitter> emitters = this.pageSubscriber.get(key);
 
         if (emitters == null) return null;
         return emitters;
     }
 
-    @Override
     public CustomEmitter save(Long key, CustomEmitter customEmitter) {
 
         Set<CustomEmitter> emitters = this.findEmittersByKey(key);
@@ -36,7 +34,7 @@ public class GroupEmitterInMemoryRepoImpl implements IEmitterRepository {
         if (emitters == null) {
             emitters = Collections.synchronizedSet(new HashSet<>());
             emitters.add(customEmitter);
-            this.groupSubscriber.put(key, emitters);
+            this.pageSubscriber.put(key, emitters);
 
         } else {
             emitters.add(customEmitter);
@@ -44,16 +42,14 @@ public class GroupEmitterInMemoryRepoImpl implements IEmitterRepository {
         return customEmitter;
     }
 
-    @Override
     public boolean deleteEmitter(Long key, CustomEmitter customEmitter) {
         Set<CustomEmitter> emittersByKey = this.findEmittersByKey(key);
         return emittersByKey.remove(customEmitter);
     }
 
-    @Override
     public Set<CustomEmitter> deleteAllByKey(Long key) {
         Set<CustomEmitter> emittersByKey = this.findEmittersByKey(key);
-        groupSubscriber.remove(key);
+        pageSubscriber.remove(key);
         return emittersByKey;
     }
 }

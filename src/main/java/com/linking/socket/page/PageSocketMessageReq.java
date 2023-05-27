@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TextInputMessage {
+public class PageSocketMessageReq {
 
     @NotNull
     private Integer editorType;
@@ -18,7 +18,7 @@ public class TextInputMessage {
     @NotNull
     private String docs;
 
-    public TextInputMessage(Integer editorType, Long blockId, String docs) {
+    public PageSocketMessageReq(Integer editorType, Long blockId, String docs) {
         this.editorType = editorType;
         this.blockId = blockId;
         this.docs = docs;

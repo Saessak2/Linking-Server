@@ -1,4 +1,4 @@
-package com.linking.sse.event;
+package com.linking.sse.page;
 
 import lombok.AccessLevel;
 import lombok.Builder;

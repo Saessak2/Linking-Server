@@ -1,4 +1,4 @@
-package com.linking.sse.ssehandler;
+package com.linking.sse.notification.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

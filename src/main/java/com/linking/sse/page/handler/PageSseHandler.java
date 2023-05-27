@@ -1,12 +1,10 @@
-package com.linking.sse.ssehandler;
+package com.linking.sse.page.handler;
 
 import com.linking.sse.domain.CustomEmitter;
-import com.linking.sse.event.PageEvent;
-import com.linking.sse.persistence.IEmitterRepository;
-import com.linking.sse.persistence.PageEmitterInMemoryRepoImpl;
+import com.linking.sse.page.PageEvent;
+import com.linking.sse.page.persistence.PageEmitterInMemoryRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,7 +21,7 @@ public class PageSseHandler {
 
     private static final Long TIMEOUT = 600 * 1000L;
 
-    private final PageEmitterInMemoryRepoImpl emitterRepository;
+    private final PageEmitterInMemoryRepo emitterRepository;
 
     public SseEmitter connect(Long pageId, Long userId) {
 

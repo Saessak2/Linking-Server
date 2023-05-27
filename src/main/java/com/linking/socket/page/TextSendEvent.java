@@ -10,5 +10,5 @@ public class TextSendEvent {
 
     private String sessionId;
     private Long pageId;
-    private TextOutputMessage textOutputMessage;
+    private PageSocketMessageRes pageSocketMessageRes;
 }

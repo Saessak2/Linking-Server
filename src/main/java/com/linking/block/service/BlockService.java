@@ -6,7 +6,7 @@ import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.BadRequestException;
 import com.linking.sse.EventType;
-import com.linking.sse.event.PageEvent;
+import com.linking.sse.page.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;

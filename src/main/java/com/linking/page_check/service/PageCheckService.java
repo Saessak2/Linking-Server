@@ -9,7 +9,7 @@ import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.sse.EventType;
-import com.linking.sse.event.PageEvent;
+import com.linking.sse.page.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page_check.domain.PageCheck;
 import lombok.RequiredArgsConstructor;

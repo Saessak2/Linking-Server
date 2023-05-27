@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TextOutputMessage {
+public class PageSocketMessageRes {
 
     private Long pageId;
     private Long blockId; // blockId or -1
