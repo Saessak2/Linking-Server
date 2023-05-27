@@ -75,7 +75,7 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] OPENED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
-            case text:// TODO : param chatRes -> chatReq ?
+            case text:
                 chatRoomManagerService.publishTextMessage(chatRoom, chatService.saveChat(chatRoom, chatReq));
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] MESSAGE SENT {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
