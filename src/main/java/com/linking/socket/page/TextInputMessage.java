@@ -1,4 +1,4 @@
-package com.linking.page.dto;
+package com.linking.socket.page;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,5 +1,7 @@
 package com.linking.global.util;
 
+import com.linking.page.domain.DiffStr;
+
 public class StringComparison {
 
     private static final int UPDATE = 1;

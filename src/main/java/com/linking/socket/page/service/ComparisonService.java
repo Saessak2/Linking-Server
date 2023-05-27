@@ -1,11 +1,11 @@
-package com.linking.page.service;
+package com.linking.socket.page.service;
 
-import com.linking.global.util.DiffStr;
+import com.linking.page.domain.DiffStr;
 import com.linking.global.util.StringComparison;
-import com.linking.page.dto.TextInputMessage;
-import com.linking.page.dto.TextOutputMessage;
-import com.linking.page.dto.TextSendEvent;
-import com.linking.page.persistence.PageContentSnapshotRepoImpl;
+import com.linking.socket.page.TextInputMessage;
+import com.linking.socket.page.TextOutputMessage;
+import com.linking.socket.page.TextSendEvent;
+import com.linking.socket.page.persistence.PageContentSnapshotRepoImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

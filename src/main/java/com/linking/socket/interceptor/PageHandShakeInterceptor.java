@@ -1,4 +1,4 @@
-package com.linking.page.interceptor;
+package com.linking.socket.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

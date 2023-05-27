@@ -9,6 +9,7 @@ import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.page.dto.PageTitleReq;
+import com.linking.socket.page.service.PageWebSocketService;
 import com.linking.sse.EventType;
 import com.linking.sse.event.GroupEvent;
 import com.linking.group.domain.Group;

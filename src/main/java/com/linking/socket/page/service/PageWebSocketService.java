@@ -1,13 +1,12 @@
-package com.linking.page.service;
+package com.linking.socket.page.service;
 
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
-import com.linking.page.dto.TextInputMessage;
-import com.linking.page.persistence.PageContentSnapshotRepoImpl;
 import com.linking.page.persistence.PageRepository;
+import com.linking.socket.page.TextInputMessage;
+import com.linking.socket.page.persistence.PageContentSnapshotRepoImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +23,6 @@ public class PageWebSocketService {
     private static final int BLOCK_CONTENT = 2;
 
     private final PageContentSnapshotRepoImpl pageContentSnapshotRepoImpl;
-    private final ApplicationEventPublisher publisher;
     private final PageRepository pageRepository;
     private final ComparisonService comparisonService;
 
@@ -37,9 +35,6 @@ public class PageWebSocketService {
         String sessionId = (String) attributes.get("sessionId");
 
         if (editorType == PAGE_CONTENT) {
-
-//            TextInput textInput = toTextInput(attributes, textInputMessage);
-//            Queue<TextInput> queue = pageContentInputRepoImpl.save((Long) attributes.get("pageId"), textInput);
 
             pageContentSnapshotRepoImpl.add(pageId, textInputMessage.getDocs());
             comparisonService.compare(sessionId, pageId, textInputMessage);

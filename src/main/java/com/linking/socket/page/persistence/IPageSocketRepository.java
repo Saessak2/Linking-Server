@@ -1,4 +1,4 @@
-package com.linking.page.persistence;
+package com.linking.socket.page.persistence;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;

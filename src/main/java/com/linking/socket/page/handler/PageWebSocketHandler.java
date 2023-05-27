@@ -1,12 +1,12 @@
-package com.linking.page.controller;
+package com.linking.socket.page.handler;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.global.util.JsonMapper;
-import com.linking.page.dto.TextInputMessage;
-import com.linking.page.dto.TextSendEvent;
-import com.linking.page.persistence.IPageSocketRepository;
-import com.linking.page.service.PageWebSocketService;
+import com.linking.socket.page.persistence.IPageSocketRepository;
+import com.linking.socket.page.service.PageWebSocketService;
+import com.linking.socket.page.TextInputMessage;
+import com.linking.socket.page.TextSendEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

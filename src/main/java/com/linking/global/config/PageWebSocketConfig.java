@@ -1,7 +1,7 @@
 package com.linking.global.config;
 
-import com.linking.page.controller.PageWebSocketHandler;
-import com.linking.page.interceptor.PageHandShakeInterceptor;
+import com.linking.socket.page.handler.PageWebSocketHandler;
+import com.linking.socket.interceptor.PageHandShakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

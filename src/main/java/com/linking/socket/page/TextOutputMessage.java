@@ -1,6 +1,6 @@
-package com.linking.page.dto;
+package com.linking.socket.page;
 
-import com.linking.global.util.DiffStr;
+import com.linking.page.domain.DiffStr;
 import lombok.*;
 
 @Getter

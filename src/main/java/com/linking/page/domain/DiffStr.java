@@ -1,4 +1,4 @@
-package com.linking.global.util;
+package com.linking.page.domain;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
