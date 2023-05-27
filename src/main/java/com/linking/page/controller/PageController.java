@@ -1,5 +1,6 @@
 package com.linking.page.controller;
 
+import com.linking.global.exception.BadRequestException;
 import com.linking.page.service.PageService;
 import com.linking.page_check.service.PageCheckService;
 import com.linking.global.common.ResponseHandler;
@@ -17,6 +18,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/pages")
@@ -34,7 +36,6 @@ public class PageController extends TextWebSocketHandler {
             @PathVariable("id") Long pageId,
             @RequestHeader Long userId
     ) {
-        log.info("getPage - async test" + Thread.currentThread());
         pageCheckService.updatePageChecked(pageId, projectId, userId, "enter");
         PageDetailedRes res = pageService.getPage(pageId, pageSseHandler.enteringUserIds(pageId));
         return ResponseHandler.generateOkResponse(res);
@@ -45,14 +46,13 @@ public class PageController extends TextWebSocketHandler {
             @PathVariable("id") Long pageId,
             @RequestHeader Long userId
     ) {
-        log.info("subscribe Page - async test" + Thread.currentThread());
+        pageService.checkPageExist(pageId);
 
         SseEmitter sseEmitter = pageSseHandler.connect(pageId, userId);
         try {
             sseEmitter.send(SseEmitter.event()
                     .name("connect")
-                    .data("connected!")
-            );
+                    .data("connected!"));
             log.info("** send connect event userID = {}", userId);
         } catch (IOException e) {
             log.error("cannot send event");

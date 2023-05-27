@@ -7,7 +7,19 @@ public interface EventType {
     String PUT_GROUP_NAME = "putGroupName";
     String DELETE_GROUP = "deleteGroup";
     String POST_PAGE = "postPage";
+    String POST_ANNOT_NOT = "postAnnoNot";
+    String DELETE_ANNOT_NOT = "deleteAnnoNot";
+
+    // 페이지 sse
+    String PAGE_ENTER = "enter";
+    String PAGE_LEAVE = "leave";
+    String POST_BLOCK = "postBlock";
+    String PUT_BLOCK_ORDER = "putBlockOrder";
+    String DELETE_BLOCK = "deleteBlock";
+    String POST_ANNOT = "postAnnotation";
+    String DELETE_ANNOT = "deleteAnnotation";
+    String UPDATE_ANNOT = "updateAnnotation";
+
+    // 그룹, 페이지 공통
     String DELETE_PAGE = "deletePage";
-    String POST_ANNOT = "postAnnoNot";
-    String DELETE_ANNOT = "deleteAnnoNot";
 }

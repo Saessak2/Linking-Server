@@ -1,5 +1,6 @@
 package com.linking.page.service;
 
+import com.linking.annotation.dto.AnnotationIdRes;
 import com.linking.block.dto.BlockDetailRes;
 import com.linking.annotation.domain.Annotation;
 import com.linking.annotation.dto.AnnotationRes;
@@ -21,7 +22,7 @@ import com.linking.page_check.persistence.PageCheckMapper;
 import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
-import com.linking.sse.ssehandler.PageEventHandler;
+import com.linking.sse.event.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageMapper;
@@ -40,7 +41,6 @@ import java.util.stream.Collectors;
 public class PageService {
 
     private final ApplicationEventPublisher publisher;
-    private final PageEventHandler pageEventHandler;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
     private final GroupRepository groupRepository;
@@ -127,12 +127,13 @@ public class PageService {
 
         PageRes pageRes = pageMapper.toDto(pageRepository.save(page), 0);
 
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.POST_PAGE)
-                .projectId(group.getProject().getProjectId())
-                .userId(userId)
-                .data(pageRes)
-                .build());
+        publisher.publishEvent(
+                GroupEvent.builder()
+                    .eventName(EventType.POST_PAGE)
+                    .projectId(group.getProject().getProjectId())
+                    .userId(userId)
+                    .data(pageRes)
+                    .build());
 
         return pageRes;
     }
@@ -146,17 +147,24 @@ public class PageService {
         Long groupId = page.getGroup().getId();
         pageRepository.delete(page);
 
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.DELETE_PAGE)
-                .projectId(projectId)
-                .userId(userId)
-                .data(PageRes.builder()
-                        .groupId(groupId)
-                        .pageId(pageId)
-                        .build())
-                .build());
+        publisher.publishEvent(
+                GroupEvent.builder()
+                    .eventName(EventType.DELETE_PAGE)
+                    .projectId(projectId)
+                    .userId(userId)
+                    .data(PageRes.builder()
+                            .groupId(groupId)
+                            .pageId(pageId)
+                            .build())
+                    .build());
 
-        pageEventHandler.deletePage(pageId, userId, pageId);
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.DELETE_PAGE)
+                        .pageId(pageId)
+                        .userId(userId)
+                        .data(pageId).build());
+
 
         // 페이지 순서를 0부터 재정렬
         try {
@@ -173,5 +181,12 @@ public class PageService {
         } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public boolean checkPageExist(Long pageId) {
+
+        pageRepository.findById(pageId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
+        return true;
     }
 }

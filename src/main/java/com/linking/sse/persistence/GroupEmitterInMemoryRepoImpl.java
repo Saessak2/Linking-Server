@@ -1,6 +1,6 @@
-package com.linking.sse.emitter_repository;
+package com.linking.sse.persistence;
 
-import com.linking.global.common.CustomEmitter;
+import com.linking.sse.domain.CustomEmitter;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -10,12 +10,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class GroupSseInMemoryRepository implements IGroupSseRepository {
+public class GroupEmitterInMemoryRepoImpl implements IEmitterRepository {
 
+    /**
+     * key : projectId
+     */
     private final Map<Long, Set<CustomEmitter>> groupSubscriber = new ConcurrentHashMap<>();
 
     @Override
     public Set<CustomEmitter> findEmittersByKey(Long key) {
+
+        System.out.println("GroupEmitterInMemoryRepoImpl.findEmittersByKey");
 
         Set<CustomEmitter> emitters = this.groupSubscriber.get(key);
 
@@ -46,7 +51,7 @@ public class GroupSseInMemoryRepository implements IGroupSseRepository {
     }
 
     @Override
-    public Set<CustomEmitter> deleteAllByProject(Long key) {
+    public Set<CustomEmitter> deleteAllByKey(Long key) {
         Set<CustomEmitter> emittersByKey = this.findEmittersByKey(key);
         groupSubscriber.remove(key);
         return emittersByKey;

@@ -36,12 +36,12 @@ public class Block {
     private List<Annotation> annotationList;
 
     public Block(String title, String content, Page page) {
-        this.blockOrder = order();
         this.title = title;
         this.content = content;
-        if (title == null) title = "untitled";
-        if (content == null) content = "";
+        if (title == null) this.title = "untitled";
+        if (content == null) this.content = "";
         setPage(page);
+        this.blockOrder = order();
         this.annotationList = new ArrayList<>();
     }
 

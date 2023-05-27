@@ -5,7 +5,8 @@ import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.BadRequestException;
-import com.linking.sse.ssehandler.PageEventHandler;
+import com.linking.sse.EventType;
+import com.linking.sse.event.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
@@ -13,6 +14,7 @@ import com.linking.global.message.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ import java.util.NoSuchElementException;
 @Transactional(readOnly = true)
 public class BlockService {
 
-    private final PageEventHandler pageEventHandler;
+    private final ApplicationEventPublisher publisher;
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
     private final PageRepository pageRepository;
@@ -47,8 +49,19 @@ public class BlockService {
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
 
         // 이벤트 전송
-        pageEventHandler.postBlock(page.getId(), userId, new BlockEventRes(blockRes.getBlockId(), blockRes.getPageId(), blockRes.getTitle()));
-
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.POST_BLOCK)
+                        .pageId(page.getId())
+                        .userId(userId)
+                        .data(BlockEventRes.builder()
+                                .blockId(block.getId())
+                                .pageId(block.getPage().getId())
+                                .title(block.getTitle())
+                                .content(block.getContent())
+                                .build())
+                        .build()
+        );
         return blockRes;
     }
 
@@ -65,8 +78,15 @@ public class BlockService {
                 flag = true;
             }
         }
-        if (flag)
-            pageEventHandler.putBlockOrder(req.getPageId(), userId, req.getBlockIds());
+        if (flag) {
+            publisher.publishEvent(
+                    PageEvent.builder()
+                            .eventName(EventType.PUT_BLOCK_ORDER)
+                            .pageId(req.getPageId())
+                            .userId(userId)
+                            .data(req.getBlockIds()).build()
+            );
+        }
 
         return true;
     }
@@ -83,7 +103,14 @@ public class BlockService {
         int order = 0;
         for (Block b : blockList) b.updateOrder(order++);
 
-        pageEventHandler.deleteBlock(pageId, userId, new BlockIdRes(blockId));
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.DELETE_BLOCK)
+                        .pageId(pageId)
+                        .userId(userId)
+                        .data(new BlockIdRes(blockId)).build()
+        );
+
     }
 
     @Transactional

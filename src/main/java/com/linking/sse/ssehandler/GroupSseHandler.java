@@ -1,10 +1,12 @@
 package com.linking.sse.ssehandler;
 
-import com.linking.global.common.CustomEmitter;
+import com.linking.sse.domain.CustomEmitter;
 import com.linking.sse.event.GroupEvent;
-import com.linking.sse.emitter_repository.IGroupSseRepository;
+import com.linking.sse.persistence.GroupEmitterInMemoryRepoImpl;
+import com.linking.sse.persistence.IEmitterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -19,20 +21,21 @@ import java.util.*;
 public class GroupSseHandler {
 
     private static final Long TIMEOUT = 600 * 1000L; // 10분
-    private final IGroupSseRepository groupSseInMemoryRepository;
+
+    private final GroupEmitterInMemoryRepoImpl emitterRepository;
 
     public SseEmitter connect(Long projectId, Long userId) {
 
         log.info("[GROUP][CONNECT] projectId = {}, userId = {}", projectId, userId);
 
-        CustomEmitter customEmitter = groupSseInMemoryRepository.save(projectId, new CustomEmitter(userId, new SseEmitter(TIMEOUT)));
+        CustomEmitter customEmitter = emitterRepository.save(projectId, new CustomEmitter(userId, new SseEmitter(TIMEOUT)));
         SseEmitter emitter = customEmitter.getSseEmitter();
 
         emitter.onTimeout(() -> {
             emitter.complete();
         });
         emitter.onCompletion(() -> {
-            groupSseInMemoryRepository.deleteEmitter(projectId, customEmitter);
+            emitterRepository.deleteEmitter(projectId, customEmitter);
             log.info("[GROUP][REMOVE] projectId = {}, userId = {}", projectId, userId);
         });
         return emitter;
@@ -41,17 +44,17 @@ public class GroupSseHandler {
     @EventListener
     public void send(GroupEvent event) {
 
-        Set<CustomEmitter> emittersByProject = groupSseInMemoryRepository.findEmittersByKey(event.getProjectId());
+        Set<CustomEmitter> emittersByProject = emitterRepository.findEmittersByKey(event.getProjectId());
         if (emittersByProject == null) return;
 
         if (event.getUserId() == null)
             sendEventExceptUserIdList(event, emittersByProject);
         else
-            sendEventExceptUserId(event, emittersByProject);
+            sendEventExceptPublisher(event, emittersByProject);
 
     }
 
-    public void sendEventExceptUserId(GroupEvent event, Set<CustomEmitter> emitters) {
+    private void sendEventExceptPublisher(GroupEvent event, Set<CustomEmitter> emitters) {
 
         emitters.forEach(emitter -> {
             if (event.getUserId() != emitter.getUserId()) {
@@ -71,7 +74,7 @@ public class GroupSseHandler {
 
     }
 
-    public void sendEventExceptUserIdList(GroupEvent event, Set<CustomEmitter> emitters) {
+    private void sendEventExceptUserIdList(GroupEvent event, Set<CustomEmitter> emitters) {
 
         emitters.forEach(emitter -> {
             if (!event.getUserIds().contains(emitter.getUserId())) {
@@ -94,7 +97,7 @@ public class GroupSseHandler {
 
         log.info("GroupSseHandler.removeEmittersByProject");
 
-        Set<CustomEmitter> customEmitters = groupSseInMemoryRepository.deleteAllByProject(projectId);
+        Set<CustomEmitter> customEmitters = emitterRepository.deleteAllByKey(projectId);
 
         if (customEmitters != null) {
             for (CustomEmitter customEmitter : customEmitters) {
@@ -103,6 +106,6 @@ public class GroupSseHandler {
             }
         }
 
-        log.info("** [GROUP][REMOVE_ALL] project = {} is removed", projectId);
+        log.info("[GROUP][REMOVE_ALL] project = {} is removed", projectId);
     }
 }

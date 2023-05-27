@@ -14,7 +14,7 @@ import com.linking.global.exception.NoAuthorityException;
 import com.linking.global.message.ErrorMessage;
 import com.linking.sse.EventType;
 import com.linking.sse.event.GroupEvent;
-import com.linking.sse.ssehandler.PageEventHandler;
+import com.linking.sse.event.PageEvent;
 import com.linking.sse.ssehandler.PageSseHandler;
 import com.linking.page.dto.PageRes;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +30,9 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AnnotationService {
+
     private final PageSseHandler pageSseHandler;
     private final ApplicationEventPublisher publisher;
-    private final PageEventHandler pageEventHandler;
     private final AnnotationRepository annotationRepository;
     private final AnnotationMapper annotationMapper;
     private final PageCheckRepository pageCheckRepository;
@@ -69,7 +69,7 @@ public class AnnotationService {
         // TODO 프론트에서 pageId를 좀 더 빨리 찾을 수 있도록 groupId를 요청하여 page에서 group을 조회하기 떄문에 select page sql 발생
         publisher.publishEvent(
                 GroupEvent.builder()
-                    .eventName(EventType.POST_ANNOT)
+                    .eventName(EventType.POST_ANNOT_NOT)
                     .projectId(req.getProjectId())
                     .userIds(enteringUserIds)
                     .data(PageRes.builder()
@@ -79,7 +79,13 @@ public class AnnotationService {
                 .build());
 
         // 주석 생성 이벤트
-        pageEventHandler.postAnnotation(block.getPage().getId(), userId, annotationRes);
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.POST_ANNOT)
+                        .pageId(block.getPage().getId())
+                        .userId(userId)
+                        .data(annotationRes).build()
+        );
 
         return annotationRes;
     }
@@ -108,7 +114,13 @@ public class AnnotationService {
                 .build();
 
         // 주석 내용 수정 이벤트
-        pageEventHandler.updateAnnotation(annotation.getBlock().getPage().getId(), userId, annotationUpdateRes);
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.UPDATE_ANNOT)
+                        .pageId(annotation.getBlock().getPage().getId())
+                        .userId(userId)
+                        .data(annotationUpdateRes).build()
+        );
 
         return annotationRes;
     }
@@ -149,7 +161,7 @@ public class AnnotationService {
         // 주석 개수 감소 이벤트
         publisher.publishEvent(
                 GroupEvent.builder()
-                    .eventName(EventType.DELETE_ANNOT)
+                    .eventName(EventType.DELETE_ANNOT_NOT)
                     .projectId(projectId)
                     .userIds(enteringUserIds)
                     .data(PageRes.builder()
@@ -159,6 +171,12 @@ public class AnnotationService {
                 .build());
 
         // 주석 삭제 이벤트
-        pageEventHandler.deleteAnnotation(pageId, userId, new AnnotationIdRes(annotationId, blockId));
+        publisher.publishEvent(
+                PageEvent.builder()
+                        .eventName(EventType.DELETE_ANNOT)
+                        .pageId(pageId)
+                        .userId(userId)
+                        .data(new AnnotationIdRes(annotationId, blockId)).build()
+        );
     }
 }

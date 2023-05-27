@@ -1,4 +1,4 @@
-package com.linking.global.common;
+package com.linking.sse.domain;
 
 import lombok.Getter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

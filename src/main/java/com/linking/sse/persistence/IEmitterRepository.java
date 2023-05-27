@@ -1,10 +1,10 @@
-package com.linking.sse.emitter_repository;
+package com.linking.sse.persistence;
 
-import com.linking.global.common.CustomEmitter;
+import com.linking.sse.domain.CustomEmitter;
 
 import java.util.Set;
 
-public interface IGroupSseRepository {
+public interface IEmitterRepository {
 
     CustomEmitter save(Long key, CustomEmitter customEmitter);
 
@@ -17,5 +17,5 @@ public interface IGroupSseRepository {
 
     boolean deleteEmitter(Long key, CustomEmitter customEmitter);
 
-    Set<CustomEmitter> deleteAllByProject(Long projectId);
+    Set<CustomEmitter> deleteAllByKey(Long projectId);
 }

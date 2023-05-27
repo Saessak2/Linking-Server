@@ -8,20 +8,23 @@ import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
-import com.linking.sse.ssehandler.PageEventHandler;
+import com.linking.sse.EventType;
+import com.linking.sse.event.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page_check.domain.PageCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PageCheckService {
-    private final PageEventHandler pageEventHandler;
+
+    private final ApplicationEventPublisher publisher;
     private final PageCheckRepository pageCheckRepository;
     private final PageCheckMapper pageCheckMapper;
     private final GroupRepository groupRepository;
@@ -43,10 +46,21 @@ public class PageCheckService {
 
         PageCheckUpdateRes pageCheckUpdateRes = pageCheckMapper.toPageCheckUpdateDto(pageCheckRepository.save(pageCheck));
 
-        if (event.equals("leave"))
-            pageEventHandler.leave(pageId, userId, pageCheckUpdateRes); // leave 이벤트 발행
-        else if (event.equals("enter"))
-            pageEventHandler.enter(pageId, userId, pageCheckUpdateRes); // enter 이벤트 발행
+        PageEvent.PageEventBuilder pageEvent = PageEvent.builder();
+        pageEvent
+                .pageId(pageId)
+                .userId(userId)
+                .data(pageCheckUpdateRes).build();
+
+        if (event.equals("leave")) {
+            pageEvent
+                    .eventName(EventType.PAGE_LEAVE).build();
+        }
+        else if (event.equals("enter")) {
+            pageEvent
+                    .eventName(EventType.PAGE_ENTER).build();
+        }
+        publisher.publishEvent(pageEvent.build());
     }
 
     // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성
