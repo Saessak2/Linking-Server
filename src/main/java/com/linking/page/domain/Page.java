@@ -6,6 +6,7 @@ import com.linking.page_check.domain.PageCheck;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,11 @@ public class Page {
     private int pageOrder;
 
     @Setter
+    @NotNull
     private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @Enumerated(value = EnumType.STRING)
     private Template template;
@@ -60,6 +65,7 @@ public class Page {
         this.title = this.title == null ? "untitled" : this.title;
         this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
         this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
+        this.content = template == Template.BLANK ? "" : null;
     }
 
     public void updateOrder(int order) {

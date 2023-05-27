@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
 @SuperBuilder
+@NoArgsConstructor
 public class BlockPageDetailRes extends PageDetailedRes{
 
     private List<BlockDetailRes> blockResList;
