@@ -6,7 +6,7 @@ import com.linking.global.util.JsonMapper;
 import com.linking.page.dto.TextInputMessage;
 import com.linking.page.dto.TextSendEvent;
 import com.linking.page.persistence.IPageSocketRepository;
-import com.linking.page.service.PageEditingService;
+import com.linking.page.service.PageWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -25,7 +25,7 @@ import java.util.Set;
 public class PageWebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
-    private final PageEditingService pageEditingService;
+    private final PageWebSocketService pageWebSocketService;
     private final IPageSocketRepository pageSocketSessionRepositoryImpl;
 
     @Override
@@ -63,7 +63,7 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         attributes.put("userId", session.getAttributes().get("userId"));
         attributes.put("sessionId", session.getId());
 
-        pageEditingService.inputText(attributes, textInputMessage);
+        pageWebSocketService.inputText(attributes, textInputMessage);
     }
 
     @EventListener

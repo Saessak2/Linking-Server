@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "page")
 @Getter
+@Table(name = "page")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Page {
 
@@ -30,6 +30,7 @@ public class Page {
     @NotNull
     private String title;
 
+    @Setter
     @Column(columnDefinition = "TEXT")
     private String content;
 

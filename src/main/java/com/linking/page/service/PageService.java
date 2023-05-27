@@ -52,6 +52,7 @@ public class PageService {
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
     private final AnnotationMapper annotationMapper;
+    private final PageWebSocketService pageWebSocketService;
 
     public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
         log.info("getPage async test" + Thread.currentThread());
@@ -62,10 +63,11 @@ public class PageService {
 
         List<PageCheckRes> pageCheckResList = this.toPageCheckResList(page.getPageCheckList(), enteringUserIds);
 
-        if (page.getTemplate() == Template.BLANK)  // blank 타입의 page
+        if (page.getTemplate() == Template.BLANK) {  // blank 타입의 page
+            // pageContentSnapshot 을 db에 저장.
+            page.setContent(pageWebSocketService.findSnapshotByPageId(pageId));
             return pageMapper.toDto(page, pageCheckResList);
-
-        else if(page.getTemplate() == Template.BLOCK) { // block 타입의 page
+        } else if (page.getTemplate() == Template.BLOCK) { // block 타입의 page
             List<BlockDetailRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
