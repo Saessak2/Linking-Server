@@ -45,6 +45,7 @@ public class PushNotificationService {
         List<PushNotificationRes> resList = new ArrayList<>();
 
         for (PushNotification not : notifications) {
+            not.setChecked(true);
             builder
                     .projectId(not.getProject().getProjectId())
                     .body(not.getBody())
@@ -68,7 +69,6 @@ public class PushNotificationService {
                         .assistantId(-1L);
             }
             resList.add(builder.build());
-            not.setChecked(true);
         }
         return resList;
     }
