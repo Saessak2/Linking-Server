@@ -57,6 +57,6 @@ public class BlockController {
             @RequestHeader Long userId
     ) {
         Long blockId = blockService.cloneBlock(userId, blockCloneReq);
-        return ResponseHandler.generateOkResponse(blockId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockId);
     }
 }

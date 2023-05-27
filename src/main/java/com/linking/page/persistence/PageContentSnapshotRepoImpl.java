@@ -3,30 +3,28 @@ package com.linking.page.persistence;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Repository
-public class PageContentSnapshotRepoImpl implements IDocsInMemoryRepository{
+public class PageContentSnapshotRepoImpl {
 
-    private final List<String> document = new CopyOnWriteArrayList<>();
+    private final Queue<String> document = new ConcurrentLinkedQueue<>();
 
 
-    @Override
-    public void save(int index, String character) {
-        document.add(index, character);
+    public void save(String docs) {
+        document.add(docs);
     }
 
-    @Override
-    public void delete(int index) {
-        document.remove(index);
+    public String poll() {
+        return document.poll();
     }
 
-    @Override
-    public List<String> getDocs() {
+    public Queue<String> getDocs() {
         return document;
     }
 
-    @Override
     public void clear() {
         document.clear();
     }

@@ -18,15 +18,15 @@ public class TextInput {
     private String inputType;
     @NotNull
     private int index;
-    private String character;
+    private String docs;
     @NotNull
     private Timestamp timestamp;
 
-    public TextInput(String sessionId, String inputType, int index, String character) {
+    public TextInput(String sessionId, String inputType, int index, String docs) {
         this.sessionId = sessionId;
         this.inputType = inputType;
         this.index = index;
-        this.character = character;
+        this.docs = docs;
         this.timestamp = Timestamp.valueOf(LocalDateTime.now());
     }
 }

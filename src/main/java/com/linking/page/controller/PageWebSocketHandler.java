@@ -1,5 +1,6 @@
 package com.linking.page.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.global.util.JsonMapper;
 import com.linking.page.dto.TextInputMessage;
@@ -46,8 +47,12 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
-        TextInputMessage textInputMessage = objectMapper.readValue(message.getPayload(), TextInputMessage.class);
-        log.info("type = {}, index ={}, char = {}", textInputMessage.getInputType(), textInputMessage.getIndex(), textInputMessage.getCharacter());
+        try {
+            TextInputMessage textInputMessage = objectMapper.readValue(message.getPayload(), TextInputMessage.class);
+        } catch (JsonParseException exception) {
+            log.error("TextInputMessage.class 형식에 맞지 않습니다. => {}", exception.getMessage());
+        }
+//        log.info("type = {}, index ={}, char = {}", textInputMessage.getInputType(), textInputMessage.getIndex(), textInputMessage.getCharacter());
 
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("projectId", session.getAttributes().get("projectId"));
@@ -55,7 +60,7 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         attributes.put("userId", session.getAttributes().get("userId"));
         attributes.put("sessionId", session.getId());
 
-        pageEditingService.inputText(attributes, textInputMessage);
+//        pageEditingService.inputText(attributes, textInputMessage);
 
 
         Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId((Long) session.getAttributes().get("pageId"));
