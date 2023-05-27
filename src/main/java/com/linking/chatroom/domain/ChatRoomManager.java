@@ -97,7 +97,7 @@ public class ChatRoomManager {
         return usres;
     }
 
-    public void setChattingSessionFocusState(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, WebSocketSession session, boolean isFocusing){
+    public void setChattingSessionFocusState(ChatRoomBadgeRepository chatRoomBadgeRepository, WebSocketSession session, boolean isFocusing){
         for(ChattingSession cs : chattingSessionList){
             if(cs.getWebSocketSession().getId().equals(session.getId())) {
                 cs.setIsFocusing(isFocusing);

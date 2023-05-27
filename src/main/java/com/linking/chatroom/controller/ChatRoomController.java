@@ -1,7 +1,6 @@
 package com.linking.chatroom.controller;
 
 
-import com.linking.chat.dto.ChatRes;
 import com.linking.chat.service.ChatService;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;

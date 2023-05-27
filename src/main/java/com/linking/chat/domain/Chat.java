@@ -2,7 +2,6 @@ package com.linking.chat.domain;
 
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;

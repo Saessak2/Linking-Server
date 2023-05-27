@@ -71,33 +71,40 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
                 break;
 
             case open:
-                chatRoomManagerService.openChatRoom(chatReq.getProjectId(), chatRoom, session, true);
+                chatRoomManagerService.openChatRoom(chatRoom, session);
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] OPENED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
-            case text:
-                chatRoomManagerService.publishTextMessage(chatReq.getProjectId(), chatRoom, chatService.saveChat(chatRoom, chatReq));
+            case text:// TODO : param chatRes -> chatReq ?
+                chatRoomManagerService.publishTextMessage(chatRoom, chatService.saveChat(chatRoom, chatReq));
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] MESSAGE SENT {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
                 break;
 
             case close:
+                chatRoomManagerService.closeChatRoom(chatRoom, session);
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] CLOSED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
-                chatRoomManagerService.closeChatRoom(chatReq.getProjectId(), chatRoom, session, false);
                 break;
 
             case unregister:
+                chatRoomManagerService.unregisterChattingSessionOnChatRoom(chatRoom, session);
                 log.info("[ CHATTING ] [ ROOM {}, USER {} ] UNREGISTERED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
-                chatRoomManagerService.unregisterChattingSessionOnChatRoom(chatReq.getProjectId(), chatRoom, session);
                 break;
 
             case disconnect:
-                log.info("[ CHATTING ] [ ROOM {}, USER {} ] DISCONNECTED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), hr);
-                chatRoomManagerService.disconnectSession(chatReq.getProjectId(), chatRoom, session);
+                chatRoomManagerService.disconnectSession(chatRoom, session);
+                log.info("[ CHATTING ] [ SESSION {} ] DISCONNECTED {}", session.getId(), hr);
                 break;
 
             default:
                 throw new BadRequestException("Request Type Mismatch");
         }
+    }
+
+    @Override
+    public void afterConnectionClosed(@Nonnull WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
+        super.afterConnectionClosed(session, status);
+        chatRoomManagerService.disconnectSession(null, session);
+        log.info("[ CHATTING ] [ SESSION {} ] DISCONNECTED {}", session.getId(), hr);
     }
 
 }

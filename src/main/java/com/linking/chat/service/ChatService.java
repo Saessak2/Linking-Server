@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final DateTimeFormatter entityFormatter = DateTimeFormatter.ofPattern("yyyy. M. d. a h:m:s").withLocale(Locale.KOREAN);
+    private final DateTimeFormatter requestFormatter = DateTimeFormatter.ofPattern("yyyy. M. d. a h:m:s").withLocale(Locale.KOREAN);
     private final DateTimeFormatter responseFormatter = DateTimeFormatter.ofPattern("yyyy. M. d. a h:m").withLocale(Locale.KOREAN);
 
     private final ChatRepository chatRepository;
@@ -46,7 +46,7 @@ public class ChatService {
     public ChatRes saveChat(ChatRoom chatRoom, ChatReq chatReq) {
         return chatMapper.toRes(chatRepository.save(
                 participantRepository.findByUserAndProjectId(chatReq.getUserId(), chatReq.getProjectId())
-                        .map(p -> chatMapper.toEntity(chatReq, p, chatRoom, entityFormatter)).orElseThrow(NoSuchElementException::new)), responseFormatter);
+                        .map(p -> chatMapper.toEntity(chatReq, p, chatRoom, requestFormatter)).orElseThrow(NoSuchElementException::new)), responseFormatter);
     }
 
 }
