@@ -114,8 +114,8 @@ public class ChatRoomManager {
     private void sendChatRoomBadge(ObjectMapper objectMapper, List<ChattingSession> notFocusingSessionList, List<ChatRoomBadge> chatRoomBadgeList){
         for(ChattingSession cs: notFocusingSessionList) {
             try {
-                int num = chatRoomBadgeList.stream().findAny()
-                        .filter(c -> c.getParticipant().getParticipantId().equals(cs.getParticipant().getParticipantId()))
+                int num = chatRoomBadgeList.stream()
+                        .filter(c -> c.getParticipant().getParticipantId().equals(cs.getParticipant().getParticipantId())).findAny()
                         .orElseThrow(NoSuchElementException::new).getUnreadCount();
                 sendTextMessage(cs, getReponseTextMessage(objectMapper, ResType.badgeAlarm, num));
             } catch (IOException e) {

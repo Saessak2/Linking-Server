@@ -47,7 +47,7 @@ public class ChatRoomManagerService {
     public void publishTextMessage(ChatRoom chatRoom, ChatRes chatRes) {
         ChatRoomManager chatRoomManager =
                 chatRoomManagers.stream()
-                        .findAny().filter(c -> c.getProjectId().equals(chatRoom.getProject().getProjectId()))
+                        .filter(c -> c.getProjectId().equals(chatRoom.getProject().getProjectId())).findAny()
                         .orElseThrow(NoSuchElementException::new);
         chatRoomManager.sendTextChatMessage(objectMapper, chatRoomBadgeRepository, ResType.textMessage, chatRes);
     }
@@ -59,7 +59,7 @@ public class ChatRoomManagerService {
     public void unregisterChattingSessionOnChatRoom(ChatRoom chatRoom, WebSocketSession webSocketSession){
         ChatRoomManager chatRoomManager =
                 chatRoomManagers.stream()
-                        .findAny().filter(c -> c.getProjectId().equals(chatRoom.getProject().getProjectId()))
+                        .filter(c -> c.getProjectId().equals(chatRoom.getProject().getProjectId())).findAny()
                         .orElseThrow(NoSuchElementException::new);
         chatRoomManager.deleteChattingSession(webSocketSession);
     }
@@ -91,10 +91,10 @@ public class ChatRoomManagerService {
     }
     
     private void changeChattingSessionFocusState(ChatRoom chatRoom, WebSocketSession session, boolean isFocusing) {
-        ChatRoomManager chatRoomManager =
-                chatRoomManagers.stream()
-                        .findAny().filter(c -> c.getProjectId().equals(chatRoom.getProject().getProjectId()))
-                        .orElseThrow(NoSuchElementException::new);
+        ChatRoomManager chatRoomManager = chatRoomManagers.stream()
+                .filter(c -> c.getChatRoom().getChatRoomId().equals(chatRoom.getChatRoomId())).findAny()
+                .orElseThrow(NoSuchElementException::new);
+
         chatRoomManager.setChattingSessionFocusState(chatRoomBadgeRepository, session, isFocusing);
         chatRoomManager.sendFocusingUsers(objectMapper);
     }
