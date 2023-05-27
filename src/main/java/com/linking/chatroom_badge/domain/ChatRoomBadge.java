@@ -1,7 +1,6 @@
 package com.linking.chatroom_badge.domain;
 
 import com.linking.chatroom.domain.ChatRoom;
-import com.linking.global.exception.BadRequestException;
 import com.linking.participant.domain.Participant;
 import lombok.*;
 
@@ -33,12 +32,6 @@ public class ChatRoomBadge {
 
     public void plusCount(){
        unreadCount++;
-    }
-
-    public void minusCnt(){
-        if(unreadCount == 0)
-            throw new BadRequestException("count can't be negative");
-        unreadCount--;
     }
 
     public void resetCnt(){

@@ -1,7 +1,7 @@
-package com.linking.chatroom.domain;
+package com.linking.global.common;
 
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
+import com.linking.project.domain.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,7 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 @AllArgsConstructor
 public class ChattingSession {
 
-    private Long projectId;
+    private Project project;
     private Participant participant;
     private Boolean isFocusing;
     private WebSocketSession webSocketSession;

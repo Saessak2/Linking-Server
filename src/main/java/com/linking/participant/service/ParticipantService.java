@@ -34,9 +34,9 @@ public class ParticipantService {
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
-        List<Participant> partData = participantRepository.findByUserAndProject(
-                participantIdReq.getUserId(), participantIdReq.getProjectId());
-        if (!partData.isEmpty())
+        Optional<Participant> possibleParticipant = participantRepository
+                .findByUserAndProject(new User(participantIdReq.getUserId()), new Project(participantIdReq.getProjectId()));
+        if(possibleParticipant.isPresent())
             throw new DuplicateKeyException("Already in project");
 
         Participant participant = participantRepository.save(participantMapper.toEntity(participantIdReq));
@@ -124,9 +124,9 @@ public class ParticipantService {
     private List<Participant> setParticipantList(List<ParticipantIdReq> participantIdReqList){
         List<Participant> participantList = new ArrayList<>();
         for(ParticipantIdReq p : participantIdReqList){
-            participantList.addAll(
-                    participantRepository.findByUserAndProject(
-                            p.getUserId(), p.getProjectId()));
+            participantList.add(
+                    participantRepository.findByUserAndProject(new User(p.getUserId()), new Project(p.getProjectId()))
+                            .orElseThrow(NoSuchElementException::new));
         }
         return participantList;
     }

@@ -1,20 +1,17 @@
 package com.linking.chatroom.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linking.chat.dto.ResType;
 import com.linking.chatroom_badge.domain.ChatRoomBadge;
 import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
+import com.linking.global.common.ChattingSession;
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
-import com.linking.chat.dto.ChatFocusingUserRes;
+import com.linking.participant.dto.ChatRoomFocusingParticipantRes;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,8 +24,8 @@ public class ChatRoomManager {
     private final ChatRoom chatRoom;
     private final List<ChattingSession> chattingSessionList;
 
-    public ChatRoomManager(Long projectId, ChatRoom chatRoom){
-        this.projectId = projectId;
+    public ChatRoomManager(ChatRoom chatRoom){
+        this.projectId = chatRoom.getProject().getProjectId();
         this.chatRoom = chatRoom;
         chattingSessionList = new ArrayList<>();
     }
@@ -44,11 +41,11 @@ public class ChatRoomManager {
         });
     }
 
-    public void sendTextMessageToSessions(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, List<Participant> participantList, TextMessage textMessage) throws RuntimeException {
+    public void sendTextMessageToSessions(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, TextMessage textMessage) throws RuntimeException {
         List<ChattingSession> notFocusing = chattingSessionList.stream().filter(c -> !c.getIsFocusing() && c.getWebSocketSession().isOpen() ).collect(Collectors.toList());
         List<Participant> unregpartList = new ArrayList<>();
 
-        List<Participant> pL = notFocusing.stream().map(p->p.getParticipant()).collect(Collectors.toList());;
+        List<Participant> pL = notFocusing.stream().map(ChattingSession::getParticipant).collect(Collectors.toList());
         List<ChatRoomBadge> chatRoomBadges = chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(unregpartList);
         chatRoomBadges.addAll(chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(pL));
 
@@ -62,7 +59,7 @@ public class ChatRoomManager {
                 int num =  chatRoomBadges.stream().findAny()
                         .filter(c -> c.getParticipant().getParticipantId().equals(cs.getParticipant().getParticipantId())).get().getUnreadCount();
                 Map<String, Object> map = new HashMap<>();
-                map.put("resType", "badgeAlarm");
+                map.put("resType", ResType.badgeAlarm);
                 map.put("data", num);
                 cs.getWebSocketSession().sendMessage(new TextMessage(objectMapper.writeValueAsString(map)));
             } catch (IOException e) {
@@ -72,7 +69,7 @@ public class ChatRoomManager {
 
         chattingSessionList.forEach(cs -> {
             try {
-                if(cs.getWebSocketSession().isOpen())
+                if(cs.getWebSocketSession().isOpen() && cs.getIsFocusing())
                     cs.getWebSocketSession().sendMessage(textMessage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -89,18 +86,18 @@ public class ChatRoomManager {
     }
 
     // 중복 제거
-    public List<ChatFocusingUserRes> getFocusingUsers(){
+    public List<ChatRoomFocusingParticipantRes> getFocusingUsers(){
         List<ChattingSession> userList =  chattingSessionList.stream()
                 .filter(ChattingSession::getIsFocusing).collect(Collectors.toList());
-        List<Participant> userSet = userList.stream().map(m -> m.getParticipant()).collect(Collectors.toList());
-        List<ChatFocusingUserRes> usres = new ArrayList<>();
+        List<Participant> userSet = userList.stream().map(ChattingSession::getParticipant).collect(Collectors.toList());
+        List<ChatRoomFocusingParticipantRes> usres = new ArrayList<>();
         for(Participant participant : userSet){
-            usres.add(new ChatFocusingUserRes(participant.getUser().getUserId(), participant.getUserName()));
+            usres.add(new ChatRoomFocusingParticipantRes(participant.getUserName()));
         }
         return usres;
     }
 
-    public void setChattingSessionFocusState(ObjectMapper objectMapper, ChatRoomBadgeRepository chatRoomBadgeRepository, WebSocketSession session, boolean isFocusing){
+    public void setChattingSessionFocusState(ChatRoomBadgeRepository chatRoomBadgeRepository, WebSocketSession session, boolean isFocusing){
         for(ChattingSession cs : chattingSessionList){
             if(cs.getWebSocketSession().getId().equals(session.getId())) {
                 cs.setIsFocusing(isFocusing);
@@ -109,8 +106,8 @@ public class ChatRoomManager {
                     chatRoomBadge.resetCnt();
                     chatRoomBadgeRepository.save(chatRoomBadge);
                 }
-            }
                 break;
+            }
         }
 
     }

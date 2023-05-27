@@ -1,5 +1,6 @@
-package com.linking.chat.controller;
+package com.linking.global.config;
 
+import com.linking.chat.controller.ChattingWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,7 @@ public class ChattingWebSocketConfig implements WebSocketConfigurer {
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         var container = new ServletServerContainerFactoryBean();
-        container.setMaxSessionIdleTimeout(60 * 10000L);
+        container.setMaxSessionIdleTimeout(15 * 60 * 1000L);
         return container;
     }
 

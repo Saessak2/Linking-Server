@@ -1,4 +1,4 @@
-package com.linking.chatroom.dto;
+package com.linking.participant.dto;
 
 import lombok.*;
 
@@ -6,9 +6,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoomFocusingUserRes {
+public class ChatRoomFocusingParticipantRes {
 
-    private Long userId;
     private String userName;
 
 }
