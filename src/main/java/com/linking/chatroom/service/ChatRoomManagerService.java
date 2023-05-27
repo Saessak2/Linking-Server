@@ -3,6 +3,7 @@ package com.linking.chatroom.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.chat.dto.ChatRes;
+import com.linking.chat.dto.ResType;
 import com.linking.chat_join.persistence.ChatJoinRepository;
 import com.linking.chatroom.domain.ChatRoom;
 import com.linking.chatroom.domain.ChatRoomManager;
@@ -45,7 +46,7 @@ public class ChatRoomManagerService {
 
         ChatRoomBadge chatRoomBadge = chatRoomBadgeRepository.findChatRoomBadgeByParticipant(chattingSession.getParticipant()).orElseThrow(NoSuchElementException::new);
         Map<String, Object> map = new HashMap<>();
-        map.put("resType", "badgeAlarm");
+        map.put("resType", ResType.badgeAlarm);
         map.put("data", chatRoomBadge.getUnreadCount());
 
         try {
@@ -71,7 +72,7 @@ public class ChatRoomManagerService {
 
     public void publishMessage(Long projectId, ChatRoom chatRoom, ChatRes chatRes) throws JsonProcessingException {
         Map<String, Object> resMap = new HashMap<>();
-        resMap.put("resType", "textMessage");
+        resMap.put("resType", ResType.textMessage);
         resMap.put("data", chatRes);
         ChatRoomManager chatRoomManager = new ChatRoomManager(projectId, chatRoom);
         for(ChatRoomManager crm : chatRoomManagers){
@@ -86,6 +87,18 @@ public class ChatRoomManagerService {
 
 
     public void disconnectSession(Long projectId, ChatRoom chatRoom, WebSocketSession webSocketSession) throws IOException {
+        unregister(projectId, chatRoom, webSocketSession);
+        webSocketSession.close();
+    }
+
+    private void publishFocusingUserList(ChatRoomManager chatRoomManager) throws JsonProcessingException {
+        Map<String, Object> resMap = new HashMap<>();
+        resMap.put("resType", ResType.userList);
+        resMap.put("data", chatRoomManager.getFocusingUsers());
+        chatRoomManager.sendFocusingUsers(new TextMessage(objectMapper.writeValueAsString(resMap)));
+    }
+
+    public void unregister(Long projectId, ChatRoom chatRoom, WebSocketSession webSocketSession){
         ChatRoomManager chatRoomManager = new ChatRoomManager(projectId, chatRoom);
         for(ChatRoomManager crm : chatRoomManagers){
             if(chatRoomManager.getProjectId().equals(projectId)){
@@ -94,14 +107,6 @@ public class ChatRoomManagerService {
             }
         }
         chatRoomManager.deleteChattingSession(webSocketSession);
-        webSocketSession.close();
-    }
-
-    private void publishFocusingUserList(ChatRoomManager chatRoomManager) throws JsonProcessingException {
-        Map<String, Object> resMap = new HashMap<>();
-        resMap.put("resType", "userList");
-        resMap.put("data", chatRoomManager.getFocusingUsers());
-        chatRoomManager.sendFocusingUsers(new TextMessage(objectMapper.writeValueAsString(resMap)));
     }
 
 }
