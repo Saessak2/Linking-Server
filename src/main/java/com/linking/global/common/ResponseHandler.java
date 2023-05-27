@@ -35,7 +35,7 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    public static ResponseEntity<Object> generateCreatedResponse(Object resObj){
+    public static ResponseEntity generateCreatedResponse(Object resObj){
         Map<String, Object> map = new HashMap<>();
         map.put("message", MSG_201);
         map.put("status", HttpStatus.CREATED.value());
@@ -53,7 +53,7 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, HttpStatus.NO_CONTENT);
     }
 
-    public static ResponseEntity<Object> generateBadRequestResponse(){
+    public static ResponseEntity generateBadRequestResponse(){
         Map<String, Object> map = new HashMap<>();
         map.put("message", MSG_400);
         map.put("status", HttpStatus.BAD_REQUEST.value());
@@ -62,7 +62,7 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
     }
 
-    public static ResponseEntity<Object> generateNotFoundResponse(){
+    public static ResponseEntity generateNotFoundResponse(){
         Map<String, Object> map = new HashMap<>();
         map.put("message", MSG_404);
         map.put("status", HttpStatus.NOT_FOUND.value());
@@ -71,7 +71,7 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
     }
 
-    public static ResponseEntity<Object> generateInternalServerErrorResponse(){
+    public static ResponseEntity generateInternalServerErrorResponse(){
         Map<String, Object> map = new HashMap<>();
         map.put("message", MSG_500);
         map.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());

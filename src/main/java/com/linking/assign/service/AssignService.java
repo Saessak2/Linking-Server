@@ -12,6 +12,7 @@ import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.TodoUpdateReq;
 import com.linking.todo.persistence.TodoRepository;
 import com.linking.todo.controller.TodoSseEventHandler;
+import com.linking.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -102,8 +103,9 @@ public class AssignService {
     }
 
     public void deleteAssign(AssignDeleteReq assignDeleteReq){
-        Participant participant = participantRepository.findByUserAndProject(
-                assignDeleteReq.getUserId(), assignDeleteReq.getProjectId()).get(0);
+        Participant participant = participantRepository
+                .findByUserAndProject(new User(assignDeleteReq.getUserId()), new Project(assignDeleteReq.getProjectId()))
+                .orElseThrow(NoSuchElementException::new);
         Assign assign = assignRepository.findByTodoAndParticipant(new Todo(assignDeleteReq.getTodoId()), participant);
 
         if(assign.getTodo().getAssignList().size() == 1)

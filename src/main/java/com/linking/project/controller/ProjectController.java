@@ -26,57 +26,45 @@ public class ProjectController {
     private final ParticipantService participantService;
 
     @PostMapping
-    public ResponseEntity<Object> postProject(
-            @RequestBody @Valid ProjectCreateReq projectCreateReq
-    ) {
+    public ResponseEntity<ProjectContainsPartsRes> postProject(@RequestBody @Valid ProjectCreateReq projectCreateReq) {
         return projectService.createProject(projectCreateReq)
                 .map(ResponseHandler::generateCreatedResponse)
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getProject(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<ProjectContainsPartsRes> getProject(@PathVariable Long id) {
         return projectService.getProjectsContainingParts(id)
-                .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
+                .map(p -> ResponseHandler.generateOkResponse(p))
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
     @GetMapping("/list/owner/{id}")
-    public ResponseEntity<Object> getProjectListByOwner(
-            @PathVariable Long id
-    ){
+    public ResponseEntity<List<ProjectContainsPartsRes>> getProjectListByOwner(@PathVariable Long id){
         List<ProjectContainsPartsRes> projectList = projectService.getProjectsByOwnerId(id);
         if(projectList.isEmpty())
             return ResponseHandler.generateInternalServerErrorResponse();
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
+        return ResponseHandler.generateOkResponse(projectList);
     }
 
     @GetMapping("/list/part/{id}")
-    public ResponseEntity<Object> getProjectListByPart(
-            @PathVariable Long id
-    ){
+    public ResponseEntity<List<ProjectContainsPartsRes>> getProjectListByPart(@PathVariable Long id){
         List<ProjectContainsPartsRes> projectList = projectService.getProjectsByUserId(id);
         if(projectList.isEmpty())
             return ResponseHandler.generateInternalServerErrorResponse();
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, projectList);
+        return ResponseHandler.generateOkResponse(projectList);
     }
 
     @PutMapping
     @Transactional
-    public ResponseEntity<Object> putProject(
-            @RequestBody @Valid ProjectUpdateReq projectUpdateReq
-    ){
+    public ResponseEntity<ProjectContainsPartsRes> putProject(@RequestBody @Valid ProjectUpdateReq projectUpdateReq){
         return projectService.updateProject(projectUpdateReq, participantService.updateParticipantList(projectUpdateReq))
-                .map(p -> ResponseHandler.generateResponse(ResponseHandler.MSG_200, HttpStatus.OK, p))
+                .map(p -> ResponseHandler.generateOkResponse(p))
                 .orElseGet(ResponseHandler::generateInternalServerErrorResponse);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProject(
-            @PathVariable Long id
-    ){
+    public ResponseEntity<Object> deleteProject(@PathVariable Long id){
         projectService.deleteProject(id);
         groupSseHandler.removeEmittersByProject(id);
         return ResponseHandler.generateNoContentResponse();

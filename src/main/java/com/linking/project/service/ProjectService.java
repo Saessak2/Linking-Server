@@ -35,8 +35,7 @@ public class ProjectService {
     private final UserMapper userMapper;
     private final ParticipantRepository participantRepository;
 
-    public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq)
-            throws DataIntegrityViolationException {
+    public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq) throws DataIntegrityViolationException {
         Project project = projectRepository.save(projectMapper.toEntity(projectCreateReq));
 
         List<User> userList = userRepository.findAllById(projectCreateReq.getPartList());
@@ -52,8 +51,7 @@ public class ProjectService {
         return Optional.ofNullable(projectMapper.toDto(project, userMapper.toDto(userList)));
     }
 
-    public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId)
-            throws NoSuchElementException {
+    public Optional<ProjectContainsPartsRes> getProjectsContainingParts(Long projectId) throws NoSuchElementException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(NoSuchElementException::new);
         List<UserDetailedRes> partList = userMapper.toDto(project.getParticipantList().stream()
@@ -62,17 +60,18 @@ public class ProjectService {
         return Optional.ofNullable(projectMapper.toDto(project, partList));
     }
 
-    public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId)
-            throws NoSuchElementException{
+    public List<ProjectContainsPartsRes> getProjectsByOwnerId(Long ownerId) throws NoSuchElementException{
         List<Project> projectList = projectRepository.findByOwner(ownerId);
         if(projectList.isEmpty())
             throw new NoSuchElementException();
         return projectMapper.toDto(projectList);
     }
 
-    public List<ProjectContainsPartsRes> getProjectsByUserId(Long userId)
-            throws NoSuchElementException {
+    public List<ProjectContainsPartsRes> getProjectsByUserId(Long userId) throws NoSuchElementException {
         List<Project> projectList = participantRepository.findProjectsByUser(userId);
+        if(projectList.isEmpty())
+            throw new NoSuchElementException();
+
         List<ProjectContainsPartsRes> projectResList = new ArrayList<>();
         for(Project project : projectList){
             List<UserDetailedRes> partList = userMapper.toDto(project.getParticipantList().stream()
@@ -83,9 +82,7 @@ public class ProjectService {
         return projectResList;
     }
 
-    public Optional<ProjectContainsPartsRes> updateProject(
-            ProjectUpdateReq projectUpdateReq, List<Long> partIdList)
-            throws NoSuchElementException{
+    public Optional<ProjectContainsPartsRes> updateProject(ProjectUpdateReq projectUpdateReq, List<Long> partIdList) throws NoSuchElementException{
         Project res =
                 projectRepository.save(
                         projectMapper.toEntity(
@@ -95,8 +92,7 @@ public class ProjectService {
         return Optional.ofNullable(projectMapper.toDto(res, partList));
     }
 
-    public void deleteProject(Long projectId)
-            throws DataIntegrityViolationException, EmptyResultDataAccessException {
+    public void deleteProject(Long projectId) throws DataIntegrityViolationException, EmptyResultDataAccessException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(NoSuchElementException::new);
         if(project.getParticipantList().size() > 1)
