@@ -24,7 +24,7 @@ public class ChattingWebSocketConfig implements WebSocketConfigurer {
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         var container = new ServletServerContainerFactoryBean();
-        container.setMaxSessionIdleTimeout(60 * 10000L);
+        container.setMaxSessionIdleTimeout(15 * 60 * 1000L);
         return container;
     }
 

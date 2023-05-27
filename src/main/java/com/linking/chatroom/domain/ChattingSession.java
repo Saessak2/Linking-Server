@@ -1,7 +1,6 @@
 package com.linking.chatroom.domain;
 
 import com.linking.participant.domain.Participant;
-import com.linking.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.web.socket.WebSocketSession;

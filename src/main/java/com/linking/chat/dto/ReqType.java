@@ -6,6 +6,7 @@ public enum ReqType {
     open,
     text,
     close,
+    unregister,
     disconnect
 
 }

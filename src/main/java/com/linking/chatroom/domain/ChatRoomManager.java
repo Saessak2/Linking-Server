@@ -1,6 +1,7 @@
 package com.linking.chatroom.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linking.chat.dto.ResType;
 import com.linking.chatroom_badge.domain.ChatRoomBadge;
 import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
 import com.linking.participant.domain.Participant;
@@ -48,7 +49,7 @@ public class ChatRoomManager {
         List<ChattingSession> notFocusing = chattingSessionList.stream().filter(c -> !c.getIsFocusing() && c.getWebSocketSession().isOpen() ).collect(Collectors.toList());
         List<Participant> unregpartList = new ArrayList<>();
 
-        List<Participant> pL = notFocusing.stream().map(p->p.getParticipant()).collect(Collectors.toList());;
+        List<Participant> pL = notFocusing.stream().map(p->p.getParticipant()).collect(Collectors.toList());
         List<ChatRoomBadge> chatRoomBadges = chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(unregpartList);
         chatRoomBadges.addAll(chatRoomBadgeRepository.findChatRoomBadgesByParticipantContaining(pL));
 
@@ -62,7 +63,7 @@ public class ChatRoomManager {
                 int num =  chatRoomBadges.stream().findAny()
                         .filter(c -> c.getParticipant().getParticipantId().equals(cs.getParticipant().getParticipantId())).get().getUnreadCount();
                 Map<String, Object> map = new HashMap<>();
-                map.put("resType", "badgeAlarm");
+                map.put("resType", ResType.badgeAlarm);
                 map.put("data", num);
                 cs.getWebSocketSession().sendMessage(new TextMessage(objectMapper.writeValueAsString(map)));
             } catch (IOException e) {
@@ -72,7 +73,7 @@ public class ChatRoomManager {
 
         chattingSessionList.forEach(cs -> {
             try {
-                if(cs.getWebSocketSession().isOpen())
+                if(cs.getWebSocketSession().isOpen() && cs.getIsFocusing())
                     cs.getWebSocketSession().sendMessage(textMessage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -109,8 +110,8 @@ public class ChatRoomManager {
                     chatRoomBadge.resetCnt();
                     chatRoomBadgeRepository.save(chatRoomBadge);
                 }
-            }
                 break;
+            }
         }
 
     }

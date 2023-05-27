@@ -83,6 +83,10 @@ public class ChattingWebSocketHandler extends AbstractWebSocketHandler {
                 chatRoomManagerService.changeChattingSessionFocusState(chatReq.getProjectId(), chatRoom, session, false);
                 break;
 
+            case unregister:
+                log.info("[ CHATROOM {}, USER {} ] UNREGISTER {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
+                chatRoomManagerService.unregister(chatReq.getProjectId(), chatRoom, session);
+
             case disconnect:
                 log.info("[ CHATROOM {}, USER {} ] DISCONNECTED {}", chatRoom.getChatRoomId(), chatReq.getUserId(), es);
                 chatRoomManagerService.disconnectSession(chatReq.getProjectId(), chatRoom, session);
