@@ -39,14 +39,15 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(new Project(id)).orElseThrow(NoSuchElementException::new);
         Page<Chat> messagePage = chatRepository.findMessagesByChatroom(chatRoom, pageable);
         if(messagePage != null && messagePage.hasContent())
-            return chatMapper.toRes(messagePage.getContent(), responseFormatter);
+            return chatMapper.toRes(responseFormatter, messagePage.getContent());
         return new ArrayList<>();
     }
 
     public ChatRes saveChat(ChatRoom chatRoom, ChatReq chatReq) {
-        return chatMapper.toRes(chatRepository.save(
+        return chatMapper.toRes(responseFormatter, chatRepository.save(
                 participantRepository.findByUserAndProjectId(chatReq.getUserId(), chatReq.getProjectId())
-                        .map(p -> chatMapper.toEntity(chatReq, p, chatRoom, requestFormatter)).orElseThrow(NoSuchElementException::new)), responseFormatter);
+                        .map(p -> chatMapper.toEntity(requestFormatter, chatReq, p, chatRoom))
+                        .orElseThrow(NoSuchElementException::new)));
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 )
 public interface ChatMapper {
 
-    default Chat toEntity(ChatReq chatReq, Participant participant, ChatRoom chatRoom, DateTimeFormatter formatter){
+    default Chat toEntity(DateTimeFormatter formatter, ChatReq chatReq, Participant participant, ChatRoom chatRoom){
         if(chatReq == null || participant == null)
             return null;
 
@@ -35,7 +35,7 @@ public interface ChatMapper {
 
     }
 
-    default ChatRes toRes(Chat chat, DateTimeFormatter formatter){
+    default ChatRes toRes(DateTimeFormatter formatter, Chat chat){
         if(chat == null)
             return null;
 
@@ -48,10 +48,10 @@ public interface ChatMapper {
                 .build();
     }
 
-    default List<ChatRes> toRes(List<Chat> chatList, DateTimeFormatter formatter){
+    default List<ChatRes> toRes(DateTimeFormatter formatter, List<Chat> chatList){
         if(chatList == null)
             return null;
-        return chatList.stream().map(c -> toRes(c, formatter)).collect(Collectors.toList());
+        return chatList.stream().map(c -> toRes(formatter, c)).collect(Collectors.toList());
     }
 
 }
