@@ -54,7 +54,6 @@ public class StringComparison {
     private static DiffStr str2isLonger(String str1, String str2) {
 
         int diffStartIndex = -1;
-        int diffEndIndex = -1;
         String modifiedSubStr = null;
         boolean isInsert = false;
 
@@ -77,7 +76,7 @@ public class StringComparison {
         if (isInsert)
             return new DiffStr(INSERT, diffStartIndex, modifiedSubStr);
         else
-            return new DiffStr(UPDATE, diffStartIndex, diffEndIndex, modifiedSubStr);
+            return new DiffStr(UPDATE, diffStartIndex, (str1.length() - 1), modifiedSubStr);
 
     }
 

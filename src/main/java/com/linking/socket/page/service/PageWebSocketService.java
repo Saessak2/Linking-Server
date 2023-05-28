@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,9 +27,13 @@ public class PageWebSocketService {
     private final PageRepository pageRepository;
     private final ComparisonService comparisonService;
 
-    public void inputText(Map<String, Object> attributes, PageSocketMessageReq pageSocketMessageReq) {
+    // todo 페이지 존재하는 지 확인
+    public boolean isExistPage(Long pageId) {
+        Optional<Page> page = pageRepository.findById(pageId);
+        return true;
+    }
 
-        log.info("inputText -------- {}", Thread.currentThread().getName());
+    public void inputText(Map<String, Object> attributes, PageSocketMessageReq pageSocketMessageReq) {
 
         int editorType = pageSocketMessageReq.getEditorType();
         Long pageId = (Long) attributes.get("pageId");

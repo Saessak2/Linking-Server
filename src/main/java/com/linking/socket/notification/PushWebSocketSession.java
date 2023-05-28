@@ -11,7 +11,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class PushWebSocketSession {
 
     @Setter
-    private Boolean isChecking;
+    private boolean isChecking;
     private WebSocketSession webSocketSession;
 
     public PushWebSocketSession(WebSocketSession webSocketSession) {

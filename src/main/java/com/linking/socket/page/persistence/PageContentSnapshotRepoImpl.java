@@ -28,14 +28,12 @@ public class PageContentSnapshotRepoImpl{
     }
 
     public int add(Long pageId, String docs) {
-        log.info("add ------ {}", Thread.currentThread().getName());
         Queue<String> strings = document.get(pageId);
         strings.add(docs);
         return document.size();
     }
 
     public String poll(Long pageId) {
-        log.info("poll ---- {}", Thread.currentThread().getName());
         Queue<String> strings = document.get(pageId);
         if (strings.size() == 1)
             return strings.peek();

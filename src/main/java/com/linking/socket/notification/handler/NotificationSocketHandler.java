@@ -10,10 +10,8 @@ import com.linking.socket.notification.persistence.NotificationSocketSessionRepo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -64,15 +62,15 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
             log.error("PushMessageReq.class 형식에 맞지 않습니다. => ", exception.getMessage());
         }
 
-        // todo userId 뽑아서 Set<PushWebSocketSession> 찾아
-        // todo 그중에 세션 id로 일치하는 세션 찾아서 isChecking을 바꿔줘
+        // userId 뽑아서 Set<PushWebSocketSession> 찾아
+        // 그중에 세션 id로 일치하는 세션 찾아서 isChecking을 바꿔
 
         Long userId = (Long) session.getAttributes().get("userId");
 
         Set<PushWebSocketSession> sessions = sessionRepository.findByUserId(userId);
         for (PushWebSocketSession se : sessions) {
             if (se.getWebSocketSession().getId().equals(session.getId())) {
-                se.setIsChecking(pushMessageReq.getIsChecking());
+                se.setChecking(pushMessageReq.getIsChecking());
                 break;
             }
         }
@@ -84,38 +82,26 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         log.info("send PushSendEvent Message");
 
         Set<PushWebSocketSession> sessions = sessionRepository.findByUserId(event.getUserId());
+        if (sessions == null && sessions.isEmpty()) return;
 
+        if (event.getType().equals("push")) {
+            sessions.forEach(session -> {
+                if (session.isChecking() && session.getWebSocketSession().isOpen())
+                    send(session.getWebSocketSession(), event.getData());
+            });
+        } else if (event.getType().equals("badge")) {
+            sessions.forEach(session -> {
+                if (!session.isChecking() && session.getWebSocketSession().isOpen())
+                    send(session.getWebSocketSession(), event.getData());
+            });
+        }
+    }
+
+    public void send(WebSocketSession session, Object data) {
         try {
-            if (event.getType().equals("badge")) {
-                if (sessions != null && !sessions.isEmpty()) {
-                    sessions.forEach(session -> {
-                        if (session.getWebSocketSession().isOpen()) {
-                            try {
-                                session.getWebSocketSession().sendMessage(new TextMessage(JsonMapper.toJsonString(event.getData())));
-                            } catch (IOException e) {
-                                log.error("IOException in PushSendEvent -> {}", e.getMessage());
-                            }
-                        }
-                    });
-                    log.info("complete pushSendEvent");
-                }
-
-            } else if (event.getType().equals("push")) {
-                if (sessions != null && !sessions.isEmpty()) {
-                    sessions.forEach(session -> {
-                        if (session.getIsChecking() && session.getWebSocketSession().isOpen()) {
-                            try {
-                                session.getWebSocketSession().sendMessage(new TextMessage(JsonMapper.toJsonString(event.getData())));
-                            } catch (IOException e) {
-                                log.error("IOException in PushSendEvent -> {}", e.getMessage());
-                            }
-                        }
-                    });
-                    log.info("complete pushSendEvent");
-                }
-            }
-        } catch (RuntimeException e) {
-            log.error("{} in PushSendEvent -> {}", e.getClass(), e.getMessage());
+            session.sendMessage(new TextMessage(JsonMapper.toJsonString(data)));
+        } catch (IOException e) {
+            log.error("IOException in PushSendEvent -> {}", e.getMessage());
         }
     }
 
