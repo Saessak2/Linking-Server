@@ -1,9 +1,7 @@
 package com.linking.push_notification.domain;
 
-import com.linking.participant.domain.Participant;
 import com.linking.user.domain.User;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

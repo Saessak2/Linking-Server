@@ -2,6 +2,7 @@ package com.linking.push_notification.service;
 
 import com.linking.firebase_token.domain.FirebaseToken;
 import com.linking.firebase_token.persistence.FirebaseTokenRepository;
+import com.linking.global.message.ErrorMessage;
 import com.linking.page.persistence.PageRepository;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
@@ -52,7 +53,9 @@ public class PushNotificationService {
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
         // 뱃지 개수 reset
-        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(userId);
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER));
+
         badge.resetUnreadCount();
 
         List<PushNotification> notifications = pushNotificationRepository.findAllByUserId(userId);
@@ -209,5 +212,10 @@ public class PushNotificationService {
                         .userId(userId)
                         .data(res)
                         .build());
+    }
+
+    public boolean deleteNotification(Long notificationId) {
+        pushNotificationRepository.deleteById(notificationId);
+        return true;
     }
 }

@@ -35,4 +35,12 @@ public class PushNotificationController {
     ) {
         return ResponseHandler.generateOkResponse(pushNotificationService.sendPushNotification(req));
     }
+
+    @DeleteMapping(path = "/{notificationId}")
+    public ResponseEntity deleteNotification(
+            @PathVariable Long notificationId
+    ) {
+        boolean res = pushNotificationService.deleteNotification(notificationId);
+        return ResponseHandler.generateOkResponse(res);
+    }
 }

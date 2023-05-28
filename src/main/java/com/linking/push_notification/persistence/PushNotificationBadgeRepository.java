@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface PushNotificationBadgeRepository  extends JpaRepository<PushNotificationBadge, Long> {
 
@@ -13,5 +15,5 @@ public interface PushNotificationBadgeRepository  extends JpaRepository<PushNoti
     int findBadgeCountByUserId(@Param("userId") Long userId);
 
     @Query("SELECT b FROM PushNotificationBadge b WHERE b.user.userId = :userId")
-    PushNotificationBadge findByUserId(@Param("userId") Long userId);
+    Optional<PushNotificationBadge> findByUserId(@Param("userId") Long userId);
 }
