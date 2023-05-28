@@ -45,9 +45,6 @@ public class StringComparison {
             diffEndIndex = str1.length() - 1;
             modifiedSubStr = str2.substring(diffStartIndex);
         }
-//        System.out.println("diffStartIndex = " + diffStartIndex);
-//        System.out.println("diffEndIndex = " + diffEndIndex);
-//        System.out.println("modifiedSubStr = " + modifiedSubStr);
 
         return new DiffStr(UPDATE, diffStartIndex, diffEndIndex, modifiedSubStr);
 
@@ -77,15 +74,10 @@ public class StringComparison {
 
         modifiedSubStr = str2.substring(diffStartIndex);
 
-//        System.out.println("diffStartIndex = " + diffStartIndex);
-//        System.out.println("diffEndIndex = " + (str1.length() - 1));
-//        System.out.println("modifiedSubStr = " + modifiedSubStr);
-//        System.out.println("isInsert = " + isInsert);
-
         if (isInsert)
             return new DiffStr(INSERT, diffStartIndex, modifiedSubStr);
         else
-            return new DiffStr(INSERT, diffStartIndex, diffEndIndex, modifiedSubStr);
+            return new DiffStr(UPDATE, diffStartIndex, diffEndIndex, modifiedSubStr);
 
     }
 
@@ -117,10 +109,7 @@ public class StringComparison {
             return null;
         } else {
             modifiedSubStr = str2.substring(diffStartIndex, diffEndIndex + 1);
-//            System.out.println("diffStartIndex = " + diffStartIndex);
-//            System.out.println("diffEndIndex = " + diffEndIndex);
-//            System.out.println("modifiedSubStr = " + modifiedSubStr);
         }
-        return new DiffStr(INSERT, diffStartIndex, diffEndIndex, modifiedSubStr);
+        return new DiffStr(UPDATE, diffStartIndex, diffEndIndex, modifiedSubStr);
     }
 }
