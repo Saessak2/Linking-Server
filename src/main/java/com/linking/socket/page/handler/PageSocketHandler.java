@@ -22,7 +22,7 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PageWebSocketHandler extends TextWebSocketHandler {
+public class PageSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private final PageWebSocketService pageWebSocketService;
@@ -35,7 +35,7 @@ public class PageWebSocketHandler extends TextWebSocketHandler {
         Long pageId = (Long) session.getAttributes().get("pageId");
         Long userId = (Long) session.getAttributes().get("userId");
 
-        log.info("projectId = {} | pageId = {} | userId = {} | session.id = {}", projectId, pageId, userId, session.getId());
+        log.info("[PAGE_SOCKET] projectId = {} | pageId = {} | userId = {} | session.id = {}", projectId, pageId, userId, session.getId());
 
         int size = pageSocketSessionRepositoryImpl.save(pageId, session);
         log.info("sessions size of page {} is {}", pageId, size);

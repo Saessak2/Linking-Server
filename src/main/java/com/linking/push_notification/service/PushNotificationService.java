@@ -7,16 +7,21 @@ import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.push_notification.domain.NoticePriority;
 import com.linking.push_notification.domain.PushNotification;
+import com.linking.push_notification.domain.PushNotificationBadge;
 import com.linking.push_notification.dto.FcmReq;
 import com.linking.push_notification.dto.PushNotificationReq;
 import com.linking.push_notification.dto.PushNotificationRes;
+import com.linking.push_notification.persistence.PushNotificationBadgeRepository;
 import com.linking.push_notification.persistence.PushNotificationRepository;
 import com.linking.push_settings.domain.PushSettings;
 import com.linking.push_settings.persistence.PushSettingsRepository;
+import com.linking.socket.notification.PushBadgeRes;
+import com.linking.socket.notification.PushSendEvent;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,9 +40,19 @@ public class PushNotificationService {
     private final FcmService fcmService;
     private final FirebaseTokenRepository firebaseTokenRepository;
     private final PageRepository pageRepository;
+    private final ApplicationEventPublisher publisher;
+    private final PushNotificationBadgeRepository pushNotificationBadgeRepository;
+
+    // todo 알림 한달마다 삭제
+
+
 
     @Transactional
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
+
+        // 뱃지 개수 reset
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(userId);
+        badge.resetUnreadCount();
 
         List<PushNotification> notifications = pushNotificationRepository.findAllByUserId(userId);
 
@@ -73,12 +88,10 @@ public class PushNotificationService {
         return resList;
     }
 
-    // todo 알림 한달마다 삭제
-
-    // todo 알림 전송
+    @Transactional
     public boolean sendPushNotification(PushNotificationReq req) {
 
-        PushNotification pushNotification = this.createPushNotification(req);
+        PushNotification pushNotification = createPushNotification(req);
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
@@ -123,11 +136,13 @@ public class PushNotificationService {
 
                 fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
             }
+
+
         }
         return true;
     }
 
-    public PushNotification createPushNotification(PushNotificationReq req) {
+    private PushNotification createPushNotification(PushNotificationReq req) {
 
         User user = userRepository.getReferenceById(req.getUserId());
         Project project = projectRepository.getReferenceById(req.getProjectId());
@@ -142,6 +157,45 @@ public class PushNotificationService {
                 .body(req.getBody())
                 .build();
 
-        return pushNotificationRepository.save(pushNotification);
+        pushNotificationRepository.save(pushNotification);
+
+        // websocket
+        sendPushToWebSocketSession(pushNotification);
+        // 뱃지 개수 증가
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId());
+        badge.increaseUnreadCount();
+        // 뱃지 발생 event 전송
+        sendBadgeToWebSocketSession(user.getUserId(), badge.getUnreadCount());
+
+        return pushNotification;
+    }
+
+    private void sendPushToWebSocketSession(PushNotification push) {
+        publisher.publishEvent(
+                PushSendEvent.builder()
+                        .type("push")
+                        .userId(push.getUser().getUserId())
+                        .data(PushNotificationRes.builder()
+                                .projectId(push.getProject().getProjectId())
+                                .body(push.getBody())
+                                .info(push.getInfo())
+                                .priority(push.getPriority())
+                                .noticeType(push.getNoticeType())
+                                .isChecked(push.isChecked())
+                                .targetId(push.getTargetId())
+                                .assistantId(-1L)
+                                .build())
+                        .build());
+    }
+
+    private void sendBadgeToWebSocketSession(Long userId, int badgeCount) {
+        log.info("userID= {} ",userId);
+        log.info("badgeCount = {} ", badgeCount);
+        publisher.publishEvent(
+                PushSendEvent.builder()
+                        .type("badge")
+                        .userId(userId)
+                        .data(new PushBadgeRes(badgeCount))
+                        .build());
     }
 }

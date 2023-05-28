@@ -1,7 +1,7 @@
 package com.linking.global.config;
 
-import com.linking.socket.page.handler.PageSocketHandler;
-import com.linking.socket.interceptor.PageHandShakeInterceptor;
+import com.linking.socket.interceptor.NotificationHandShakeInterceptor;
+import com.linking.socket.notification.handler.NotificationSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -11,15 +11,15 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class PageWebSocketConfig implements WebSocketConfigurer {
+public class NotificationWebSocketConfig implements WebSocketConfigurer {
 
-    private final PageSocketHandler pageSocketHandler;
+    private final NotificationSocketHandler notificationSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry
-                .addHandler(pageSocketHandler, "/ws/pages")
-                .addInterceptors(new PageHandShakeInterceptor())
+                .addHandler(notificationSocketHandler, "/ws/push-notifications")
+                .addInterceptors(new NotificationHandShakeInterceptor())
                 .setAllowedOrigins("*");
     }
 }

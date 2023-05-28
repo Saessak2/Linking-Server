@@ -1,7 +1,6 @@
-package com.linking.socket.page.persistence;
+package com.linking.socket.notification.persistence;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.linking.socket.notification.PushWebSocketSession;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -11,20 +10,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 @Repository
-@RequiredArgsConstructor
-public class PageSocketSessionRepositoryImpl implements IPageSocketRepository {
+public class NotificationSocketSessionRepository {
 
     /**
-     * key : pageId
+     * key : userId
      */
-    private final Map<Long, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
+    private final Map<Long, Set<PushWebSocketSession>> sessions = new ConcurrentHashMap<>();
 
-    @Override
-    public int save(Long key, WebSocketSession session) {
+    public int save(Long key, PushWebSocketSession session) {
 
-        Set<WebSocketSession> sessionsByPage = sessions.get(key);
+        Set<PushWebSocketSession> sessionsByPage = sessions.get(key);
 
         if (sessionsByPage == null) {
             sessionsByPage = Collections.synchronizedSet(new HashSet<>());
@@ -36,8 +32,7 @@ public class PageSocketSessionRepositoryImpl implements IPageSocketRepository {
         return sessionsByPage.size();
     }
 
-    @Override
-    public Set<WebSocketSession> findByPageId(Long key) {
+    public Set<PushWebSocketSession> findByUserId(Long key) {
         return sessions.get(key);
     }
 }
