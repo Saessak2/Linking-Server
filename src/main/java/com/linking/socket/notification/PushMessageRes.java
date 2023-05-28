@@ -7,16 +7,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PushSendEvent {
+public class PushMessageRes<T> {
 
-    private String type;
-    private Long userId;
-    private PushMessageRes data;
+    private String resType;
+    private T data;
 
     @Builder
-    public PushSendEvent(String type, Long userId, PushMessageRes data) {
-        this.type = type;
-        this.userId = userId;
+    public PushMessageRes(String resType, T data) {
+        this.resType = resType;
         this.data = data;
     }
 }

@@ -21,12 +21,4 @@ public class ChattingWebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(chattingWebSocketHandler, "ws/chatting")
                 .setAllowedOrigins("*");
     }
-
-    @Bean
-    public ServletServerContainerFactoryBean createWebSocketContainer() {
-        var container = new ServletServerContainerFactoryBean();
-        container.setMaxSessionIdleTimeout(15 * 60 * 1000L);
-        return container;
-    }
-
 }

@@ -16,6 +16,7 @@ import com.linking.push_notification.persistence.PushNotificationRepository;
 import com.linking.push_settings.domain.PushSettings;
 import com.linking.push_settings.persistence.PushSettingsRepository;
 import com.linking.socket.notification.PushBadgeRes;
+import com.linking.socket.notification.PushMessageRes;
 import com.linking.socket.notification.PushSendEvent;
 import com.linking.user.domain.User;
 import com.linking.user.persistence.UserRepository;
@@ -171,31 +172,42 @@ public class PushNotificationService {
     }
 
     private void sendPushToWebSocketSession(PushNotification push) {
+        PushMessageRes res = PushMessageRes.builder()
+                .resType("push")
+                .data(PushNotificationRes.builder()
+                        .projectId(push.getProject().getProjectId())
+                        .body(push.getBody())
+                        .info(push.getInfo())
+                        .priority(push.getPriority())
+                        .noticeType(push.getNoticeType())
+                        .isChecked(push.isChecked())
+                        .targetId(push.getTargetId())
+                        .assistantId(-1L)
+                        .build())
+                .build();
+
         publisher.publishEvent(
                 PushSendEvent.builder()
                         .type("push")
                         .userId(push.getUser().getUserId())
-                        .data(PushNotificationRes.builder()
-                                .projectId(push.getProject().getProjectId())
-                                .body(push.getBody())
-                                .info(push.getInfo())
-                                .priority(push.getPriority())
-                                .noticeType(push.getNoticeType())
-                                .isChecked(push.isChecked())
-                                .targetId(push.getTargetId())
-                                .assistantId(-1L)
-                                .build())
+                        .data(res)
                         .build());
     }
 
     private void sendBadgeToWebSocketSession(Long userId, int badgeCount) {
         log.info("userID= {} ",userId);
         log.info("badgeCount = {} ", badgeCount);
+
+        PushMessageRes res = PushMessageRes.builder()
+                .resType("badge")
+                .data(new PushBadgeRes(badgeCount))
+                .build();
+
         publisher.publishEvent(
                 PushSendEvent.builder()
                         .type("badge")
                         .userId(userId)
-                        .data(new PushBadgeRes(badgeCount))
+                        .data(res)
                         .build());
     }
 }
