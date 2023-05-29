@@ -150,12 +150,14 @@ public class PageService {
     }
 
     public void deletePage(Long pageId, Long userId) throws NoSuchElementException{
+
         log.info("deletePage - {}", this.getClass().getSimpleName());
 
         Page page = pageRepository.findById(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
         Long projectId = page.getGroup().getProject().getProjectId();
         Long groupId = page.getGroup().getId();
+        Template template = page.getTemplate();
         pageRepository.delete(page);
 
         publisher.publishEvent(
@@ -187,6 +189,10 @@ public class PageService {
                     pageRepository.save(p);
                 }
                 order++;
+            }
+
+            if (pageWebSocketService.deletePageSnapshot(page.getId(), template)) {
+                log.info("delete pageContent snapshot => PAGE ID = {}", page.getId());
             }
 
         } catch (RuntimeException e) {

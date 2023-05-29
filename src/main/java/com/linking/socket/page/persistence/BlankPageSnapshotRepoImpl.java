@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Repository
-public class PageContentSnapshotRepoImpl{
+public class BlankPageSnapshotRepoImpl {
 
     /**
      * key : pageId
@@ -71,5 +71,10 @@ public class PageContentSnapshotRepoImpl{
 
     public String getDoc(Long pageId) {
         return document.get(pageId);
+    }
+
+    public boolean delete(Long pageId) {
+        if(document.remove(pageId) != null) return true;
+        return false;
     }
 }
