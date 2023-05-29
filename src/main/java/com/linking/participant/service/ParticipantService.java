@@ -1,5 +1,9 @@
 package com.linking.participant.service;
 
+import com.linking.chatroom.domain.ChatRoom;
+import com.linking.chatroom.repository.ChatRoomRepository;
+import com.linking.chatroom_badge.domain.ChatRoomBadge;
+import com.linking.chatroom_badge.persistence.ChatRoomBadgeRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.dto.ParticipantRes;
@@ -31,6 +35,9 @@ public class ParticipantService {
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomBadgeRepository chatRoomBadgeRepository;
 
     public Optional<ParticipantRes> createParticipant(ParticipantIdReq participantIdReq)
             throws DataIntegrityViolationException {
@@ -82,20 +89,22 @@ public class ParticipantService {
         if(!project.getOwner().getUserId().equals(reqPartUserList.get(0)))
             throw new DataIntegrityViolationException("삭제할 수 없는 팀원");
 
+        List<Participant> newParticipantList = new ArrayList<>();
         Participant.ParticipantBuilder participantBuilder = Participant.builder();
         for(int i = 0, index; i < reqPartUserList.size(); i++){
             index = curUserIdList.indexOf(reqPartUserList.get(i));
-            if(index == -1 || curPartList.isEmpty()){// 없을 떄
+            if(index == -1 || curPartList.isEmpty()){
                 User user = userRepository.findById(reqPartUserList.get(i))
                         .orElseThrow(NoSuchElementException::new);
                 participantBuilder
                         .project(new Project(projectUpdateReq.getProjectId()))
                         .user(user)
                         .userName(user.getFullName());
-                resPartIdList.add(
-                        participantRepository.save(participantBuilder.build()).getParticipantId());//추가
+                Participant participant = participantRepository.save(participantBuilder.build());
+                newParticipantList.add(participant);
+                resPartIdList.add(participant.getParticipantId());
             }
-            else{// 있을 때
+            else{
                 resPartIdList.add(curPartList.get(index).getParticipantId());
                 curPartList.remove(index);
                 curUserIdList.remove(index);
@@ -103,10 +112,28 @@ public class ParticipantService {
         }
         participantRepository.deleteAll(curPartList);
 
+        if(!newParticipantList.isEmpty()){
+            ChatRoom chatRoom = chatRoomRepository.findChatRoomByProject(project)
+                    .orElseThrow(NoSuchElementException::new);
+            ChatRoomBadge.ChatRoomBadgeBuilder chatRoomBadgeBuilder = ChatRoomBadge.builder();
+            List<ChatRoomBadge> chatRoomBadgeList = new ArrayList<>();
+            for(int i = 0; i < newParticipantList.size(); i++)
+                chatRoomBadgeList.add(
+                        chatRoomBadgeBuilder
+                                .participant(newParticipantList.get(i))
+                                .chatRoom(chatRoom)
+                                .unreadCount(0)
+                                .build()
+                );
+            chatRoomBadgeRepository.saveAll(chatRoomBadgeList);
+        }
+
         Long ownerId = project.getOwner().getUserId();
         for(int i = 0; i < resPartIdList.size(); i++) {
-            if (resPartIdList.get(i).equals(ownerId))
+            if (resPartIdList.get(i).equals(ownerId)) {
                 Collections.swap(resPartIdList, 0, i);
+                break;
+            }
         }
         return resPartIdList;
     }

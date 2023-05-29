@@ -40,4 +40,9 @@ public class Project {
     public Project(Long projectId) {
         this.projectId = projectId;
     }
+
+    public void setParticipantList(List<Participant> participantList) {
+        this.participantList = participantList;
+    }
+
 }
