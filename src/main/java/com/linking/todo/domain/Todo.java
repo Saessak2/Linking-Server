@@ -54,6 +54,10 @@ public class Todo {
         this.todoId = todoId;
     }
 
+    public void setChildTodoList(List<Todo> childTodoList){
+        this.childTodoList = childTodoList;
+    }
+
     public void setAssignList(List<Assign> assignList) {
         this.assignList = assignList;
     }

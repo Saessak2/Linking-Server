@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,6 @@ public class TodoService {
 
     private final ParticipantRepository participantRepository;
     private final AssignRepository assignRepository;
-    private final ProjectRepository projectRepository;
 
     public TodoSingleRes createTodo(TodoCreateReq todoCreateReq){
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
@@ -72,14 +70,14 @@ public class TodoService {
     public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.now()));
         todoList.addAll(todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now()));
-        return todoMapper.toParentDto(todoList);
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.now(), false));
     }
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, day)));
         todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
-        return todoMapper.toParentDto(todoList);
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, day), false));
     }
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -87,7 +85,7 @@ public class TodoService {
 
         List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
-        return todoMapper.toParentDto(todoList);
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, 1), true));
     }
 
     // TODO: To be deleted
@@ -120,19 +118,30 @@ public class TodoService {
         return todo;
     }
 
-    private Todo excludeUnnecessaryTodos(Todo todo, LocalDate date){
-        if(todo.getChildTodoList().size() != 0) {
-            List<Todo> childTodoList = new ArrayList<>();
-            for (Todo childTodo : todo.getChildTodoList())
-                if(!(date.isAfter(ChronoLocalDate.from(childTodo.getStartDate()))
-                && date.isBefore(ChronoLocalDate.from(childTodo.getDueDate()))))
-                    childTodoList.add(childTodo);
+    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate currentDate, boolean isMonthly){
+        for(Todo todo : todoList){
+            if(todo.isParent()){
+                if(isMonthly)
+                    todo.setChildTodoList(excludeUnnecessaryTodos(todo.getChildTodoList(), currentDate, 7));
+                else
+                    todo.setChildTodoList(excludeUnnecessaryTodos(todo.getChildTodoList(), currentDate, 10));
+            }
         }
-        return todo;
+        return todoList;
     }
 
-//    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate dueDate){
-//
-//    }
+    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate inDate, int lastIndex){
+        List<Todo> retTodos = new ArrayList<>();
+        int startDate, dueDate, currentDate;
+        currentDate = Integer.parseInt(inDate.toString().substring(0, lastIndex).replace("-", ""));
+        for(Todo todo : todoList){
+            startDate = Integer.parseInt(todo.getStartDate().toString().substring(0, lastIndex).replace("-", ""));
+            dueDate = Integer.parseInt(todo.getDueDate().toString().substring(0, lastIndex).replace("-", ""));
+            if(startDate <= currentDate && currentDate <= dueDate)
+                retTodos.add(todo);
+
+        }
+        return retTodos;
+    }
 
 }
