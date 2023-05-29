@@ -88,8 +88,6 @@ public class ProjectService {
         return projectResList;
     }
 
-
-    // todo participant 생성되면 pagecheck 생성
     public Optional<ProjectContainsPartsRes> updateProject(ProjectUpdateReq projectUpdateReq, List<Long> partIdList) throws NoSuchElementException{
         Project res =
                 projectRepository.save(
@@ -97,8 +95,6 @@ public class ProjectService {
                                 projectUpdateReq, participantRepository.findAllById(partIdList)));
         List<UserDetailedRes> partList = userMapper.toDto(res.getParticipantList().stream()
                 .map(Participant::getUser).collect(Collectors.toList()));
-
-//        pageCheckService.createPageCheck(participant);
 
         return Optional.ofNullable(projectMapper.toDto(res, partList));
     }

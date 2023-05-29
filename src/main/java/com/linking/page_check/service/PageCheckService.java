@@ -4,6 +4,7 @@ import com.linking.page_check.dto.PageCheckUpdateRes;
 import com.linking.page_check.persistence.PageCheckMapper;
 import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
+import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
@@ -63,13 +64,18 @@ public class PageCheckService {
         publisher.publishEvent(pageEvent.build());
     }
 
-    // 팀원 추가시 페이지마다 해당 팀원의 페이지 체크 생성
-    public void createPageCheck(Participant participant) {
-        List<Group> groups = groupRepository.findAllByProjectId(participant.getProject().getProjectId());
+    // WHEN : participant 생성
+    // DO : page 마다 해당 participant 의 pageCheck 생성
+    public void createPageCheck(Long projectId, List<Participant> newPartList) {
+        log.info("================================== createPageCheck");
+
+        // todo page 에도 project 연관 걸면 좋을 것 같음.
+        List<Group> groups = groupRepository.findAllByProjectId(projectId);
         for (Group group : groups) {
             for (Page page : group.getPageList()) {
-                PageCheck pageCheck = new PageCheck(participant, page);
-                pageCheckRepository.save(pageCheck);
+                for (Participant participant : newPartList) {
+                    pageCheckRepository.save(new PageCheck(participant, page));
+                }
             }
         }
     }

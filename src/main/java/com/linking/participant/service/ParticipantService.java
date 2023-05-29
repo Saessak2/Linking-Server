@@ -135,6 +135,11 @@ public class ParticipantService {
                 break;
             }
         }
+
+        // todo newParticipant 의 pageCheck 생성
+        if (!newParticipantList.isEmpty())
+            pageCheckService.createPageCheck(project.getProjectId(), newParticipantList);
+
         return resPartIdList;
     }
 
