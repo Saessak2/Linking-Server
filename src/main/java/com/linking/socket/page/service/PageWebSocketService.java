@@ -51,7 +51,7 @@ public class PageWebSocketService {
         switch (messageReq.getEditorType()) {
 
             case PAGE_CONTENT:
-                String oldStr = blankPageSnapshotRepoImpl.getDoc(pageId);
+                String oldStr = blankPageSnapshotRepoImpl.get(pageId);
                 // 비교
                 DiffStr diffStr = comparisonService.compare(oldStr, newStr);
                 if (diffStr != null) {
@@ -66,7 +66,6 @@ public class PageWebSocketService {
             case BLOCK_CONTENT:
         }
     }
-
 
     private TextSendEvent constructPageContentEvent(String sessionId, Long pageId, DiffStr diffStr) {
 
@@ -95,7 +94,7 @@ public class PageWebSocketService {
                 blankPageSnapshotRepoImpl.put(page.getId(), page.getContent());
             }
         }
-        log.info("pageContentSnapshot size = {}", blankPageSnapshotRepoImpl.mapSize());
+        log.info("pageContentSnapshot size = {}", blankPageSnapshotRepoImpl.size());
     }
 
     // page 생성 시 pageContentSnapshotRepoImpl documents 초기화 ("")
@@ -106,7 +105,7 @@ public class PageWebSocketService {
     }
 
     public String findSnapshotByPageId(Long pageId) {
-        return blankPageSnapshotRepoImpl.getDoc(pageId);
+        return blankPageSnapshotRepoImpl.get(pageId);
     }
 
     public boolean deletePageSnapshot(Long pageId, Template template) {

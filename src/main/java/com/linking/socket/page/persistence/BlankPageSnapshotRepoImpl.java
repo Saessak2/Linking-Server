@@ -13,43 +13,6 @@ public class BlankPageSnapshotRepoImpl {
     /**
      * key : pageId
      */
-//    private final Map<Long, Queue<String>> document = new ConcurrentHashMap<>();
-//
-//    public void put(Long pageId, String doc) {
-//        Queue queue = new ConcurrentLinkedQueue();
-//        queue.add(doc);
-//        document.put(pageId, queue);
-//    }
-//
-//    public int mapSize() {
-//        return document.size();
-//    }
-//
-//    public int add(Long pageId, String docs) {
-//        Queue<String> strings = document.get(pageId);
-//        strings.add(docs);
-//        return document.size();
-//    }
-//
-//    public String poll(Long pageId) {
-//        Queue<String> strings = document.get(pageId);
-//        if (strings.size() == 1)
-//            return strings.peek();
-//        return strings.poll();
-//    }
-//
-//    public String peek(Long pageId) {
-//        return document.get(pageId).peek();
-//    }
-//
-//    public int sizeByPage(Long pageId) {
-//        return document.get(pageId).size();
-//    }
-//
-//    public void clear() {
-//        document.clear();
-//    }
-
     private final Map<Long, String> document = new ConcurrentHashMap<>();
 
     // todo 페이지 생성 or 어플리케이션 초기화
@@ -57,24 +20,29 @@ public class BlankPageSnapshotRepoImpl {
         document.put(pageId, doc);
     }
 
-    public int mapSize() {
-        return document.size();
-    }
-
-    public void clear() {
-        document.clear();
+    public String get(Long pageId) {
+        String str = document.get(pageId);
+        if (str == null) {
+            str = "";
+            document.replace(pageId, str);
+        }
+        return str;
     }
 
     public void replace(Long pageId, String doc) {
         document.replace(pageId, doc);
     }
 
-    public String getDoc(Long pageId) {
-        return document.get(pageId);
-    }
-
     public boolean delete(Long pageId) {
         if(document.remove(pageId) != null) return true;
         return false;
+    }
+
+    public int size() {
+        return document.size();
+    }
+
+    public void clear() {
+        document.clear();
     }
 }

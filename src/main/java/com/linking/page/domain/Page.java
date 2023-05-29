@@ -66,7 +66,6 @@ public class Page {
         this.title = this.title == null ? "untitled" : this.title;
         this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
         this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
-        this.content = template == Template.BLANK ? "" : null;
     }
 
     public void updateOrder(int order) {

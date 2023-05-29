@@ -122,12 +122,14 @@ public class PageService {
         Page page = pageMapper.toEntity(req);
         page.setGroup(group);
         // 페이지 저장을 해야 id를 얻을 수 있음
-        pageRepository.save(page);
 
         if (page.getTemplate() == Template.BLANK) {
             // todo page content를 PageContentSnapshot에 저장.
+            page.setContent("");
             pageWebSocketService.pageContentSnapshotInit(page.getId(), page.getContent());
         }
+
+        pageRepository.save(page);
 
         // 팀원 마다 pageCheck create
         List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());
