@@ -47,7 +47,7 @@ public class ParticipantService {
             throw new DuplicateKeyException("Already in project");
 
         Participant participant = participantRepository.save(participantMapper.toEntity(participantIdReq));
-        pageCheckService.createPageCheck(participant);
+
 
         return Optional.of(participantMapper.toDto(participant));
     }
