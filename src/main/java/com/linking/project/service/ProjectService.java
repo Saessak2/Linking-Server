@@ -1,5 +1,6 @@
 package com.linking.project.service;
 
+import com.linking.chatroom.service.ChatRoomService;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.dto.ProjectContainsPartsRes;
@@ -35,19 +36,24 @@ public class ProjectService {
     private final UserMapper userMapper;
     private final ParticipantRepository participantRepository;
 
+    private final ChatRoomService chatRoomService;
+
     public Optional<ProjectContainsPartsRes> createProject(ProjectCreateReq projectCreateReq) throws DataIntegrityViolationException {
         Project project = projectRepository.save(projectMapper.toEntity(projectCreateReq));
 
         List<User> userList = userRepository.findAllById(projectCreateReq.getPartList());
+        List<Participant> participantList = new ArrayList<>();
         for(User user : userList) {
             Participant.ParticipantBuilder participantBuilder = Participant.builder();
-            participantRepository.save(
+            participantList.add(participantRepository.save(
                     participantBuilder
                             .project(project)
                             .user(user)
-                            .userName(user.getFullName()).build());
+                            .userName(user.getFullName()).build()));
         }
+        project.setParticipantList(participantList);
 
+        chatRoomService.createChatRoom(project);
         return Optional.ofNullable(projectMapper.toDto(project, userMapper.toDto(userList)));
     }
 

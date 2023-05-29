@@ -16,6 +16,7 @@ import com.linking.push_notification.persistence.PushNotificationBadgeRepository
 import com.linking.push_notification.persistence.PushNotificationRepository;
 import com.linking.push_settings.domain.PushSettings;
 import com.linking.push_settings.persistence.PushSettingsRepository;
+import com.linking.socket.notification.PushBadgeRes;
 import com.linking.socket.notification.PushMessageRes;
 import com.linking.socket.notification.PushSendEvent;
 import com.linking.user.domain.User;
@@ -63,6 +64,7 @@ public class PushNotificationService {
         List<PushNotificationRes> resList = new ArrayList<>();
 
         for (PushNotification not : notifications) {
+            not.setChecked(true);
             builder
                     .projectId(not.getProject().getProjectId())
                     .body(not.getBody())
@@ -86,7 +88,6 @@ public class PushNotificationService {
                         .assistantId(-1L);
             }
             resList.add(builder.build());
-            not.setChecked(true);
         }
         return resList;
     }
@@ -165,8 +166,7 @@ public class PushNotificationService {
         // websocket
         sendPushToWebSocketSession(pushNotification);
         // 뱃지 개수 증가
-        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId())
-                .orElseThrow(NoSuchElementException::new);
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId()).get();
         badge.increaseUnreadCount();
         // 뱃지 발생 event 전송
         sendBadgeToWebSocketSession(user.getUserId(), badge.getUnreadCount());
@@ -203,7 +203,7 @@ public class PushNotificationService {
 
         PushMessageRes res = PushMessageRes.builder()
                 .resType("badge")
-                .data(badgeCount)
+                .data(new PushBadgeRes(badgeCount))
                 .build();
 
         publisher.publishEvent(
