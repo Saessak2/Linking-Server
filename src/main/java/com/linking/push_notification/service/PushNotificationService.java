@@ -166,7 +166,7 @@ public class PushNotificationService {
         // websocket
         sendPushToWebSocketSession(pushNotification);
         // 뱃지 개수 증가
-        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId());
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId()).get();
         badge.increaseUnreadCount();
         // 뱃지 발생 event 전송
         sendBadgeToWebSocketSession(user.getUserId(), badge.getUnreadCount());

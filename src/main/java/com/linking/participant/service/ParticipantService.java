@@ -74,7 +74,7 @@ public class ParticipantService {
                 .orElseThrow(NoSuchElementException::new);
         List<Participant> curPartList =
                 participantRepository.findByProject(project);
-        List<Long> partUserIdList = curPartList.stream()
+        List<Long> curUserIdList = curPartList.stream()
                 .map(p->p.getUser().getUserId()).collect(Collectors.toList());
         List<Long> reqPartUserList = projectUpdateReq.getPartList();
 
@@ -83,9 +83,9 @@ public class ParticipantService {
             throw new DataIntegrityViolationException("삭제할 수 없는 팀원");
 
         Participant.ParticipantBuilder participantBuilder = Participant.builder();
-        for(int i = 0, skippedIndex; i < reqPartUserList.size(); i++){
-            skippedIndex = partUserIdList.indexOf(reqPartUserList.get(i));
-            if(skippedIndex == -1 || curPartList.isEmpty()){
+        for(int i = 0, index; i < reqPartUserList.size(); i++){
+            index = curUserIdList.indexOf(reqPartUserList.get(i));
+            if(index == -1 || curPartList.isEmpty()){// 없을 떄
                 User user = userRepository.findById(reqPartUserList.get(i))
                         .orElseThrow(NoSuchElementException::new);
                 participantBuilder
@@ -93,11 +93,12 @@ public class ParticipantService {
                         .user(user)
                         .userName(user.getFullName());
                 resPartIdList.add(
-                        participantRepository.save(participantBuilder.build()).getParticipantId());
+                        participantRepository.save(participantBuilder.build()).getParticipantId());//추가
             }
-            else{
-                resPartIdList.add(curPartList.get(skippedIndex).getParticipantId());
-                curPartList.remove(skippedIndex);
+            else{// 있을 때
+                resPartIdList.add(curPartList.get(index).getParticipantId());
+                curPartList.remove(index);
+                curUserIdList.remove(index);
             }
         }
         participantRepository.deleteAll(curPartList);
