@@ -16,40 +16,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ComparisonService {
-    private final PageContentSnapshotRepoImpl pageContentSnapshotRepoImpl;
-    private final ApplicationEventPublisher publisher;
 
-    @Async("eventCallExecutor")
-    public void compare(String sessionId, Long pageId, PageSocketMessageReq message) {
+    public DiffStr compare(String oldStr, String newStr) {
 
-        String oldStr = pageContentSnapshotRepoImpl.poll(pageId);
-        String newStr = message.getDocs();
+        log.info("=================================================================");
+
         DiffStr diffStr = StringComparison.compareString(oldStr, newStr);
 
         if (diffStr == null) {
             log.info("Not Modified");
-            return;
+            return null;
         }
-        log.info("=================================================================");
-        log.info("snapshot size = {}", pageContentSnapshotRepoImpl.sizeByPage(pageId));
+
         log.info("oldStr = {}", oldStr);
         log.info("newStr = {}", newStr);
         log.info("type : {}, start : {}, end : {}, subStr : {}", diffStr.getType(), diffStr.getDiffStartIndex(), diffStr.getDiffEndIndex(), diffStr.getSubStr());
 
-        TextSendEvent event = TextSendEvent.builder()
-                .sessionId(sessionId)
-                .pageId(pageId)
-                .pageSocketMessageRes(
-                        PageSocketMessageRes.builder()
-                                .editorType(0)
-                                .pageId(pageId)
-                                .blockId(-1L)
-                                .diffStr(diffStr)
-                                .build()
-                )
-                .build();
-
-        publisher.publishEvent(event);
-
+        return diffStr;
     }
 }

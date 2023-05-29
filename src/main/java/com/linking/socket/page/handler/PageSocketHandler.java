@@ -51,19 +51,16 @@ public class PageSocketHandler extends TextWebSocketHandler {
         PageSocketMessageReq pageSocketMessageReq = null;
         try {
             pageSocketMessageReq = objectMapper.readValue(message.getPayload(), PageSocketMessageReq.class);
-
         } catch (JsonParseException exception) {
             log.error("TextInputMessage.class 형식에 맞지 않습니다. => {}", exception.getMessage());
         }
-//        log.info("type = {}, index ={}, char = {}", textInputMessage.getInputType(), textInputMessage.getIndex(), textInputMessage.getCharacter());
-
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("projectId", session.getAttributes().get("projectId"));
         attributes.put("pageId", session.getAttributes().get("pageId"));
         attributes.put("userId", session.getAttributes().get("userId"));
         attributes.put("sessionId", session.getId());
 
-        pageWebSocketService.inputText(attributes, pageSocketMessageReq);
+        pageWebSocketService.handleTextMessage(attributes, pageSocketMessageReq);
     }
 
     @EventListener
@@ -72,21 +69,17 @@ public class PageSocketHandler extends TextWebSocketHandler {
 
         try {
             Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId(event.getPageId());
-            if (sessions != null && !sessions.isEmpty()) {
+            if (sessions == null && sessions.isEmpty()) return;
 
-                sessions.forEach(session -> {
-                    if (session.getId() != event.getSessionId()) {
-                        if (session.isOpen()) {
-                            try {
-                                session.sendMessage(new TextMessage(JsonMapper.toJsonString(event.getPageSocketMessageRes())));
-                            } catch (IOException e) {
-                                log.error("IOException in TextSendEvent -> {}", e.getMessage());
-                            }
-                        }
+            sessions.forEach(session -> {
+                if ((session.getId() != event.getSessionId()) && session.isOpen()) {
+                    try {
+                        session.sendMessage(new TextMessage(JsonMapper.toJsonString(event.getPageSocketMessageRes())));
+                    } catch (IOException e) {
+                        log.error("IOException in TextSendEvent -> {}", e.getMessage());
                     }
-                });
-                log.info("complete sendPageEvent");
-            }
+                }
+            });
         } catch (RuntimeException e) {
             log.error("{} in TextSendEvent -> {}", e.getClass(), e.getMessage());
         }

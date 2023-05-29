@@ -3,6 +3,7 @@ package com.linking.socket.page;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,6 +17,7 @@ public class PageSocketMessageReq {
     private Long blockId;
 
     @NotNull
+    @Setter
     private String docs;
 
     public PageSocketMessageReq(Integer editorType, Long blockId, String docs) {
