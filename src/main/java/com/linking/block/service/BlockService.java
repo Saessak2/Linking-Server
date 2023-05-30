@@ -107,7 +107,7 @@ public class BlockService {
         Long pageId = block.getPage().getId();
         blockRepository.delete(block);
 
-        pageWebSocketService.deletePageSnapshot(pageId, Template.BLOCK);
+        pageWebSocketService.deleteBlockSnapshot(pageId, blockId);
 
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
         int order = 0;

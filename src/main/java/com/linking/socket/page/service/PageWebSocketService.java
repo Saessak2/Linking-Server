@@ -49,57 +49,70 @@ public class PageWebSocketService {
         Long pageId = (Long) attributes.get("pageId");
         String sessionId = (String) attributes.get("sessionId");
 
+        String oldStr = "";
         String newStr = messageReq.getDocs();
         if (newStr.equals("<br>")){
             messageReq.setDocs("");
         }
+        DiffStr diffStr = null;
 
         switch (messageReq.getEditorType()) {
 
             case PAGE_CONTENT:
-                String oldStr = blankPageSnapshotRepo.get(pageId);
+                oldStr = blankPageSnapshotRepo.get(pageId);
                 // 비교
-                DiffStr diffStr = comparisonService.compare(oldStr, newStr);
+                diffStr = comparisonService.compare(oldStr, newStr);
                 if (diffStr != null) {
                     // replace
                     blankPageSnapshotRepo.replace(pageId, newStr);
                     // 전송
-                    publisher.publishEvent(constructPageContentEvent(sessionId, pageId, diffStr));
+                    publisher.publishEvent(constructEvent(sessionId, pageId, -1L, diffStr, PAGE_CONTENT));
                 }
+                break;
 
             case BLOCK_TITLE:
+                log.info("websocket message => {}", messageReq.getEditorType());
+                oldStr = blockPageSnapshotRepo.findByPageAndBlockId(pageId, messageReq.getBlockId()).getTitle();
+                // 비교
+                diffStr = comparisonService.compare(oldStr, newStr);
+                if (diffStr != null) {
+                    // replace
+                    blockPageSnapshotRepo.replaceTitle(pageId, messageReq.getBlockId(), newStr);
+                    // 전송
+                    publisher.publishEvent(constructEvent(sessionId, pageId, messageReq.getBlockId(), diffStr, BLOCK_TITLE));
+                }
+                break;
 
             case BLOCK_CONTENT:
+                log.info("websocket message => {}", messageReq.getEditorType());
+                oldStr = blockPageSnapshotRepo.findByPageAndBlockId(pageId, messageReq.getBlockId()).getContent();
+                // 비교
+                diffStr = comparisonService.compare(oldStr, newStr);
+                if (diffStr != null) {
+                    // replace
+                    blockPageSnapshotRepo.replaceContent(pageId, messageReq.getBlockId(), newStr);
+                    // 전송
+                    publisher.publishEvent(constructEvent(sessionId, pageId, messageReq.getBlockId(), diffStr, BLOCK_CONTENT));
+                }
+                break;
         }
     }
 
-    private TextSendEvent constructPageContentEvent(String sessionId, Long pageId, DiffStr diffStr) {
+    private TextSendEvent constructEvent(String sessionId, Long pageId, Long blockId, DiffStr diffStr, int editorType) {
 
         TextSendEvent event = TextSendEvent.builder()
             .sessionId(sessionId)
             .pageId(pageId)
             .pageSocketMessageRes(
                     PageSocketMessageRes.builder()
-                            .editorType(0)
+                            .editorType(editorType)
                             .pageId(pageId)
-                            .blockId(-1L)
+                            .blockId(blockId)
                             .diffStr(diffStr)
                             .build())
         .build();
 
         return event;
-    }
-
-    // 애플리케이션 실행 시 pageContentSnapshotRepoImpl documents 초기화
-    @PostConstruct
-    public void createBlankPage() {
-
-        List<Page> blankPages = pageRepository.findByTemplate(Template.BLANK);
-        if (!blankPages.isEmpty()) {
-            for (Page page : blankPages) {
-                blankPageSnapshotRepo.put(page.getId(), page.getContent());
-            }
-        }
     }
 
     @PostConstruct
@@ -118,27 +131,36 @@ public class PageWebSocketService {
             }
         }
         log.info("빈 페이지 Snapshot size = {}", blankPageSnapshotRepo.size());
-        log.info("블럭 페이지 Snapshot size = {}", blankPageSnapshotRepo.size());
+        log.info("블럭 페이지 Snapshot size = {}", blockPageSnapshotRepo.size());
 
     }
 
     public boolean deletePageSnapshot(Long pageId, Template template) {
 
+
         if (template == Template.BLANK) {
+            log.info("deletePageSnapshot => pageId = {}, template = {}", pageId, template);
             return blankPageSnapshotRepo.delete(pageId);
 
         } else if (template == Template.BLOCK){
-            return blockPageSnapshotRepo.delete(pageId);
+            log.info("deletePageSnapshot => pageId = {}, template = {}", pageId, template);
+            return blockPageSnapshotRepo.deletePage(pageId);
         }
+
         return false;
+    }
+
+    public boolean deleteBlockSnapshot(Long pageId, Long blockId) {
+
+        log.info("deleteBlockSnapshot => pageId = {}, blockId = {}", pageId, blockId);
+        return blockPageSnapshotRepo.deletePage(pageId);
     }
 
     // blank page
 
     public void createBlankPage(Long pageId, String content) {
-
         blankPageSnapshotRepo.put(pageId, content);
-        log.info("페이지 생성 후 pageContentSnapshotInit");
+        log.info("create 빈 페이지");
     }
 
     public String findBlankPageSnapshot(Long pageId) {
@@ -149,10 +171,12 @@ public class PageWebSocketService {
 
     public void createBlockPage(Long pageId) {
         blockPageSnapshotRepo.putPage(pageId);
+        log.info("create 블럭 페이지");
     }
 
     public void createBlock(Long pageId, Long blockId, BlockSnapshot blockSnapshot) {
         blockPageSnapshotRepo.putBlock(pageId, blockId, blockSnapshot);
+        log.info("create 블럭");
     }
 
     public Map<Long, BlockSnapshot> findBlockPageSnapshot(Long pageId) {

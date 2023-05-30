@@ -136,15 +136,14 @@ public class PageService {
         // 페이지 저장을 해야 id를 얻을 수 있음
 
         if (page.getTemplate() == Template.BLANK) {
-            // todo page content를 PageContentSnapshot에 저장.
             page.setContent("");
+            pageRepository.save(page);
             pageWebSocketService.createBlankPage(page.getId(), page.getContent());
         }
-        if (page.getTemplate() == Template.BLOCK) {
+        else if (page.getTemplate() == Template.BLOCK) {
+            pageRepository.save(page);
             pageWebSocketService.createBlockPage(page.getId());
-        }
-
-        pageRepository.save(page);
+        } else return null;
 
         // 팀원 마다 pageCheck create
         List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());

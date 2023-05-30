@@ -24,8 +24,13 @@ public class BlockPageSnapshotRepo {
         page.put(blockId, blockSnapshot);
     }
 
-    public boolean delete(Long pageId) {
+    public boolean deletePage(Long pageId) {
         if(document.remove(pageId) != null) return true;
+        return false;
+    }
+
+    public boolean deleteBlock(Long pageId, Long blockId) {
+        if (document.get(pageId).remove(blockId) != null) return true;
         return false;
     }
 
@@ -33,7 +38,19 @@ public class BlockPageSnapshotRepo {
         return document.get(pageId);
     }
 
+    public BlockSnapshot findByPageAndBlockId(Long pageId, Long blockId) {
+        return document.get(pageId).get(blockId);
+    }
+
     public int size() {
         return document.size();
+    }
+
+    public void replaceTitle(Long pageId, Long blockId, String title) {
+        document.get(pageId).get(blockId).setTitle(title);
+    }
+
+    public void replaceContent(Long pageId, Long blockId, String content) {
+        document.get(pageId).get(blockId).setContent(content);
     }
 }
