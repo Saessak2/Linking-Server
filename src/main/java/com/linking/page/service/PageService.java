@@ -64,20 +64,18 @@ public class PageService {
 
     @Transactional
     public PageDetailedRes getPage(Long pageId, Set<Long> enteringUserIds) {
-        log.info("getPage async test" + Thread.currentThread());
 
         // toMany는 하나만 Fetch join 가능
         Page page = pageRepository.findByIdFetchPageChecks(pageId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        List<PageCheckRes> pageCheckResList = this.toPageCheckResList(page.getPageCheckList(), enteringUserIds);
+        List<PageCheckRes> pageCheckResList = toPageCheckResList(page.getPageCheckList(), enteringUserIds);
 
-        if (page.getTemplate() == Template.BLANK) {  // blank 타입의 page
-            // pageContentSnapshot 을 db에 저장.
+        if (page.getTemplate() == Template.BLANK) {
             page.setContent(pageWebSocketService.findBlankPageSnapshot(pageId));
             return pageMapper.toDto(page, pageCheckResList);
 
-        } else if (page.getTemplate() == Template.BLOCK) { // block 타입의 page
+        } else if (page.getTemplate() == Template.BLOCK) {
             List<Block> blockList = blockRepository.findAllByPageIdFetchAnnotations(page.getId());
             Map<Long, BlockSnapshot> blockPageSnapshot = pageWebSocketService.findBlockPageSnapshot(pageId);
 
@@ -86,13 +84,12 @@ public class PageService {
                 block.setTitle(blockSnapshot.getTitle());
                 block.setContent(blockSnapshot.getContent());
             });
-
             List<BlockDetailRes> blockResList = toBlockResList(blockList);
-
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
         return null;
     }
+
 
     private List<PageCheckRes> toPageCheckResList(List<PageCheck> pageCheckList, Set<Long> enteringUserIds) {
         List<PageCheckRes> pageCheckResList = new ArrayList<>();

@@ -1,6 +1,5 @@
 package com.linking.sse.page;
 
-import com.linking.block.domain.Block;
 import com.linking.block.dto.BlockRes;
 import com.linking.sse.EventType;
 import lombok.RequiredArgsConstructor;
@@ -15,36 +14,27 @@ public class PageSseEventPublisher {
 
     private final ApplicationEventPublisher publisher;
 
-    public void publishPostBlockEvent(Long publisherId, Block block) {
+    public void publishPostBlockEvent(Long publisherId, BlockRes blockRes) {
 
         publisher.publishEvent(
                 PageEvent.builder()
                         .eventName(EventType.POST_BLOCK)
-                        .pageId(block.getPage().getId())
+                        .pageId(blockRes.getPageId())
                         .userId(publisherId)
-                        .data(
-                                BlockRes.builder()
-                                    .blockId(block.getId())
-                                    .pageId(block.getPage().getId())
-                                    .title(block.getTitle())
-                                    .content(block.getContent())
-                                .build())
-                        .build()
+                        .data(blockRes)
+                .build()
         );
     }
 
-    public void publishDeleteBlockEvent(Long publisherId, Long pageId, Long blockId) {
+    public void publishDeleteBlockEvent(Long publisherId, Long pageId, BlockRes blockRes) {
 
         publisher.publishEvent(
                 PageEvent.builder()
                         .eventName(EventType.DELETE_BLOCK)
                         .pageId(pageId)
                         .userId(publisherId)
-                        .data(
-                                BlockRes.builder()
-                                        .blockId(blockId)
-                                        .build())
-                        .build()
+                        .data(blockRes)
+                .build()
         );
     }
 
@@ -55,7 +45,8 @@ public class PageSseEventPublisher {
                         .eventName(EventType.PUT_BLOCK_ORDER)
                         .pageId(pageId)
                         .userId(publisherId)
-                        .data(blockIds).build()
+                        .data(blockIds)
+                .build()
         );
     }
 }

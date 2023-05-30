@@ -16,5 +16,4 @@ public interface ErrorMessage {
     String NO_ANNOTATION = "no such annotation";
     String NO_PAGE_CHECK = "no such page check";
     String DO_NOT_MATCH_PW = "do not match password";
-
 }

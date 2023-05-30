@@ -3,7 +3,6 @@ package com.linking.block.persistence;
 import com.linking.annotation.dto.AnnotationRes;
 import com.linking.block.dto.BlockDetailRes;
 import com.linking.block.domain.Block;
-import com.linking.block.dto.BlockCreateReq;
 import com.linking.block.dto.BlockRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -17,26 +16,21 @@ import java.util.List;
 )
 public interface BlockMapper {
 
-//    default Block toEntity(BlockCreateReq source) {
-//
-//        Block.BlockBuilder builder = Block.builder();
-//        builder
-//                .title(source.getTitle())
-//                .blockOrder(source.getOrder());
-//
-//        return builder.build();
-//    }
 
     default BlockRes toDto(Block source) {
 
         BlockRes.BlockResBuilder builder = BlockRes.builder();
         builder
-                .blockId(source.getId())
                 .pageId(source.getPage().getId())
+                .blockId(source.getId())
                 .title(source.getTitle())
                 .content(source.getContent());
 
         return builder.build();
+    }
+
+    default BlockRes toBlockIdResDto(Long blockId) {
+        return BlockRes.builder().blockId(blockId).build();
     }
 
     default BlockDetailRes toDto(Block source, List<AnnotationRes> annotationResList) {
@@ -77,5 +71,6 @@ public interface BlockMapper {
 
         return blockResList;
     }
+
 
 }

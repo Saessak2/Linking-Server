@@ -4,10 +4,10 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 public class BlockCreateReq {
 
     @Setter

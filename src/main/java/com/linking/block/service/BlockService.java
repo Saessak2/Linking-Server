@@ -7,15 +7,12 @@ import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.BadRequestException;
 import com.linking.socket.page.BlockSnapshot;
 import com.linking.socket.page.service.PageWebSocketService;
-import com.linking.sse.EventType;
-import com.linking.sse.page.PageEvent;
 import com.linking.page.domain.Page;
 import com.linking.page.domain.Template;
 import com.linking.page.persistence.PageRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.sse.page.PageSseEventPublisher;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,35 +35,49 @@ public class BlockService {
 
     private final PageWebSocketService pageWebSocketService;
 
-    @SneakyThrows
     @Transactional
-    public BlockRes createBlock(BlockCreateReq req, Long userId) {
+    public Long createBlock(BlockCreateReq req, Long userId) {
 
         Page page = pageRepository.findByIdFetchBlocks(req.getPageId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PAGE));
 
-        if (page.getTemplate() == Template.BLANK) {
-            log.error("cannot add block in Blank template");
-            throw new IllegalAccessException("cannot add block in Blank template");
-        }
+        if (page.getTemplate() == Template.BLANK)
+            throw new BadRequestException("cannot add block in Blank template");
 
+        Block block = saveBlock(page, req.getTitle(), null);
+        // post Block Event
+        pageSsePublisher.publishPostBlockEvent(userId, blockMapper.toDto(block));
+
+        return block.getId();
+    }
+
+    @Transactional
+    public Long cloneBlock(BlockCloneReq blockCloneReq, Long userId) {
+
+        // 복제 블럭이 생성될 page 조회
+        Page page = pageRepository.findById(blockCloneReq.getPageId())
+                .orElseThrow(NoSuchElementException::new);
+
+        if (page.getTemplate() == Template.BLANK)
+            throw new BadRequestException("cannot add block in Blank Page");
+
+        Block block = saveBlock(page, blockCloneReq.getTitle(), blockCloneReq.getContent());
+        // post block event
+        pageSsePublisher.publishPostBlockEvent(userId, blockMapper.toDto(block));
+
+        return block.getId();
+    }
+
+    private Block saveBlock(Page page, String blockTitle, String blockContent) {
         // block 저장 in db
-        Block block = new Block(req.getTitle(), null, page);
-        BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
-
+        Block block = blockRepository.save(new Block(blockTitle, blockContent, page));
         // block snapshot 저장 in memory
         pageWebSocketService.createBlock(page.getId(), block.getId(), new BlockSnapshot(block.getTitle(), block.getContent()));
-
-        // sse - postBlockEvent
-        pageSsePublisher.publishPostBlockEvent(userId, block);
-
-        return blockRes;
+        return block;
     }
 
     @Transactional
     public boolean updateBlockOrder(BlockOrderReq req, Long userId) {
-
-        log.info("putBlockOrder ========================================================================");
 
         List<Block> blockList = blockRepository.findAllByPageId(req.getPageId());
 
@@ -86,7 +97,7 @@ public class BlockService {
 
     @Transactional
     public void deleteBlock(Long blockId, Long userId) {
-
+    // todo pageId 받아서 page로 조회
         Block block = blockRepository.findById(blockId)
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_BLOCK));
 
@@ -95,34 +106,13 @@ public class BlockService {
 
         // block snapshot 삭제
         pageWebSocketService.deleteBlockSnapshot(pageId, blockId);
-
+        // order 재조정
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
         int order = 0;
         for (Block b : blockList) b.updateOrder(order++);
 
-        // deleteBlockEvent - sse
-        pageSsePublisher.publishDeleteBlockEvent(userId, pageId, blockId);
-    }
-
-    @Transactional
-    public Long cloneBlock(BlockCloneReq blockCloneReq, Long userId) {
-
-        // 복제 블럭이 생성될 page 조회
-        Page page = pageRepository.findById(blockCloneReq.getPageId())
-                .orElseThrow(NoSuchElementException::new);
-
-        if (page.getTemplate() == Template.BLANK)
-            throw new BadRequestException("cannot add block in Blank Page");
-
-        // 블럭 생성
-        Block block = new Block(blockCloneReq.getTitle(), blockCloneReq.getContent(), page);
-        blockRepository.save(block);
-
-        pageWebSocketService.createBlock(page.getId(), block.getId(), new BlockSnapshot(block.getTitle(), block.getContent()));
-
-        pageSsePublisher.publishPostBlockEvent(userId, block);
-
-        return block.getId();
+        // delete Block Event
+        pageSsePublisher.publishDeleteBlockEvent(userId, pageId, blockMapper.toBlockIdResDto(blockId));
     }
 }
 

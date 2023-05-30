@@ -28,8 +28,8 @@ public class BlockController {
             @RequestHeader Long userId
     ) {
 
-        BlockRes blockRes = blockService.createBlock(req, userId);
-        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockRes.getBlockId());
+        Long blockId = blockService.createBlock(req, userId);
+        return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockId);
     }
 
     @PutMapping("/order")
