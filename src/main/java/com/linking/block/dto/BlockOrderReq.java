@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 public class BlockOrderReq {
 
     @NotNull

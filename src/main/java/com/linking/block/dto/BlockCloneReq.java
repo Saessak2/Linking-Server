@@ -8,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BlockCloneReq {
 
-    private String cloneType;
     private String title;
     private String content;
     private Long pageId;
-
 }

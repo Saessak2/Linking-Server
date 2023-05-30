@@ -96,7 +96,5 @@ public class PageController extends TextWebSocketHandler {
         boolean res = pageService.updatePageTitle(pageTitleReq, userId);
         return ResponseHandler.generateOkResponse(res);
     }
-
-
 }
 

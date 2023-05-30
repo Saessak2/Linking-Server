@@ -7,12 +7,14 @@ import com.linking.block.dto.BlockRes;
 import com.linking.block.service.BlockService;
 import com.linking.global.common.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/blocks")
 @RequiredArgsConstructor
@@ -35,8 +37,11 @@ public class BlockController {
             @RequestBody @Valid BlockOrderReq req,
             @RequestHeader Long userId
     ) {
-
+        log.info("putBlockOrder ========================================================================");
+        log.info("pageId = {}, blockIds.size = {}", req.getPageId(), req.getBlockIds().size());
+        log.info("req.getBlockIds(0) = {}", req.getBlockIds().get(0));
         boolean res = blockService.updateBlockOrder(req, userId);
+        log.info("res = {}", res);
         return ResponseHandler.generateOkResponse(res);
     }
 
@@ -56,7 +61,7 @@ public class BlockController {
             @RequestBody BlockCloneReq blockCloneReq,
             @RequestHeader Long userId
     ) {
-        Long blockId = blockService.cloneBlock(userId, blockCloneReq);
+        Long blockId = blockService.cloneBlock(blockCloneReq, userId);
         return ResponseHandler.generateResponse(ResponseHandler.MSG_201, HttpStatus.CREATED, blockId);
     }
 }

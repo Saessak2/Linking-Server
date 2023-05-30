@@ -153,7 +153,7 @@ public class PageWebSocketService {
     public boolean deleteBlockSnapshot(Long pageId, Long blockId) {
 
         log.info("deleteBlockSnapshot => pageId = {}, blockId = {}", pageId, blockId);
-        return blockPageSnapshotRepo.deletePage(pageId);
+        return blockPageSnapshotRepo.deleteBlock(pageId, blockId);
     }
 
     // blank page
