@@ -21,9 +21,11 @@ public class Block {
     // 필요여부에 따라 없앨 수 있음
     private int blockOrder;
 
+    @Setter
     @Column(length = 100)
     private String title;
 
+    @Setter
     @Column(columnDefinition = "TEXT")  // TEXT 타입은 65,535bytes
     private String content;
 

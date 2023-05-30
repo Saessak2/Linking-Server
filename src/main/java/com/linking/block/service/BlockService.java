@@ -5,6 +5,8 @@ import com.linking.block.domain.Block;
 import com.linking.block.dto.*;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.exception.BadRequestException;
+import com.linking.socket.page.BlockSnapshot;
+import com.linking.socket.page.service.PageWebSocketService;
 import com.linking.sse.EventType;
 import com.linking.sse.page.PageEvent;
 import com.linking.page.domain.Page;
@@ -28,9 +30,13 @@ import java.util.NoSuchElementException;
 public class BlockService {
 
     private final ApplicationEventPublisher publisher;
+
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
+
     private final PageRepository pageRepository;
+
+    private final PageWebSocketService pageWebSocketService;
 
 
     @SneakyThrows
@@ -47,6 +53,8 @@ public class BlockService {
 
         Block block = new Block(req.getTitle(), null, page);
         BlockRes blockRes = blockMapper.toDto(blockRepository.save(block));
+
+        pageWebSocketService.createBlock(page.getId(), block.getId(), new BlockSnapshot(block.getTitle(), block.getContent()));
 
         // 이벤트 전송
         publisher.publishEvent(
@@ -99,6 +107,8 @@ public class BlockService {
         Long pageId = block.getPage().getId();
         blockRepository.delete(block);
 
+        pageWebSocketService.deletePageSnapshot(pageId, Template.BLOCK);
+
         List<Block> blockList = blockRepository.findAllByPageId(pageId);
         int order = 0;
         for (Block b : blockList) b.updateOrder(order++);
@@ -110,7 +120,6 @@ public class BlockService {
                         .userId(userId)
                         .data(new BlockIdRes(blockId)).build()
         );
-
     }
 
     @Transactional
@@ -128,6 +137,9 @@ public class BlockService {
         Block block = new Block(blockCloneReq.getTitle(), blockCloneReq.getContent(), page);
         blockRepository.save(block);
 
+        pageWebSocketService.createBlock(page.getId(), block.getId(), new BlockSnapshot(block.getTitle(), block.getContent()));
+
+        // todo sse event 전송
         switch (cloneType) {
             case "THIS":
             case "OTHER":

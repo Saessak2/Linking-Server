@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Repository
-public class BlankPageSnapshotRepoImpl {
+public class BlankPageSnapshotRepo {
 
     /**
      * key : pageId

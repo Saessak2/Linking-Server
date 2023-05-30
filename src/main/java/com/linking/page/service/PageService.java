@@ -9,6 +9,7 @@ import com.linking.block.persistence.BlockMapper;
 import com.linking.block.persistence.BlockRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.page.dto.PageTitleReq;
+import com.linking.socket.page.BlockSnapshot;
 import com.linking.socket.page.service.PageWebSocketService;
 import com.linking.sse.EventType;
 import com.linking.sse.group.GroupEvent;
@@ -66,10 +67,21 @@ public class PageService {
 
         if (page.getTemplate() == Template.BLANK) {  // blank 타입의 page
             // pageContentSnapshot 을 db에 저장.
-            page.setContent(pageWebSocketService.findSnapshotByPageId(pageId));
+            page.setContent(pageWebSocketService.findBlankPageSnapshot(pageId));
             return pageMapper.toDto(page, pageCheckResList);
+
         } else if (page.getTemplate() == Template.BLOCK) { // block 타입의 page
-            List<BlockDetailRes> blockResList = this.toBlockResList(blockRepository.findAllByPageIdFetchAnnotations(page.getId()));
+            List<Block> blockList = blockRepository.findAllByPageIdFetchAnnotations(page.getId());
+            Map<Long, BlockSnapshot> blockPageSnapshot = pageWebSocketService.findBlockPageSnapshot(pageId);
+
+            blockList.forEach(block -> {
+                BlockSnapshot blockSnapshot = blockPageSnapshot.get(block.getId());
+                block.setTitle(blockSnapshot.getTitle());
+                block.setContent(blockSnapshot.getContent());
+            });
+
+            List<BlockDetailRes> blockResList = toBlockResList(blockList);
+
             return pageMapper.toDto(page, blockResList, pageCheckResList);
         }
         return null;
@@ -126,7 +138,10 @@ public class PageService {
         if (page.getTemplate() == Template.BLANK) {
             // todo page content를 PageContentSnapshot에 저장.
             page.setContent("");
-            pageWebSocketService.pageContentSnapshotInit(page.getId(), page.getContent());
+            pageWebSocketService.createBlankPage(page.getId(), page.getContent());
+        }
+        if (page.getTemplate() == Template.BLOCK) {
+            pageWebSocketService.createBlockPage(page.getId());
         }
 
         pageRepository.save(page);
