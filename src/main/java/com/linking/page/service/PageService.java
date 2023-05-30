@@ -44,15 +44,22 @@ import java.util.stream.Collectors;
 public class PageService {
 
     private final ApplicationEventPublisher publisher;
+
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
+
     private final GroupRepository groupRepository;
+
     private final PageCheckRepository pageCheckRepository;
     private final PageCheckMapper pageCheckMapper;
+
     private final ParticipantRepository participantRepository;
+
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
+
     private final AnnotationMapper annotationMapper;
+
     private final PageWebSocketService pageWebSocketService;
 
     @Transactional
@@ -128,22 +135,18 @@ public class PageService {
 
     @Transactional
     public PageRes createPage(PageCreateReq req, Long userId) {
+
         Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        Page page = pageMapper.toEntity(req);
-        page.setGroup(group);
-        // 페이지 저장을 해야 id를 얻을 수 있음
+        Page page = pageMapper.toEntity(req, group);
+        pageRepository.save(page);
 
-        if (page.getTemplate() == Template.BLANK) {
-            page.setContent("");
-            pageRepository.save(page);
+        if (page.getTemplate() == Template.BLANK)
             pageWebSocketService.createBlankPage(page.getId(), page.getContent());
-        }
-        else if (page.getTemplate() == Template.BLOCK) {
-            pageRepository.save(page);
+
+        else if (page.getTemplate() == Template.BLOCK)
             pageWebSocketService.createBlockPage(page.getId());
-        } else return null;
 
         // 팀원 마다 pageCheck create
         List<Participant> participants = participantRepository.findAllByProjectId(group.getProject().getProjectId());

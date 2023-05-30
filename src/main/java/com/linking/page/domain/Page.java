@@ -20,13 +20,13 @@ public class Page {
     @Column(name = "page_id")
     private Long id;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
 
     private int pageOrder;
 
-    @Setter
     @NotNull
     private String title;
 
@@ -34,22 +34,25 @@ public class Page {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @NotNull
     @Enumerated(value = EnumType.STRING)
     private Template template;
 
+    @NotNull
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     @OrderBy("blockOrder asc")
     private List<Block> blockList;
 
+    @NotNull
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<PageCheck> pageCheckList;
 
-
     @Builder
-    public Page(int pageOrder, String title, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
-        this.pageOrder = pageOrder;
-        this.title = title;
-        this.template = template;
+    public Page(String title, Group group, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
+        setTitle(title);
+        setGroup(group);
+        this.pageOrder = order();
+        setTemplate(template);
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
     }
@@ -61,14 +64,34 @@ public class Page {
         }
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+        if (title == null)
+            this.title = "untitled";
+    }
+
+    private void setTemplate(Template template) {
+        this.template = template;
+        if (template == Template.BLANK)
+            this.content = "";
+    }
+
     @PrePersist
     public void prePersist(){
-        this.title = this.title == null ? "untitled" : this.title;
         this.blockList = this.blockList == null ? new ArrayList<>() : this.blockList;
         this.pageCheckList = this.pageCheckList == null ? new ArrayList<>() : this.pageCheckList;
     }
 
     public void updateOrder(int order) {
         this.pageOrder = order;
+    }
+
+    private int order() {
+        int order = 0;
+        for (Page page : group.getPageList()) {
+            if (order <= page.getPageOrder())
+                order = page.getPageOrder() + 1;
+        }
+        return order;
     }
 }

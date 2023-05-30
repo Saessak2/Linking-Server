@@ -16,8 +16,8 @@ import javax.validation.Valid;
 
 @Slf4j
 @RestController
-@RequestMapping("/blocks")
 @RequiredArgsConstructor
+@RequestMapping("/blocks")
 public class BlockController {
 
     private final BlockService blockService;

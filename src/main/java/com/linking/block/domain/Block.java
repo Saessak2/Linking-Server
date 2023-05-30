@@ -5,6 +5,7 @@ import com.linking.page.domain.Page;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,17 +23,21 @@ public class Block {
     private int blockOrder;
 
     @Setter
+    @NotNull
     @Column(length = 100)
     private String title;
 
     @Setter
+    @NotNull
     @Column(columnDefinition = "TEXT")  // TEXT 타입은 65,535bytes
     private String content;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id")
     private Page page;
 
+    @NotNull
     @OneToMany(mappedBy = "block", orphanRemoval = true)
     @OrderBy("createdDatetime asc")
     private List<Annotation> annotationList;

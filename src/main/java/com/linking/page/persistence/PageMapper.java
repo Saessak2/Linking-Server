@@ -1,6 +1,7 @@
 package com.linking.page.persistence;
 
 import com.linking.block.dto.BlockDetailRes;
+import com.linking.group.domain.Group;
 import com.linking.page.dto.BlankPageDetailRes;
 import com.linking.page.dto.BlockPageDetailRes;
 import com.linking.page.dto.PageCreateReq;
@@ -60,13 +61,13 @@ public interface PageMapper {
 
     }
 
-    default Page toEntity(PageCreateReq source) {
+    default Page toEntity(PageCreateReq source, Group group) {
 
         Page.PageBuilder builder = Page.builder();
         builder
                 .title(source.getTitle())
-                .pageOrder(source.getOrder())
-                .template(source.getTemplate());
+                .template(source.getTemplate())
+                .group(group);
 
         return builder.build();
     }

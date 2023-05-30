@@ -137,7 +137,6 @@ public class PageWebSocketService {
 
     public boolean deletePageSnapshot(Long pageId, Template template) {
 
-
         if (template == Template.BLANK) {
             log.info("deletePageSnapshot => pageId = {}, template = {}", pageId, template);
             return blankPageSnapshotRepo.delete(pageId);

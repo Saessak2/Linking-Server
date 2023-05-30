@@ -21,5 +21,4 @@ public class LinkingApplication {
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
 		log.info("LocalDateTime.now() = {}", LocalDateTime.now());
 	}
-
 }
