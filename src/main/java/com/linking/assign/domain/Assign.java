@@ -7,6 +7,14 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
+@NamedEntityGraph(
+        name = "Assign.fetchTodoAndParticipant",
+        attributeNodes = {
+                @NamedAttributeNode(value = "todo", subgraph = "Todo.fetchProject"),
+                @NamedAttributeNode(value = "participant", subgraph = "Participant.fetchUser")},
+        subgraphs = {
+                @NamedSubgraph(name = "Participant.fetchUser", attributeNodes = {@NamedAttributeNode(value = "user")}),
+                @NamedSubgraph(name = "Todo.fetchProject", attributeNodes = {@NamedAttributeNode(value = "project")})})
 @Getter
 @Builder
 @AllArgsConstructor

@@ -90,8 +90,7 @@ public class TodoController {
 
     @GetMapping("/list/monthly/project/{id}/{year}/{month}")
     public ResponseEntity<Object> getMonthlyProjectTodos(
-            @PathVariable Long id, @PathVariable int year, @PathVariable int month){
-        return ResponseHandler.generateOkResponse(
+            @PathVariable Long id, @PathVariable int year, @PathVariable int month){return ResponseHandler.generateOkResponse(
                 todoService.getMonthlyProjectTodos(id, year, month));
     }
 

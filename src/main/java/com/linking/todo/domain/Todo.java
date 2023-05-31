@@ -9,6 +9,12 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NamedEntityGraph(
+        name = "Todo.fetchAssignAndParticipant",
+        attributeNodes = {
+                @NamedAttributeNode(value = "assignList", subgraph = "Assign.fetchParticipant")},
+        subgraphs = {
+                @NamedSubgraph(name = "Assign.fetchParticipant", attributeNodes = {@NamedAttributeNode(value = "participant")})})
 @Getter
 @Builder
 @AllArgsConstructor
@@ -52,6 +58,10 @@ public class Todo {
 
     public Todo(Long todoId){
         this.todoId = todoId;
+    }
+
+    public void setChildTodoList(List<Todo> childTodoList){
+        this.childTodoList = childTodoList;
     }
 
     public void setAssignList(List<Assign> assignList) {
