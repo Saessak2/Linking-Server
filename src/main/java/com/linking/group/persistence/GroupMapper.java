@@ -39,7 +39,6 @@ public interface GroupMapper {
         return builder;
     }
 
-
     default Group toEntity(GroupCreateReq source, Project project) {
 
         Group.GroupBuilder builder = Group.builder();

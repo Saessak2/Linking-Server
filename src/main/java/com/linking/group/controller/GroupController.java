@@ -74,7 +74,6 @@ public class GroupController {
     ) {
 
         groupService.deleteGroup(groupId, userId);
-
         return ResponseHandler.generateNoContentResponse();
     }
 

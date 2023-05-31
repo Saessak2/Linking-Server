@@ -40,8 +40,6 @@ public class GroupService {
 
     private final PageCheckService pageCheckService;
 
-
-
     public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
@@ -151,13 +149,9 @@ public class GroupService {
     }
 
 
-
-
     public List<GroupRes> getBlockPages(Long projectId) {
 
         List<Group> groups = groupRepository.findAllByProjectId(projectId);
-        if (groups == null) return new ArrayList<>();
-
         List<GroupRes> groupResList = new ArrayList<>();
 
         for (Group group : groups) {
@@ -165,25 +159,21 @@ public class GroupService {
             List<PageRes> pageResList = new ArrayList<>();
             List<Page> pageList = group.getPageList();
 
-            boolean flag = false;
-            if (!pageList.isEmpty()) {
-                for (Page page : pageList) {
-                    if (page.getTemplate() == Template.BLOCK) {
-                        flag = true;
-                        pageResList.add(
-                                PageRes.builder()
-                                        .pageId(page.getId())
-                                        .title(page.getTitle())
-                                        .build());
-                    }
+            for (Page page : pageList) {
+                if (page.getTemplate() == Template.BLOCK) {
+                    pageResList.add(
+                            PageRes.builder()
+                                    .pageId(page.getId())
+                                    .title(page.getTitle())
+                                    .build());
                 }
-                if (flag) {
-                    groupResList.add(GroupRes.builder()
-                            .groupId(group.getId())
-                            .name(group.getName())
-                            .pageResList(pageResList)
-                            .build());
-                }
+            }
+            if (pageResList.size() > 0) {
+                groupResList.add(GroupRes.builder()
+                        .groupId(group.getId())
+                        .name(group.getName())
+                        .pageResList(pageResList)
+                    .build());
             }
         }
         return groupResList;
