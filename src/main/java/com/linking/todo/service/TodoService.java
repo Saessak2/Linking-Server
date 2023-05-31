@@ -52,38 +52,34 @@ public class TodoService {
         return todoMapper.toResDto(todo);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public Optional<TodoSingleRes> getTodo(Long id){
-        return todoRepository.findById(id)
+        return todoRepository.findByTodoId(id)
                 .map(todoMapper::toResDto);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<TodoSimpleRes> getTodayUserUrgentTodos(Long id){
-        List<Participant> participantList = participantRepository.findByUser(new User(id));
-        List<Assign> assignList = new ArrayList<>(assignRepository.findByParticipantAndStatusAndDate(participantList, LocalDate.now()));
-        assignList.addAll(assignRepository.findByParticipantAndDate(participantList, LocalDate.now()));
+        List<Assign> assignList = assignRepository.findByParticipantAndStatusAndDate(id, LocalDate.now());
+        assignList.addAll(assignRepository.findByParticipantAndDate(id, LocalDate.now()));
         return todoMapper.toSimpleDto(assignList);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.now()));
-        todoList.addAll(todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now()));
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.now())
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
+        todoList.addAll(todoRepository.findByProjectAndMonth(id, LocalDate.now()));
         return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.now(), false));
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, day)));
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, day))
+                .stream().map(Assign::getTodo).collect(Collectors.toList());;
         todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
         return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, day), false));
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
-
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, 1))
+                .stream().map(Assign::getTodo).collect(Collectors.toList());;
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
         return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, 1), true));
     }
