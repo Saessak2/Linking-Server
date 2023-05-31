@@ -4,6 +4,7 @@ import com.linking.group.domain.Group;
 import com.linking.group.dto.GroupCreateReq;
 import com.linking.group.dto.GroupRes;
 import com.linking.page.dto.PageRes;
+import com.linking.project.domain.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -28,12 +29,23 @@ public interface GroupMapper {
         return builder;
     }
 
+    default GroupRes toPostGroupResDto(Group source) {
 
-    default Group toEntity(GroupCreateReq source) {
+        GroupRes builder = GroupRes.builder()
+                .groupId(source.getId())
+                .name(source.getName())
+                .build();
+
+        return builder;
+    }
+
+
+    default Group toEntity(GroupCreateReq source, Project project) {
 
         Group.GroupBuilder builder = Group.builder();
         builder
                 .name(source.getName())
+                .project(project)
                 .groupOrder(source.getOrder())
                 .pageList(new ArrayList<>());
 

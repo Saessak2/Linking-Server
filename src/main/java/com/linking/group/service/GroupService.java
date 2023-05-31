@@ -3,8 +3,7 @@ package com.linking.group.service;
 import com.linking.group.domain.Group;
 import com.linking.group.persistence.GroupRepository;
 import com.linking.page.domain.Template;
-import com.linking.page_check.domain.PageCheck;
-import com.linking.page_check.persistence.PageCheckRepository;
+import com.linking.page_check.service.PageCheckService;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.global.message.ErrorMessage;
@@ -17,6 +16,7 @@ import com.linking.page.dto.PageOrderReq;
 import com.linking.page.dto.PageRes;
 import com.linking.page.persistence.PageMapper;
 import com.linking.page.persistence.PageRepository;
+import com.linking.sse.group.GroupSseEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,13 +30,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GroupService {
 
+    private final GroupSseEventPublisher groupEventPublisher;
     private final ApplicationEventPublisher publisher;
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
     private final ProjectRepository projectRepository;
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
-    private final PageCheckRepository pageCheckRepository;
+    private final PageCheckService pageCheckService;
 
     // 그룹 리스트 조회
     public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
@@ -44,45 +45,33 @@ public class GroupService {
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
         if (groupList.isEmpty()) return new ArrayList<>();
 
-        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipant(userId, projectId);
+        // key : pageId, value : annoNotCnt
+        Map<Long, Integer> annoNotCntMap = pageCheckService.getAnnoNotCntByParticipant(projectId, userId);
 
-        Map<Long, Integer> annoNotCnts = new HashMap<>(); // key -> pageId
-        pageCheckList.forEach(pc -> {
-            annoNotCnts.put(pc.getPage().getId(), pc.getAnnoNotCount());
-        });
+        List<GroupRes> groupResList = new ArrayList<>();
 
-        List<GroupRes> groupDetailedResList = new ArrayList<>();
-        for (Group group : groupList) {  // order 순서
+        for (Group group : groupList) {
             List<PageRes> pageResList = new ArrayList<>();
-            List<Page> pageList = group.getPageList();   // order 순서
+            List<Page> pageList = group.getPageList();
 
             if (!pageList.isEmpty()) {
-                pageList.forEach(p -> {
-                    pageResList.add(pageMapper.toDto(p, annoNotCnts.get(p.getId())));
+                pageList.forEach(page -> {
+                    pageResList.add(pageMapper.toDto(page, annoNotCntMap.get(page.getId())));
                 });
             }
-            groupDetailedResList.add(groupMapper.toDto(group, pageResList));
+            groupResList.add(groupMapper.toDto(group, pageResList));
         }
-        return groupDetailedResList;
+        return groupResList;
     }
 
     public GroupRes createGroup(GroupCreateReq req, Long userId) {
         Project project = projectRepository.findById(req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
-        Group group = groupMapper.toEntity(req);
-        group.setProject(project);
+        Group group = groupMapper.toEntity(req, project);
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.POST_GROUP)
-                .projectId(project.getProjectId())
-                .userId(userId)
-                .data(GroupRes.builder()
-                        .groupId(groupRes.getGroupId())
-                        .name(group.getName())
-                        .build())
-                .build());
+        groupEventPublisher.publishPostGroup(project.getProjectId(), userId, groupMapper.toPostGroupResDto(group));
 
         return groupRes;
     }

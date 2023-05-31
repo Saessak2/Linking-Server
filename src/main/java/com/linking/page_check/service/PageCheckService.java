@@ -4,7 +4,6 @@ import com.linking.page_check.dto.PageCheckUpdateRes;
 import com.linking.page_check.persistence.PageCheckMapper;
 import com.linking.page_check.persistence.PageCheckRepository;
 import com.linking.participant.domain.Participant;
-import com.linking.participant.dto.ParticipantIdReq;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.global.message.ErrorMessage;
 import com.linking.group.domain.Group;
@@ -78,5 +77,17 @@ public class PageCheckService {
                 }
             }
         }
+    }
+
+    // key : pageId, value : annoNotCnt
+    public Map<Long, Integer> getAnnoNotCntByParticipant(Long projectId, Long userId) {
+
+        List<PageCheck> pageCheckList = pageCheckRepository.findAllByParticipant(userId, projectId);
+
+        Map<Long, Integer> annoNotCntMap = new HashMap<>();
+        pageCheckList.forEach(pc -> {
+            annoNotCntMap.put(pc.getPage().getId(), pc.getAnnoNotCount());
+        });
+        return annoNotCntMap;
     }
 }

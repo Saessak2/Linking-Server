@@ -33,7 +33,7 @@ public class Group  {
     @Builder
     public Group(String name, Project project, int groupOrder, List<Page> pageList) {
         this.name = name;
-        this.project = project;
+        setProject(project);
         this.groupOrder = groupOrder;
         this.pageList = pageList;
     }
