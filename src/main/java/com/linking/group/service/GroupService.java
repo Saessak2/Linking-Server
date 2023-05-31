@@ -7,8 +7,6 @@ import com.linking.page_check.service.PageCheckService;
 import com.linking.project.domain.Project;
 import com.linking.project.persistence.ProjectRepository;
 import com.linking.global.message.ErrorMessage;
-import com.linking.sse.EventType;
-import com.linking.sse.group.GroupEvent;
 import com.linking.group.dto.*;
 import com.linking.group.persistence.GroupMapper;
 import com.linking.page.domain.Page;
@@ -19,27 +17,31 @@ import com.linking.page.persistence.PageRepository;
 import com.linking.sse.group.GroupSseEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class GroupService {
 
     private final GroupSseEventPublisher groupEventPublisher;
-    private final ApplicationEventPublisher publisher;
+
     private final GroupRepository groupRepository;
     private final GroupMapper groupMapper;
+
     private final ProjectRepository projectRepository;
+
     private final PageRepository pageRepository;
     private final PageMapper pageMapper;
+
     private final PageCheckService pageCheckService;
 
-    // 그룹 리스트 조회
+
+
     public List<GroupRes> findAllGroups(Long projectId, Long userId)  {
 
         List<Group> groupList = groupRepository.findAllByProjectId(projectId);
@@ -76,26 +78,38 @@ public class GroupService {
         return groupRes;
     }
 
+    @Transactional
     public Boolean updateGroupName(GroupNameReq req, Long userId) {
 
-        Group findGroup = groupRepository.findById(req.getGroupId())
+        Group group = groupRepository.findById(req.getGroupId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
-        if (!findGroup.getName().equals(req.getName())) {
-            findGroup.updateName(req.getName());
-            Group group = groupRepository.save(findGroup);
-
-            publisher.publishEvent(GroupEvent.builder()
-                    .eventName(EventType.PUT_GROUP_NAME)
-                    .projectId(findGroup.getProject().getProjectId())
-                    .userId(userId)
-                    .data(GroupRes.builder()
-                            .groupId(group.getId())
-                            .name(group.getName())
-                            .build())
-                    .build());
+        if (!group.getName().equals(req.getName())) {
+            group.updateName(req.getName());
+            groupEventPublisher.publishPutGroupName(group.getProject().getProjectId(), userId, groupMapper.toPostGroupResDto(group));
         }
         return true;
+    }
+
+    public void deleteGroup(Long groupId, Long userId) throws NoSuchElementException{
+
+        Group group =  groupRepository.findById(groupId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
+        Long projectId = group.getProject().getProjectId();
+        groupRepository.delete(group);
+
+        groupEventPublisher.publishDeleteGroup(projectId, userId, GroupRes.builder().groupId(groupId).build());
+
+        // 그룹 순서 재정렬
+        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
+        int order = 0;
+        for (Group g : groupList) {
+            if (g.getGroupOrder() != order) {
+                g.updateOrder(order);
+                groupRepository.save(g);
+            }
+            order++;
+        }
     }
 
     // 순서 변경 (그룹 + 페이지)
@@ -138,31 +152,6 @@ public class GroupService {
 
 
 
-    public void deleteGroup(Long groupId, Long userId) throws NoSuchElementException{
-
-        Group group =  groupRepository.findById(groupId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
-        Long projectId = group.getProject().getProjectId();
-        groupRepository.delete(group);
-
-        publisher.publishEvent(GroupEvent.builder()
-                .eventName(EventType.DELETE_GROUP)
-                .projectId(projectId)
-                .userId(userId)
-                .data(GroupRes.builder().groupId(groupId).build())
-                .build());
-
-        // 그룹 순서를 0부터 재정렬
-        List<Group> groupList = groupRepository.findAllByProjectId(projectId);
-        int order = 0;
-        for (Group g : groupList) {
-            if (g.getGroupOrder() != order) {
-                g.updateOrder(order);
-                groupRepository.save(g);
-            }
-            order++;
-        }
-    }
 
     public List<GroupRes> getBlockPages(Long projectId) {
 
