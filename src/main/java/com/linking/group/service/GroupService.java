@@ -68,7 +68,10 @@ public class GroupService {
         Project project = projectRepository.findById(req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
+        int groupOrder = groupRepository.findMaxGroupOrder(project.getProjectId());
         Group group = groupMapper.toEntity(req, project);
+        group.updateOrder(groupOrder);
+
         GroupRes groupRes = groupMapper.toDto(groupRepository.save(group), new ArrayList<>());
 
         groupEventPublisher.publishPostGroup(project.getProjectId(), userId, groupMapper.toPostGroupResDto(group));
