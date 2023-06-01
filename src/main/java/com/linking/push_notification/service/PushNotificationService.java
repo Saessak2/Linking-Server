@@ -46,14 +46,16 @@ public class PushNotificationService {
 
     // todo 알림 한달마다 삭제
 
-
-
     @Transactional
     public List<PushNotificationRes> findAllPushNotificationsByUser(Long userId) {
 
         // 뱃지 개수 reset
-        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER));
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(userId);
+        if (badge == null) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER));
+            badge = savePushNotificationBadge(user);
+        }
 
         badge.resetUnreadCount();
 
@@ -94,61 +96,53 @@ public class PushNotificationService {
     @Transactional
     public boolean sendPushNotification(PushNotificationReq req) {
 
+        System.out.println("PushNotificationService.sendPushNotification");
+
         PushNotification pushNotification = createPushNotification(req);
         PushSettings settings = pushSettingsRepository.findByUserId(pushNotification.getUser().getUserId())
                 .orElseThrow(NoSuchElementException::new);
 
+
         // 메일 전송
-        if (req.getPriority() == NoticePriority.ALL && settings.isAllowedMail())
+        if (pushNotification.getPriority() == NoticePriority.ALL && settings.isAllowedMail()) {
             emailService.sendEmail(pushNotification);
+            log.info("send mail");
+        }
 
         // 푸시 알림 전송
-        if (settings.isAllowedWebPush() || settings.isAllowedAppPush()) {
+        if (settings.isAllowedAppPush() || settings.isAllowedWebPush()) {
+            FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
+                    .orElseThrow(NoSuchElementException::new);
 
-            FcmReq.FcmReqBuilder fcmReqBuilder = FcmReq.builder();
-            fcmReqBuilder
+            FcmReq.FcmReqBuilder fcmReq = FcmReq.builder();
+            fcmReq
                     .title(pushNotification.getProject().getProjectName())
                     .body(pushNotification.getSender() + "\n" + pushNotification.getBody());
 
-            Map<String, String> data = new HashMap<>();
-
-            if (settings.isAllowedWebPush()) {
-
-                FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
-                        .orElseThrow(NoSuchElementException::new);
-
-                fcmReqBuilder
+            if (settings.isAllowedWebPush() && firebaseToken.getWebToken() != null) {
+                fcmReq
                         .firebaseToken(firebaseToken.getWebToken())
                         .link("https://github.com/Saessak2/Linking-Server");
-
-                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
+                fcmService.sendMessageToFcmServer(fcmReq.build());
             }
-
-            if (settings.isAllowedAppPush()) {
-
-//                data.put("projectId", String.valueOf(pushNotification.getProject().getProjectId()));
-//                data.put("type", String.valueOf(pushNotification.getNoticeType()));
-//                data.put("targetId", String.valueOf(pushNotification.getTargetId()));
-
-                FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(pushNotification.getUser().getUserId())
-                        .orElseThrow(NoSuchElementException::new);
-
-                fcmReqBuilder
+            if (settings.isAllowedAppPush() && firebaseToken.getAppToken() != null) {
+                fcmReq
                         .firebaseToken(firebaseToken.getAppToken())
                         .link("https://github.com/Saessak2/Linking-Server");
-
-                fcmService.sendWebMessageToFcmServer(fcmReqBuilder.build());
+                fcmService.sendMessageToFcmServer(fcmReq.build());
             }
-
-
         }
         return true;
     }
 
-    private PushNotification createPushNotification(PushNotificationReq req) {
 
-        User user = userRepository.getReferenceById(req.getUserId());
-        Project project = projectRepository.getReferenceById(req.getProjectId());
+    private PushNotification createPushNotification(PushNotificationReq req) {
+        System.out.println("PushNotificationService.createPushNotification");
+
+        User user = userRepository.findById(req.getUserId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_USER));
+        Project project = projectRepository.findById(req.getProjectId())
+                .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
         PushNotification pushNotification = PushNotification.builder()
                 .user(user)
@@ -158,20 +152,26 @@ public class PushNotificationService {
                 .noticeType(req.getNoticeType())
                 .priority(req.getPriority())
                 .body(req.getBody())
-                .build();
+            .build();
 
         pushNotificationRepository.save(pushNotification);
 
-        // websocket
+        // push 알림 발생 event 전송
         sendPushToWebSocketSession(pushNotification);
-        // 뱃지 개수 증가
-        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId())
-                .orElseThrow(NoSuchElementException::new);
+        // 뱃지 개수 증가. 뱃지 entity 없으면 생성
+        PushNotificationBadge badge = pushNotificationBadgeRepository.findByUserId(req.getUserId());
+        if (badge == null)
+            badge = savePushNotificationBadge(user);
+
         badge.increaseUnreadCount();
         // 뱃지 발생 event 전송
         sendBadgeToWebSocketSession(user.getUserId(), badge.getUnreadCount());
 
         return pushNotification;
+    }
+
+    private PushNotificationBadge savePushNotificationBadge(User user) {
+        return pushNotificationBadgeRepository.save(new PushNotificationBadge(user));
     }
 
     private void sendPushToWebSocketSession(PushNotification push) {
@@ -198,9 +198,6 @@ public class PushNotificationService {
     }
 
     private void sendBadgeToWebSocketSession(Long userId, int badgeCount) {
-        log.info("userID= {} ",userId);
-        log.info("badgeCount = {} ", badgeCount);
-
         PushMessageRes res = PushMessageRes.builder()
                 .resType("badge")
                 .data(badgeCount)
