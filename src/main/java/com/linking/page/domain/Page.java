@@ -28,7 +28,6 @@ public class Page {
     private int pageOrder;
 
     @NotNull
-    @Column(columnDefinition = "TEXT")
     private String title;
 
     @Setter
