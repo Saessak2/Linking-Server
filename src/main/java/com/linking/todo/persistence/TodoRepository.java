@@ -18,19 +18,20 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @EntityGraph(value = "Todo.fetchAssignAndParticipant", type = EntityGraph.EntityGraphType.FETCH)
     Optional<Todo> findByTodoId(@Param("id") Long id);
 
-
-    @EntityGraph(attributePaths = {"project"}, type = EntityGraph.EntityGraphType.FETCH)
+    @EntityGraph(value = "Todo.fetchAssignAndParticipant", type = EntityGraph.EntityGraphType.FETCH)
     @Query(value = "SELECT t FROM Todo t" +
             " WHERE :projectId = t.project.projectId" +
             " AND function('date_format', :today, '%Y%m%d') = function('date_format', t.dueDate, '%Y%m%d')")
     List<Todo> findByProjectAndMonth(@Param("projectId") Long projectId, @Param("today") LocalDate today);
 
+    @EntityGraph(value = "Todo.fetchAssignAndParticipant", type = EntityGraph.EntityGraphType.FETCH)
     @Query(value = "SELECT t FROM Todo t" +
-            " WHERE :project = t.project" +
+            " WHERE :projectId = t.project.projectId" +
             " AND function('date_format', :date, '%Y%m%d')" +
             " BETWEEN function('date_format', t.startDate, '%Y%m%d') AND function('date_format', t.dueDate, '%Y%m%d')")
-    List<Todo> findByProjectAndDateContains(@Param("project") Project project, @Param("date") LocalDate date);
+    List<Todo> findByProjectAndDateContains(@Param("projectId") Long projectId, @Param("date") LocalDate date);
 
+    @EntityGraph(value = "Todo.fetchAssignAndParticipant", type = EntityGraph.EntityGraphType.FETCH)
     @Query(value = "SELECT t FROM Todo t" +
             " WHERE :project = t.project" +
             " AND function('date_format', :date, '%Y%m')" +

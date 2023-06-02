@@ -6,7 +6,6 @@ import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
-import com.linking.project.persistence.ProjectRepository;
 import com.linking.user.domain.User;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.*;
@@ -72,14 +71,15 @@ public class TodoService {
 
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
         List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, day))
-                .stream().map(Assign::getTodo).collect(Collectors.toList());;
-        todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
+        List<Todo> tdl = todoRepository.findByProjectAndDateContains(id, LocalDate.of(year, month, day));
+        todoList.addAll(tdl);
         return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, day), false));
     }
 
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
         List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, 1))
-                .stream().map(Assign::getTodo).collect(Collectors.toList());;
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
         return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, 1), true));
     }

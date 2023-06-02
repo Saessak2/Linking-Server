@@ -15,6 +15,14 @@ import javax.persistence.*;
         subgraphs = {
                 @NamedSubgraph(name = "Participant.fetchUser", attributeNodes = {@NamedAttributeNode(value = "user")}),
                 @NamedSubgraph(name = "Todo.fetchProject", attributeNodes = {@NamedAttributeNode(value = "project")})})
+@NamedEntityGraph(
+        name = "Assign.fetchTodoAndChildTodo",
+        attributeNodes = {
+                @NamedAttributeNode(value = "todo", subgraph = "Todo.fetchProjectAndChild"),
+                @NamedAttributeNode(value = "participant", subgraph = "Participant.fetchUser")},
+        subgraphs = {
+                @NamedSubgraph(name = "Participant.fetchUser", attributeNodes = {@NamedAttributeNode(value = "user")}),
+                @NamedSubgraph(name = "Todo.fetchProjectAndChild", attributeNodes = {@NamedAttributeNode(value = "childTodoList")})})
 @Getter
 @Builder
 @AllArgsConstructor
@@ -28,11 +36,11 @@ public class Assign {
     @Column(name = "assign_id")
     private Long assignId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "todo_id", nullable = false)
     private Todo todo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "participant_id", nullable = false)
     private Participant participant;
 

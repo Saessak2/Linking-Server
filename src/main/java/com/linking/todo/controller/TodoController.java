@@ -3,10 +3,7 @@ package com.linking.todo.controller;
 import com.linking.assign.dto.AssignRes;
 import com.linking.assign.service.AssignService;
 import com.linking.todo.domain.Todo;
-import com.linking.todo.dto.TodoCreateReq;
-import com.linking.todo.dto.TodoDeleteReq;
-import com.linking.todo.dto.TodoSingleRes;
-import com.linking.todo.dto.TodoUpdateReq;
+import com.linking.todo.dto.*;
 import com.linking.todo.service.TodoService;
 import com.linking.global.common.LabeledEmitter;
 import com.linking.global.common.ResponseHandler;
@@ -49,12 +46,11 @@ public class TodoController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<Object> postTodo(@RequestBody @Valid TodoCreateReq todoCreateReq){
+    public ResponseEntity<List<Long>> postTodo(@RequestBody @Valid TodoCreateReq todoCreateReq){
         TodoSingleRes todoSingleRes = todoService.createTodo(todoCreateReq);
         List<Long> idList = new ArrayList<>();
         idList.add(todoSingleRes.getTodoId());
         idList.addAll(todoSingleRes.getAssignList().stream().map(AssignRes::getAssignId).collect(Collectors.toList()));
-
 
         if(todoCreateReq.getIsParent())
             todoSseEventHandler.postParent(todoCreateReq.getEmitterId(), todoCreateReq.getProjectId(), todoMapper.toSsePostData(todoSingleRes));
@@ -64,33 +60,34 @@ public class TodoController {
     }
 
     @GetMapping("/single/{id}")
-    public ResponseEntity<Object> getTodo(@PathVariable Long id){
+    public ResponseEntity<TodoSingleRes> getTodo(@PathVariable Long id){
         return ResponseHandler.generateOkResponse(
                 todoService.getTodo(id));
     }
 
     @GetMapping("/list/today/user/{id}/urgent")
-    public ResponseEntity<Object> getTodayUserUrgentTodos(@PathVariable Long id){
+    public ResponseEntity<List<TodoSimpleRes>> getTodayUserUrgentTodos(@PathVariable Long id){
         return ResponseHandler.generateOkResponse(
                 todoService.getTodayUserUrgentTodos(id));
     }
 
     @GetMapping("/list/today/project/{id}/urgent")
-    public ResponseEntity<Object> getTodayProjectUrgentTodos(@PathVariable Long id){
+    public ResponseEntity<List<ParentTodoRes>> getTodayProjectUrgentTodos(@PathVariable Long id){
         return ResponseHandler.generateOkResponse(
                 todoService.getTodayProjectUrgentTodos(id));
     }
 
     @GetMapping("/list/daily/project/{id}/{year}/{month}/{day}")
-    public ResponseEntity<Object> getDailyProjectTodos(@PathVariable Long id,
+    public ResponseEntity<List<ParentTodoRes>> getDailyProjectTodos(@PathVariable Long id,
             @PathVariable int year, @PathVariable int month, @PathVariable int day){
         return ResponseHandler.generateOkResponse(
                 todoService.getDailyProjectTodos(id, year, month, day));
     }
 
     @GetMapping("/list/monthly/project/{id}/{year}/{month}")
-    public ResponseEntity<Object> getMonthlyProjectTodos(
-            @PathVariable Long id, @PathVariable int year, @PathVariable int month){return ResponseHandler.generateOkResponse(
+    public ResponseEntity<List<ParentTodoRes>> getMonthlyProjectTodos(
+            @PathVariable Long id, @PathVariable int year, @PathVariable int month){
+        return ResponseHandler.generateOkResponse(
                 todoService.getMonthlyProjectTodos(id, year, month));
     }
 
@@ -103,7 +100,7 @@ public class TodoController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
+    public ResponseEntity<Long> putTodo(@RequestBody @Valid TodoUpdateReq todoUpdateReq){
         TodoSingleRes todoSingleRes;
         if(!todoUpdateReq.getIsAssignListChanged())
             todoSingleRes = todoService.updateTodo(todoUpdateReq);

@@ -90,14 +90,19 @@ public class TodoMapper {
             return null;
 
         ParentTodoRes.ParentTodoResBuilder parentTodoResBuilder = ParentTodoRes.builder();
-        return parentTodoResBuilder
+        parentTodoResBuilder
                 .todoId(todo.getTodoId())
                 .isParent(todo.isParent())
                 .startDate(todo.getStartDate().format(formatter))
                 .dueDate(todo.getDueDate().format(formatter))
                 .content(todo.getContent())
-                .childTodoList(toResDto(todo.getChildTodoList()))
-                .assignList(assignMapper.toResDto(todo.getAssignList())).build();
+                .childTodoList(new ArrayList<>())
+                .assignList(assignMapper.toResDto(todo.getAssignList()));
+
+        if(todo.isParent())
+            return parentTodoResBuilder.childTodoList(toResDto(todo.getChildTodoList())).build();
+        else
+            return parentTodoResBuilder.build();
     }
 
     public List<ParentTodoRes> toParentDto(List<Todo> todoList){
