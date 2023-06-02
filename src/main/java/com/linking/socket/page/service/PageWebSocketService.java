@@ -71,7 +71,6 @@ public class PageWebSocketService {
                 break;
 
             case BLOCK_TITLE:
-                log.info("websocket message => {}", messageReq.getEditorType());
                 oldStr = blockPageSnapshotRepo.findByPageAndBlockId(pageId, messageReq.getBlockId()).getTitle();
                 // 비교
                 diffStr = comparisonService.compare(oldStr, newStr);
@@ -84,7 +83,6 @@ public class PageWebSocketService {
                 break;
 
             case BLOCK_CONTENT:
-                log.info("websocket message => {}", messageReq.getEditorType());
                 oldStr = blockPageSnapshotRepo.findByPageAndBlockId(pageId, messageReq.getBlockId()).getContent();
                 // 비교
                 diffStr = comparisonService.compare(oldStr, newStr);

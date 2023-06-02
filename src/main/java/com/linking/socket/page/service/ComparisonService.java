@@ -13,8 +13,6 @@ public class ComparisonService {
 
     public DiffStr compare(String oldStr, String newStr) {
 
-        log.info("=================================================================");
-
         DiffStr diffStr = StringComparison.compareString(oldStr, newStr);
 
         if (diffStr == null) {
@@ -22,9 +20,9 @@ public class ComparisonService {
             return null;
         }
 
-        log.info("oldStr = {}", oldStr);
-        log.info("newStr = {}", newStr);
-        log.info("type : {}, start : {}, end : {}, subStr : {}", diffStr.getType(), diffStr.getDiffStartIndex(), diffStr.getDiffEndIndex(), diffStr.getSubStr());
+//        log.info("oldStr = {}", oldStr);
+//        log.info("newStr = {}", newStr);
+//        log.info("type : {}, start : {}, end : {}, subStr : {}", diffStr.getType(), diffStr.getDiffStartIndex(), diffStr.getDiffEndIndex(), diffStr.getSubStr());
 
         return diffStr;
     }
