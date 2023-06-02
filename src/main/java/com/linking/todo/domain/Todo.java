@@ -9,6 +9,12 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NamedEntityGraph(
+        name = "Todo.fetchAssignAndParticipant",
+        attributeNodes = {
+                @NamedAttributeNode(value = "assignList", subgraph = "Assign.fetchParticipant")},
+        subgraphs = {
+                @NamedSubgraph(name = "Assign.fetchParticipant", attributeNodes = {@NamedAttributeNode(value = "participant")})})
 @Getter
 @Builder
 @AllArgsConstructor
@@ -26,7 +32,7 @@ public class Todo {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parent_todo_id")
     private Todo parentTodo;
 
@@ -44,14 +50,18 @@ public class Todo {
     @ColumnDefault("")
     private String content;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentTodo", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentTodo", cascade = CascadeType.ALL)
     private List<Todo> childTodoList;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "todo", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assign> assignList;
 
     public Todo(Long todoId){
         this.todoId = todoId;
+    }
+
+    public void setChildTodoList(List<Todo> childTodoList){
+        this.childTodoList = childTodoList;
     }
 
     public void setAssignList(List<Assign> assignList) {

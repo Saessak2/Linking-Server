@@ -6,7 +6,6 @@ import com.linking.assign.persistence.AssignRepository;
 import com.linking.participant.domain.Participant;
 import com.linking.participant.persistence.ParticipantRepository;
 import com.linking.project.domain.Project;
-import com.linking.project.persistence.ProjectRepository;
 import com.linking.user.domain.User;
 import com.linking.todo.domain.Todo;
 import com.linking.todo.dto.*;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +31,6 @@ public class TodoService {
 
     private final ParticipantRepository participantRepository;
     private final AssignRepository assignRepository;
-    private final ProjectRepository projectRepository;
 
     public TodoSingleRes createTodo(TodoCreateReq todoCreateReq){
         Todo todo = todoRepository.save(todoMapper.toEntity(todoCreateReq));
@@ -54,40 +51,37 @@ public class TodoService {
         return todoMapper.toResDto(todo);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public Optional<TodoSingleRes> getTodo(Long id){
-        return todoRepository.findById(id)
+        return todoRepository.findByTodoId(id)
                 .map(todoMapper::toResDto);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<TodoSimpleRes> getTodayUserUrgentTodos(Long id){
-        List<Participant> participantList = participantRepository.findByUser(new User(id));
-        List<Assign> assignList = new ArrayList<>(assignRepository.findByParticipantAndStatusAndDate(participantList, LocalDate.now()));
-        assignList.addAll(assignRepository.findByParticipantAndDate(participantList, LocalDate.now()));
+        List<Assign> assignList = assignRepository.findByParticipantAndStatusAndDate(id, LocalDate.now());
+        assignList.addAll(assignRepository.findByParticipantAndDate(id, LocalDate.now()));
         return todoMapper.toSimpleDto(assignList);
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getTodayProjectUrgentTodos(Long id){
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.now()));
-        todoList.addAll(todoRepository.findByProjectAndMonth(new Project(id), LocalDate.now()));
-        return todoMapper.toParentDto(todoList);
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.now())
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
+        todoList.addAll(todoRepository.findByProjectAndMonth(id, LocalDate.now()));
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.now(), false));
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getDailyProjectTodos(Long id, int year, int month, int day){
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, day)));
-        todoList.addAll(todoRepository.findByProjectAndDateContains(new Project(id), LocalDate.of(year, month, day)));
-        return todoMapper.toParentDto(todoList);
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, day))
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
+        List<Todo> tdl = todoRepository.findByProjectAndDateContains(id, LocalDate.of(year, month, day));
+        todoList.addAll(tdl);
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, day), false));
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public List<ParentTodoRes> getMonthlyProjectTodos(Long id, int year, int month){
-
-        List<Todo> todoList = new ArrayList<>(assignRepository.findByProjectAndStatusAndDate(new Project(id), LocalDate.of(year, month, 1)));
+        List<Todo> todoList = assignRepository.findByProjectAndStatusAndDate(id, LocalDate.of(year, month, 1))
+                .stream().map(Assign::getTodo).collect(Collectors.toList());
         todoList.addAll(todoRepository.findByProjectAndMonthContains(new Project(id), LocalDate.of(year, month, 1)));
-        return todoMapper.toParentDto(todoList);
+        return todoMapper.toParentDto(excludeUnnecessaryTodos(todoList, LocalDate.of(year, month, 1), true));
     }
 
     // TODO: To be deleted
@@ -120,19 +114,30 @@ public class TodoService {
         return todo;
     }
 
-    private Todo excludeUnnecessaryTodos(Todo todo, LocalDate date){
-        if(todo.getChildTodoList().size() != 0) {
-            List<Todo> childTodoList = new ArrayList<>();
-            for (Todo childTodo : todo.getChildTodoList())
-                if(!(date.isAfter(ChronoLocalDate.from(childTodo.getStartDate()))
-                && date.isBefore(ChronoLocalDate.from(childTodo.getDueDate()))))
-                    childTodoList.add(childTodo);
+    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate currentDate, boolean isMonthly){
+        for(Todo todo : todoList){
+            if(todo.isParent()){
+                if(isMonthly)
+                    todo.setChildTodoList(excludeUnnecessaryTodos(todo.getChildTodoList(), currentDate, 7));
+                else
+                    todo.setChildTodoList(excludeUnnecessaryTodos(todo.getChildTodoList(), currentDate, 10));
+            }
         }
-        return todo;
+        return todoList;
     }
 
-//    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate dueDate){
-//
-//    }
+    private List<Todo> excludeUnnecessaryTodos(List<Todo> todoList, LocalDate inDate, int lastIndex){
+        List<Todo> retTodos = new ArrayList<>();
+        int startDate, dueDate, currentDate;
+        currentDate = Integer.parseInt(inDate.toString().substring(0, lastIndex).replace("-", ""));
+        for(Todo todo : todoList){
+            startDate = Integer.parseInt(todo.getStartDate().toString().substring(0, lastIndex).replace("-", ""));
+            dueDate = Integer.parseInt(todo.getDueDate().toString().substring(0, lastIndex).replace("-", ""));
+            if(startDate <= currentDate && currentDate <= dueDate)
+                retTodos.add(todo);
+
+        }
+        return retTodos;
+    }
 
 }
