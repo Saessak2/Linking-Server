@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,5 +24,9 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     @EntityGraph(attributePaths = {"annotationList"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT b FROM Block b WHERE b.id = :blockId")
     Optional<Block> findByFetchAnnotations(@Param("blockId") Long blockId);
+
+    @Query("select max(b.blockOrder) from Block b where b.page.id = :pageId")
+    Integer findMaxBlockOrder(@Param("pageId") Long pageId);
+
 
 }

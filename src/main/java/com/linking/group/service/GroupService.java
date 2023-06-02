@@ -17,6 +17,7 @@ import com.linking.page.persistence.PageRepository;
 import com.linking.sse.group.GroupSseEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +69,10 @@ public class GroupService {
         Project project = projectRepository.findById(req.getProjectId())
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_PROJECT));
 
-        int groupOrder = groupRepository.findMaxGroupOrder(project.getProjectId());
+        Integer groupOrder = groupRepository.findMaxGroupOrder(project.getProjectId());
+        if (groupOrder != null) groupOrder++;
+        else groupOrder = 0;
+
         Group group = groupMapper.toEntity(req, project);
         group.updateOrder(groupOrder);
 

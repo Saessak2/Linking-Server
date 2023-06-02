@@ -12,6 +12,6 @@ import java.util.List;
 public interface PushNotificationRepository extends JpaRepository<PushNotification, Long> {
 
 
-    @Query("SELECT n FROM PushNotification n WHERE n.user.userId = :userId")
+    @Query("SELECT n FROM PushNotification n WHERE n.user.userId = :userId order by n.id desc")
     List<PushNotification> findAllByUserId(@Param("userId") Long userId);
 }

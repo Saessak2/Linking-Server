@@ -15,5 +15,5 @@ public interface PushNotificationBadgeRepository  extends JpaRepository<PushNoti
     int findBadgeCountByUserId(@Param("userId") Long userId);
 
     @Query("SELECT b FROM PushNotificationBadge b WHERE b.user.userId = :userId")
-    Optional<PushNotificationBadge> findByUserId(@Param("userId") Long userId);
+    PushNotificationBadge findByUserId(@Param("userId") Long userId);
 }

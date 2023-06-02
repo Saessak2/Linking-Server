@@ -71,6 +71,7 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         for (PushWebSocketSession se : sessions) {
             if (se.getWebSocketSession().getId().equals(session.getId())) {
                 se.setChecking(pushMessageReq.getIsChecking());
+                log.info("userId = {} noti isChecking = {}", userId, se.isChecking());
                 break;
             }
         }
@@ -82,17 +83,21 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         log.info("send PushSendEvent Message");
 
         Set<PushWebSocketSession> sessions = sessionRepository.findByUserId(event.getUserId());
-        if (sessions == null && sessions.isEmpty()) return;
+        if (sessions == null || sessions.isEmpty()) return;
 
         if (event.getType().equals("push")) {
             sessions.forEach(session -> {
-                if (session.isChecking() && session.getWebSocketSession().isOpen())
+                if (session.isChecking() && session.getWebSocketSession().isOpen()) {
                     send(session.getWebSocketSession(), event.getData());
+                    log.info("send push event");
+                }
             });
         } else if (event.getType().equals("badge")) {
             sessions.forEach(session -> {
-                if (!session.isChecking() && session.getWebSocketSession().isOpen())
+                if (!session.isChecking() && session.getWebSocketSession().isOpen()) {
                     send(session.getWebSocketSession(), event.getData());
+                    log.info("send Badge event");
+                }
             });
         }
     }

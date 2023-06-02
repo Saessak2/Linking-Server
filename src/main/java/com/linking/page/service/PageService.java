@@ -137,6 +137,10 @@ public class PageService {
                 .orElseThrow(() -> new NoSuchElementException(ErrorMessage.NO_GROUP));
 
         Page page = pageMapper.toEntity(req, group);
+        Integer pageOrder = pageRepository.findMaxPageOrder(group.getId());
+        if (pageOrder != null) pageOrder++;
+        else pageOrder = 0;
+
         pageRepository.save(page);
 
         if (page.getTemplate() == Template.BLANK)

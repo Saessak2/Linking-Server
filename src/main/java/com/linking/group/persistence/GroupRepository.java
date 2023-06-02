@@ -22,5 +22,5 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     List<Group> findAllByProjectId(@Param("projectId") Long projectId);
 
     @Query("select max(g.groupOrder) from Group g where g.project.projectId = :projectId")
-    int findMaxGroupOrder(@Param("projectId") Long projectId);
+    Integer findMaxGroupOrder(@Param("projectId") Long projectId);
 }
