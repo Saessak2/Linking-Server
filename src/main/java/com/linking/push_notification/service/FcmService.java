@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class FcmService {
 
     @Async("eventCallExecutor")
-    public void sendWebMessageToFcmServer(FcmReq req) {
+    public void sendMessageToFcmServer(FcmReq req) {
 
         Notification notification = Notification.builder()
                 .setTitle(req.getTitle()) // title
@@ -32,7 +32,6 @@ public class FcmService {
                         .build())
                 .putHeader("apns-priority", "5")
                 .build();
-
 
         Message message = Message.builder()
                 .setToken(req.getFirebaseToken()) // token

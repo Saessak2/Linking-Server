@@ -20,4 +20,7 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     @EntityGraph(attributePaths = {"pageList"}, type = EntityGraph.EntityGraphType.LOAD)
     @Query("select g from Group g where g.project.projectId = :projectId order by g.groupOrder asc")
     List<Group> findAllByProjectId(@Param("projectId") Long projectId);
+
+    @Query("select max(g.groupOrder) from Group g where g.project.projectId = :projectId")
+    Integer findMaxGroupOrder(@Param("projectId") Long projectId);
 }

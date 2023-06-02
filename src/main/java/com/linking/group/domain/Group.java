@@ -31,10 +31,9 @@ public class Group  {
 
 
     @Builder
-    public Group(String name, Project project, int groupOrder, List<Page> pageList) {
+    public Group(String name, Project project, List<Page> pageList) {
         this.name = name;
         setProject(project);
-        this.groupOrder = groupOrder;
         this.pageList = pageList;
     }
 

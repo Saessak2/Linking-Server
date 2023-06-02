@@ -2,8 +2,6 @@ package com.linking.push_notification.service;
 
 import com.linking.push_notification.domain.NoticeType;
 import com.linking.push_notification.domain.PushNotification;
-import com.linking.push_notification.persistence.PushNotificationRepository;
-import com.linking.push_settings.persistence.PushSettingsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -24,8 +22,6 @@ import java.io.UnsupportedEncodingException;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final PushSettingsRepository pushSettingsRepository;
-    private final PushNotificationRepository pushNotificationRepository;
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 

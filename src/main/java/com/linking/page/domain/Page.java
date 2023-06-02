@@ -51,7 +51,6 @@ public class Page {
     public Page(String title, Group group, List<Block> blockList, List<PageCheck> pageCheckList, Template template) {
         setTitle(title);
         setGroup(group);
-        this.pageOrder = order();
         setTemplate(template);
         this.blockList = blockList;
         this.pageCheckList = pageCheckList;
@@ -84,14 +83,5 @@ public class Page {
 
     public void updateOrder(int order) {
         this.pageOrder = order;
-    }
-
-    private int order() {
-        int order = 0;
-        for (Page page : group.getPageList()) {
-            if (order <= page.getPageOrder())
-                order = page.getPageOrder() + 1;
-        }
-        return order;
     }
 }

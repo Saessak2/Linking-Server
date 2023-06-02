@@ -45,7 +45,6 @@ public interface GroupMapper {
         builder
                 .name(source.getName())
                 .project(project)
-                .groupOrder(source.getOrder())
                 .pageList(new ArrayList<>());
 
         return builder.build();

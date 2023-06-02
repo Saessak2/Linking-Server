@@ -29,4 +29,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
 
     @Query(value = "SELECT p FROM Page p where p.template = :template")
     List<Page> findByTemplate(@Param("template") Template template);
+
+    @Query("select max(p.pageOrder) from Page p where p.group.id = :groupId")
+    Integer findMaxPageOrder(@Param("groupId") Long groupId);
 }

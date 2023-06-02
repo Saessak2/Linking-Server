@@ -65,7 +65,6 @@ public class PageSocketHandler extends TextWebSocketHandler {
 
     @EventListener
     public void sendEvent(TextSendEvent event) {
-        log.info("send textOutput Message");
 
         try {
             Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId(event.getPageId());

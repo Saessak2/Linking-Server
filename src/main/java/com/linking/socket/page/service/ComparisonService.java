@@ -13,9 +13,10 @@ public class ComparisonService {
 
     public DiffStr compare(String oldStr, String newStr) {
 
-        log.info("=================================================================");
+        log.info("=====================================================");
 
         DiffStr diffStr = StringComparison.compareString(oldStr, newStr);
+
 
         if (diffStr == null) {
             log.info("Not Modified");
