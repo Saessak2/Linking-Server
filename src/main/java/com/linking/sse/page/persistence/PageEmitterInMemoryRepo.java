@@ -52,4 +52,12 @@ public class PageEmitterInMemoryRepo {
         pageSubscriber.remove(key);
         return emittersByKey;
     }
+
+    public int size() {
+        return pageSubscriber.size();
+    }
+
+    public Map<Long, Set<CustomEmitter>> getAll() {
+        return pageSubscriber;
+    }
 }

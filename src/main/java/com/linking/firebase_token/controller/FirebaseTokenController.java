@@ -31,6 +31,7 @@ public class FirebaseTokenController {
     public ResponseEntity putWebFcmToken(
             @RequestBody @Valid TokenReq req
     ) {
+        log.info("put web fcm token");
         return ResponseHandler.generateOkResponse(firebaseTokenService.updateWebToken(req));
     }
 }

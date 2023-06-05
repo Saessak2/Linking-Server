@@ -37,6 +37,7 @@ public class PageController extends TextWebSocketHandler {
     ) {
         pageCheckService.updatePageChecked(pageId, projectId, userId, "enter");
         PageDetailedRes res = pageService.getPage(pageId, pageSseHandler.enteringUserIds(pageId));
+
         return ResponseHandler.generateOkResponse(res);
     }
 

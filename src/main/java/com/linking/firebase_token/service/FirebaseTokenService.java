@@ -43,6 +43,7 @@ public class FirebaseTokenService {
     public boolean updateWebToken(TokenReq req) {
         FirebaseToken firebaseToken = firebaseTokenRepository.findByUserId(req.getUserId())
                 .orElseThrow(NoSuchElementException::new);
+        log.info("web token = {}", req.getToken());
 
         firebaseToken.setWebToken(req.getToken());
 

@@ -52,4 +52,8 @@ public class GroupEmitterInMemoryRepo {
         groupSubscriber.remove(key);
         return emittersByKey;
     }
+
+    public Map<Long, Set<CustomEmitter>> getAll() {
+        return groupSubscriber;
+    }
 }

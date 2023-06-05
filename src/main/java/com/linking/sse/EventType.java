@@ -7,8 +7,8 @@ public interface EventType {
     String PUT_GROUP_NAME = "putGroupName";
     String DELETE_GROUP = "deleteGroup";
     String POST_PAGE = "postPage";
-    String POST_ANNOT_NOT = "postAnnoNot";
-    String DELETE_ANNOT_NOT = "deleteAnnoNot";
+    String POST_ANNOT_NOT = "postAnnotation";
+    String DELETE_ANNOT_NOT = "deleteAnnotation";
 
     // 페이지 sse
     String PAGE_ENTER = "enter";

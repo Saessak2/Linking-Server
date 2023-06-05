@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PageSseHandler {
 
-    private static final Long TIMEOUT = 600 * 1000L;
+    private static final Long TIMEOUT = 10 * 60 * 1000L;
 
     private final PageEmitterInMemoryRepo emitterRepository;
 
@@ -39,6 +40,8 @@ public class PageSseHandler {
         });
         return emitter;
     }
+
+
 
     public Set<Long> enteringUserIds(Long pageId) {
         Set<CustomEmitter> emitters = emitterRepository.findEmittersByKey(pageId);
@@ -102,5 +105,22 @@ public class PageSseHandler {
         }
 
         log.info("[PAGE][REMOVE_ALL] page = {} is removed", pageId);
+    }
+
+
+    @Scheduled(fixedRate = 45000)
+    public void ping() {
+        Map<Long, Set<CustomEmitter>> all = emitterRepository.getAll();
+        all.forEach((key, set) -> {
+            set.forEach(ce -> {
+                try {
+                    ce.getSseEmitter().send(SseEmitter.event()
+                            .name("ping")
+                            .data("ping"));
+                } catch (IOException e) {
+                    log.error("Connection reset by peer");
+                }
+            });
+        });
     }
 }

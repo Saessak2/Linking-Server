@@ -35,4 +35,17 @@ public class NotificationSocketSessionRepository {
     public Set<PushWebSocketSession> findByUserId(Long key) {
         return sessions.get(key);
     }
+
+    public Map<Long, Set<PushWebSocketSession>> getAll() {
+        return sessions;
+    }
+
+    public void remove(Long key, WebSocketSession session) {
+        Set<PushWebSocketSession> sessionsByKey = sessions.get(key);
+        sessionsByKey.forEach(se -> {
+            if (se.getWebSocketSession().getId().equals(session.getId())) {
+                sessionsByKey.remove(se);
+            }
+        });
+    }
 }

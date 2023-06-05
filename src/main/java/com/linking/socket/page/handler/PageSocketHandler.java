@@ -3,13 +3,14 @@ package com.linking.socket.page.handler;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linking.global.util.JsonMapper;
-import com.linking.socket.page.persistence.IPageSocketRepository;
+import com.linking.socket.page.persistence.PageSocketSessionRepositoryImpl;
 import com.linking.socket.page.service.PageWebSocketService;
 import com.linking.socket.page.PageSocketMessageReq;
 import com.linking.socket.page.TextSendEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -26,7 +27,7 @@ public class PageSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private final PageWebSocketService pageWebSocketService;
-    private final IPageSocketRepository pageSocketSessionRepositoryImpl;
+    private final PageSocketSessionRepositoryImpl sessionRepository;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -37,13 +38,23 @@ public class PageSocketHandler extends TextWebSocketHandler {
 
         log.info("[PAGE_SOCKET] projectId = {} | pageId = {} | userId = {} | session.id = {}", projectId, pageId, userId, session.getId());
 
-        int size = pageSocketSessionRepositoryImpl.save(pageId, session);
+        int size = sessionRepository.save(pageId, session);
         log.info("sessions size of page {} is {}", pageId, size);
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        super.afterConnectionClosed(session, status);
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        this.close(session);
+    }
+
+    private void close(WebSocketSession session) {
+        log.info("[PAGE_SOCKET][CLOSE]");
+        sessionRepository.remove((Long)session.getAttributes().get("pageId"), session);
+        try {
+            session.close();
+        } catch (IOException e) {
+            log.error("PageSocketHandler session.close() IOException");
+        }
     }
 
     @Override
@@ -67,7 +78,7 @@ public class PageSocketHandler extends TextWebSocketHandler {
     public void sendEvent(TextSendEvent event) {
 
         try {
-            Set<WebSocketSession> sessions = pageSocketSessionRepositoryImpl.findByPageId(event.getPageId());
+            Set<WebSocketSession> sessions = sessionRepository.findByPageId(event.getPageId());
             if (sessions == null && sessions.isEmpty()) return;
 
             sessions.forEach(session -> {
@@ -86,24 +97,27 @@ public class PageSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-        super.handlePongMessage(session, message);
+        log.info("pong");
     }
 
-//    @Scheduled(cron = "0/30 * * * * *")
-//    public void ping() {
-//        try {
-//            for (WebSocketSession session : sessions.values()) {
-//                if (session.isOpen()) {
-//                    session.sendMessage(new PingMessage());
-////                    logger.info("session is opened");
-//                } else {
-//                    close(session);
-//                }
-//            }
-//        } catch (IOException e) {
-//            log.error("Exception while ping session");
-//        }
-//    }
+    @Scheduled(fixedRate = 45000)
+    public void ping() {
+        Map<Long, Set<WebSocketSession>> all = sessionRepository.getAll();
+        all.forEach((key, set) -> {
+            set.forEach(session -> {
+                if (session.isOpen()) {
+                    try {
+                        session.sendMessage(new PingMessage());
+                        log.info("ping");
+                    } catch (IOException e) {
+                        this.close(session);
+                    }
+                } else {
+                    this.close(session);
+                }
+            });
+        });
+    }
 }
 
 

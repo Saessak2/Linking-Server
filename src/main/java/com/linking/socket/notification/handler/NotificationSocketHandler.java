@@ -10,13 +10,13 @@ import com.linking.socket.notification.persistence.NotificationSocketSessionRepo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -39,17 +39,18 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        Set<PushWebSocketSession> sessions = sessionRepository.findByUserId((Long) session.getAttributes().get("userId"));
-        for (PushWebSocketSession ps : sessions) {
-            if (ps.getWebSocketSession().getId().equals(session.getId())) {
-                sessions.remove(session);
-                session.close();
-                log.info("[PUSH_SOCKET][CLOSE]");
-            }
-        }
+        this.close(session);
     }
 
-
+    private void close(WebSocketSession session) {
+        log.info("[PUSH_SOCKET][CLOSE]");
+        sessionRepository.remove((Long) session.getAttributes().get("userId"), session);
+        try {
+            session.close();
+        } catch (IOException e) {
+            log.error("NotificationSocketHandler session.close() IOException");
+        }
+    }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -110,39 +111,27 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         }
     }
 
-//    @Scheduled(cron = "0/30 * * * * *")
-//    public void ping() {
-////        logger.info("현재 쓰레드 : {}", Thread.currentThread().getName());
-//        try {
-//            for (WebSocketSession session : sessions.values()) {
-//                if (session.isOpen()) {
-//                    session.sendMessage(new PingMessage());
-////                    logger.info("session is opened");
-//                }
-//                else {
-//                    close(session);
-//                }
-//            }
-//        } catch (IOException e) {
-//            log.error("Exception while ping session");
-//        }
-//    }
-//
-//    @Override
-//    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-////        logger.info("receive pong from session.id = {}", session.getId());
-//    }
-//
-//    private void close(WebSocketSession session) throws IOException {
-//
-//        Long projectId = (Long) session.getAttributes().get("projectId");
-//        session.close();
-//        Set<WebSocketSession> sessions = sessionsByProject.get(projectId);
-//        if (sessions != null)
-//            sessions.remove(session);
-//
-//        log.info("@@ [DOC][CLOSE] @@ projectId = {} @@ userId = {}" , projectId, session.getAttributes().get("userId"));
-//        log.info("@@ [DOC][SESSIONS] @@ projectId = {} @@ session size = {}", projectId, sessions.size());
-//    }
+    @Override
+    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
+        log.info("pong");
+    }
 
+    @Scheduled(fixedRate = 45000)
+    public void ping() {
+        Map<Long, Set<PushWebSocketSession>> all = sessionRepository.getAll();
+        all.forEach((key, set) -> {
+            set.forEach(session -> {
+                if (session.getWebSocketSession().isOpen()) {
+                    try {
+                        session.getWebSocketSession().sendMessage(new PingMessage());
+                        log.info("ping");
+                    } catch (IOException e) {
+                        this.close(session.getWebSocketSession());
+                    }
+                } else {
+                    this.close(session.getWebSocketSession());
+                }
+            });
+        });
+    }
 }

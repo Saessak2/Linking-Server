@@ -14,14 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class PageSocketSessionRepositoryImpl implements IPageSocketRepository {
+public class PageSocketSessionRepositoryImpl {
 
     /**
      * key : pageId
      */
     private final Map<Long, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
-    @Override
     public int save(Long key, WebSocketSession session) {
 
         Set<WebSocketSession> sessionsByPage = sessions.get(key);
@@ -36,8 +35,16 @@ public class PageSocketSessionRepositoryImpl implements IPageSocketRepository {
         return sessionsByPage.size();
     }
 
-    @Override
     public Set<WebSocketSession> findByPageId(Long key) {
         return sessions.get(key);
+    }
+
+    public void remove(Long key, WebSocketSession session) {
+        Set<WebSocketSession> sessionByKey = sessions.get(key);
+        sessionByKey.remove(session);
+    }
+
+    public Map<Long, Set<WebSocketSession>> getAll() {
+        return sessions;
     }
 }

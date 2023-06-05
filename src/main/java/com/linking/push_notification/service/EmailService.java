@@ -32,11 +32,13 @@ public class EmailService {
         context.setVariable("sender", push.getSender());
         context.setVariable("projectName", push.getProject().getProjectName());
         context.setVariable("title", push.getBody());
-        context.setVariable("webLink", "https://wangtak.tistory.com/27");
-        if (push.getNoticeType().equals(NoticeType.PAGE))
+        if (push.getNoticeType().equals(NoticeType.PAGE)) {
+            context.setVariable("type", "Page");
             context.setVariable("temp", " 확인 요청");
-        else
+        } else {
+            context.setVariable("type", "Todo");
             context.setVariable("temp", " 완료 요청");
+        }
 
         String htmlMessage = templateEngine.process("email.html", context);
 
