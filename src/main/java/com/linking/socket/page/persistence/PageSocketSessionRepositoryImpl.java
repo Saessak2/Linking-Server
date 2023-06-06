@@ -41,7 +41,8 @@ public class PageSocketSessionRepositoryImpl {
 
     public void remove(Long key, WebSocketSession session) {
         Set<WebSocketSession> sessionByKey = sessions.get(key);
-        sessionByKey.remove(session);
+        if (sessionByKey != null)
+            sessionByKey.remove(session);
     }
 
     public Map<Long, Set<WebSocketSession>> getAll() {

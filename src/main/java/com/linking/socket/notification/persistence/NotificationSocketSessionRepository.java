@@ -42,10 +42,12 @@ public class NotificationSocketSessionRepository {
 
     public void remove(Long key, WebSocketSession session) {
         Set<PushWebSocketSession> sessionsByKey = sessions.get(key);
-        sessionsByKey.forEach(se -> {
-            if (se.getWebSocketSession().getId().equals(session.getId())) {
-                sessionsByKey.remove(se);
-            }
-        });
+        if (sessionsByKey != null) {
+            sessionsByKey.forEach(se -> {
+                if (se.getWebSocketSession().getId().equals(session.getId())) {
+                    sessionsByKey.remove(se);
+                }
+            });
+        }
     }
 }
